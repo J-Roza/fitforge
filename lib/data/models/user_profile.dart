@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum Somatotype { ectomorph, mesomorph, endomorph }
 
 enum FitnessGoal { bulking, cutting, maintenance, strength, endurance }
@@ -34,6 +36,36 @@ class UserProfile {
     this.useMetric = true,
     this.measurements,
   });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'age': age,
+    'weightKg': weightKg,
+    'heightCm': heightCm,
+    'somatotype': somatotype?.index,
+    'goal': goal.index,
+    'level': level.index,
+    'equipment': equipment.index,
+    'workoutsPerWeek': workoutsPerWeek,
+    'useMetric': useMetric,
+  };
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    age: json['age'] as int?,
+    weightKg: (json['weightKg'] as num?)?.toDouble(),
+    heightCm: (json['heightCm'] as num?)?.toDouble(),
+    somatotype: json['somatotype'] != null
+        ? Somatotype.values[json['somatotype'] as int]
+        : null,
+    goal: FitnessGoal.values[json['goal'] as int],
+    level: FitnessLevel.values[json['level'] as int],
+    equipment: AvailableEquipment.values[json['equipment'] as int],
+    workoutsPerWeek: json['workoutsPerWeek'] as int? ?? 4,
+    useMetric: json['useMetric'] as bool? ?? true,
+  );
 
   double? get bmi {
     if (weightKg == null || heightCm == null) return null;
@@ -132,6 +164,14 @@ extension FitnessLevelExt on FitnessLevel {
       case FitnessLevel.beginner: return 'Débutant';
       case FitnessLevel.intermediate: return 'Intermédiaire';
       case FitnessLevel.advanced: return 'Avancé';
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case FitnessLevel.beginner: return const Color(0xFF4ADE80);
+      case FitnessLevel.intermediate: return const Color(0xFFFBBF24);
+      case FitnessLevel.advanced: return const Color(0xFFFF5757);
     }
   }
 }

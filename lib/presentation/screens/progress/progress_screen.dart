@@ -81,7 +81,7 @@ class _SummaryCards extends StatelessWidget {
     final now = DateTime.now();
     final weekSessions = history.where((s) => s.startTime.isAfter(now.subtract(const Duration(days: 7)))).length;
     final totalSessions = history.length;
-    final totalVolume = history.fold(0, (sum, s) => sum + s.totalVolume);
+    final totalVolume = history.fold(0, (sum, s) => sum + (s.totalVolume as int));
 
     return Row(
       children: [
@@ -140,7 +140,7 @@ class _VolumeChart extends StatelessWidget {
       final weekEnd = weekStart.add(const Duration(days: 7));
       final weekVolume = history
           .where((s) => s.startTime.isAfter(weekStart) && s.startTime.isBefore(weekEnd))
-          .fold(0, (sum, s) => sum + s.totalVolume);
+          .fold(0, (sum, s) => sum + (s.totalVolume as int));
       return FlSpot(i.toDouble(), (weekVolume / 1000).toDouble());
     });
 

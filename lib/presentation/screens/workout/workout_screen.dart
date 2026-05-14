@@ -7,6 +7,7 @@ import '../../../data/models/workout.dart';
 import '../../../data/models/exercise.dart';
 import '../../../providers/workout_provider.dart';
 import '../../../providers/user_provider.dart';
+import '../../../data/models/user_profile.dart';
 
 class WorkoutScreen extends ConsumerWidget {
   const WorkoutScreen({super.key});
@@ -76,12 +77,40 @@ class WorkoutScreen extends ConsumerWidget {
                   },
                   onFavorite: () =>
                       ref.read(workoutTemplatesProvider.notifier).toggleFavorite(templates[i].id),
+                  onDelete: () => _confirmDelete(context, ref, templates[i].id, templates[i].name),
+                  onEdit: () => context.push('/workout/edit/${templates[i].id}'),
                 ).animate(delay: Duration(milliseconds: 60 * i)).fadeIn().slideY(begin: 0.05, end: 0),
                 childCount: templates.length,
               ),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref, String id, String name) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Supprimer la séance ?'),
+        content: Text('« $name » sera supprimée définitivement.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () {
+              context.pop();
+              ref.read(workoutTemplatesProvider.notifier).removeWorkout(id);
+            },
+            child: const Text('Supprimer'),
+          ),
         ],
       ),
     );
@@ -101,7 +130,7 @@ class WorkoutScreen extends ConsumerWidget {
 }
 
 class _AIProgramBanner extends StatelessWidget {
-  final dynamic user;
+  final UserProfile user;
   final WidgetRef ref;
   const _AIProgramBanner({required this.user, required this.ref});
 
@@ -174,11 +203,15 @@ class _WorkoutTemplateCard extends StatelessWidget {
   final Workout workout;
   final VoidCallback onStart;
   final VoidCallback onFavorite;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   const _WorkoutTemplateCard({
     required this.workout,
     required this.onStart,
     required this.onFavorite,
+    required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -199,37 +232,6 @@ class _WorkoutTemplateCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // Muscle emojis stack
-                SizedBox(
-                  width: 60,
-                  height: 48,
-                  child: Stack(
-                    children: muscles
-                        .take(3)
-                        .toList()
-                        .asMap()
-                        .entries
-                        .map(
-                          (e) => Positioned(
-                            left: e.key * 18.0,
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: e.value.color.withOpacity(0.15),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.bg, width: 2),
-                              ),
-                              child: Center(
-                                child: Text(e.value.emoji, style: const TextStyle(fontSize: 16)),
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,8 +244,35 @@ class _WorkoutTemplateCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      if (muscles.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: muscles.take(4).map((m) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: m.color.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: m.color.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(m.emoji, style: const TextStyle(fontSize: 11)),
+                                const SizedBox(width: 4),
+                                Text(m.label, style: TextStyle(color: m.color, fontSize: 10, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          )).toList(),
+                        ),
+                      ],
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
+                  onPressed: onEdit,
                 ),
                 IconButton(
                   icon: Icon(
@@ -251,6 +280,10 @@ class _WorkoutTemplateCard extends StatelessWidget {
                     color: workout.isFavorite ? AppColors.warning : AppColors.textMuted,
                   ),
                   onPressed: onFavorite,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+                  onPressed: onDelete,
                 ),
               ],
             ),
@@ -264,24 +297,29 @@ class _WorkoutTemplateCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _WorkoutStat(
-                  icon: Icons.fitness_center_rounded,
-                  value: '${workout.exercises.length}',
-                  label: 'exercices',
+                Expanded(
+                  child: Row(
+                    children: [
+                      _WorkoutStat(
+                        icon: Icons.fitness_center_rounded,
+                        value: '${workout.exercises.length}',
+                        label: 'ex.',
+                      ),
+                      const SizedBox(width: 14),
+                      _WorkoutStat(
+                        icon: Icons.layers_rounded,
+                        value: '${workout.totalSets}',
+                        label: 'séries',
+                      ),
+                      const SizedBox(width: 14),
+                      _WorkoutStat(
+                        icon: Icons.timer_outlined,
+                        value: '${workout.estimatedDuration?.inMinutes ?? 45}',
+                        label: 'min',
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 20),
-                _WorkoutStat(
-                  icon: Icons.layers_rounded,
-                  value: '${workout.totalSets}',
-                  label: 'séries',
-                ),
-                const SizedBox(width: 20),
-                _WorkoutStat(
-                  icon: Icons.timer_outlined,
-                  value: '${workout.estimatedDuration?.inMinutes ?? 45}',
-                  label: 'min',
-                ),
-                const Spacer(),
                 ElevatedButton(
                   onPressed: onStart,
                   style: ElevatedButton.styleFrom(
@@ -359,17 +397,19 @@ class _CreateWorkoutSheetState extends ConsumerState<_CreateWorkoutSheet> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_nameCtrl.text.trim().isNotEmpty) {
+                    final id = DateTime.now().millisecondsSinceEpoch.toString();
                     ref.read(workoutTemplatesProvider.notifier).addWorkout(
                           Workout(
-                            id: DateTime.now().millisecondsSinceEpoch.toString(),
+                            id: id,
                             name: _nameCtrl.text.trim(),
                             exercises: [],
                           ),
                         );
                     Navigator.pop(context);
+                    context.push('/workout/edit/$id');
                   }
                 },
-                child: const Text('Créer'),
+                child: const Text('Créer et ajouter des exercices'),
               ),
             ),
           ],

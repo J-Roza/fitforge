@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../providers/exercise_provider.dart';
+import '../../widgets/muscle_body_diagram.dart';
 
 class ExerciseDetailScreen extends ConsumerWidget {
   final String exerciseId;
@@ -104,6 +107,38 @@ class ExerciseDetailScreen extends ConsumerWidget {
                   ).animate().fadeIn(delay: 150.ms),
                   const SizedBox(height: 24),
 
+                  // ── Video button ──────────────────────────────────────
+                  GestureDetector(
+                    onTap: () async {
+                      final uri = Uri.parse(exercise.youtubeSearchUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF0000).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFFF0000).withOpacity(0.3)),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.play_circle_filled_rounded, color: Color(0xFFFF0000), size: 22),
+                          SizedBox(width: 8),
+                          Text('Voir tutoriel YouTube',
+                              style: TextStyle(
+                                  color: Color(0xFFFF0000),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14)),
+                        ],
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 180.ms),
+                  const SizedBox(height: 20),
+
                   // ── Description ───────────────────────────────────────
                   Text('Description', style: theme.textTheme.headlineMedium),
                   const SizedBox(height: 10),
@@ -115,9 +150,14 @@ class ExerciseDetailScreen extends ConsumerWidget {
                   // ── Muscles travaillés ────────────────────────────────
                   Text('Muscles travaillés', style: theme.textTheme.headlineMedium),
                   const SizedBox(height: 12),
+                  MuscleBodyDiagram(
+                    primaryMuscle: exercise.primaryMuscle,
+                    secondaryMuscles: exercise.secondaryMuscles,
+                  ).animate().fadeIn(delay: 250.ms),
+                  const SizedBox(height: 12),
                   _MusclesList(exercise: exercise)
                       .animate()
-                      .fadeIn(delay: 250.ms),
+                      .fadeIn(delay: 280.ms),
                   const SizedBox(height: 24),
 
                   // ── Instructions ──────────────────────────────────────
@@ -166,13 +206,27 @@ class ExerciseDetailScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(exercise.primaryMuscle.emoji, style: const TextStyle(fontSize: 64)),
-              const SizedBox(height: 12),
+              SvgPicture.asset(
+                exercise.iconAsset,
+                width: 100, height: 100,
+                colorFilter: ColorFilter.mode(exercise.primaryMuscle.color, BlendMode.srcIn),
+              ),
+              const SizedBox(height: 14),
               Text(
-                exercise.primaryMuscle.label,
+                exercise.name,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
-                  fontSize: 16,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                exercise.primaryMuscle.label,
+                style: TextStyle(
+                  color: exercise.primaryMuscle.color,
+                  fontSize: 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),

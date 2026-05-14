@@ -1,0 +1,12 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <polygon fill="white" points="8,82 72,28 80,38 16,92"/>
+  <polygon fill="white" points="72,28 82,28 90,62 80,62"/>
+  <rect fill="white" x="24" y="38" width="44" height="9" rx="4" transform="rotate(-30,46,42)"/>
+  <circle fill="white" cx="73" cy="27" r="7"/>
+  <rect fill="white" x="22" y="10" width="44" height="5" rx="2" transform="rotate(-20,44,12)"/>
+  <rect fill="white" x="32" y="14" width="5"  height="20" rx="2" transform="rotate(-20,34,24)"/>
+  <rect fill="white" x="54" y="10" width="5"  height="20" rx="2" transform="rotate(-20,56,20)"/>
+  <rect fill="white" x="10" y="5"  width="12" height="18" rx="2" transform="rotate(-20,16,14)"/>
+  <rect fill="white" x="74" y="2"  width="12" height="18" rx="2" transform="rotate(-20,80,11)"/>
+</svg>

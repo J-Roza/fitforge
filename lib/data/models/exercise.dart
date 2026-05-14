@@ -98,6 +98,73 @@ class Exercise {
     this.role = ExerciseRole.base,
   });
 
+  String get youtubeSearchUrl {
+    final query = Uri.encodeComponent('technique $name musculation');
+    return 'https://www.youtube.com/results?search_query=$query';
+  }
+
+  String get iconAsset {
+    const base = 'assets/exercise_icons/';
+    switch (id) {
+      case 'bench_press': return '${base}bench_press.svg';
+      case 'dumbbell_bench_press': return '${base}bench_press.svg';
+      case 'close_grip_bench': return '${base}bench_press.svg';
+      case 'incline_bench_press': return '${base}incline_press.svg';
+      case 'dumbbell_incline_press': return '${base}incline_press.svg';
+      case 'incline_machine_converging_press': return '${base}incline_press.svg';
+      case 'decline_bench_press': return '${base}decline_press.svg';
+      case 'dumbbell_decline_press': return '${base}decline_press.svg';
+      case 'machine_converging_press_seated': return '${base}machine_press.svg';
+      case 'machine_converging_press_flat': return '${base}machine_press.svg';
+      case 'machine_chest_press_flat': return '${base}machine_press.svg';
+      case 'dips_chest': return '${base}dips.svg';
+      case 'push_up': return '${base}push_up.svg';
+      case 'dumbbell_flyes': return '${base}chest_flyes.svg';
+      case 'decline_dumbbell_flyes': return '${base}chest_flyes.svg';
+      case 'incline_dumbbell_flyes': return '${base}chest_flyes.svg';
+      case 'machine_flyes': return '${base}chest_flyes.svg';
+      case 'cable_crossover': return '${base}cable_crossover.svg';
+      case 'cable_crossover_low': return '${base}cable_crossover.svg';
+      case 'pullover_barbell': return '${base}pullover.svg';
+      case 'pullover_across_bench': return '${base}pullover.svg';
+      case 'pullover_low_cable': return '${base}pullover.svg';
+      case 'pull_up': return '${base}pull_up.svg';
+      case 'deadlift': return '${base}deadlift.svg';
+      case 'barbell_row': return '${base}bent_row.svg';
+      case 'dumbbell_row': return '${base}bent_row.svg';
+      case 'lat_pulldown': return '${base}lat_pulldown.svg';
+      case 'seated_row': return '${base}seated_row.svg';
+      case 'face_pull': return '${base}face_pull.svg';
+      case 'ohp': return '${base}overhead_press.svg';
+      case 'arnold_press': return '${base}overhead_press.svg';
+      case 'lateral_raise': return '${base}lateral_raise.svg';
+      case 'front_raise': return '${base}front_raise.svg';
+      case 'barbell_curl': return '${base}bicep_curl.svg';
+      case 'preacher_curl': return '${base}bicep_curl.svg';
+      case 'concentration_curl': return '${base}bicep_curl.svg';
+      case 'hammer_curl': return '${base}hammer_curl.svg';
+      case 'skull_crusher': return '${base}skull_crusher.svg';
+      case 'tricep_pushdown': return '${base}tricep_pushdown.svg';
+      case 'overhead_tricep_extension': return '${base}overhead_tricep.svg';
+      case 'squat': return '${base}squat.svg';
+      case 'leg_press': return '${base}leg_press.svg';
+      case 'romanian_deadlift': return '${base}romanian_deadlift.svg';
+      case 'lunges': return '${base}lunges.svg';
+      case 'leg_extension': return '${base}leg_extension.svg';
+      case 'leg_curl': return '${base}leg_curl.svg';
+      case 'hip_thrust': return '${base}hip_thrust.svg';
+      case 'calf_raise': return '${base}calf_raise.svg';
+      case 'plank': return '${base}plank.svg';
+      case 'crunch': return '${base}crunch.svg';
+      case 'russian_twist': return '${base}russian_twist.svg';
+      case 'leg_raise': return '${base}leg_raise.svg';
+      case 'ab_wheel': return '${base}ab_wheel.svg';
+      case 'kettlebell_swing': return '${base}kettlebell_swing.svg';
+      case 'burpee': return '${base}burpee.svg';
+      default: return '${base}bench_press.svg';
+    }
+  }
+
   Exercise copyWith({bool? isFavorite}) => Exercise(
         id: id,
         name: name,

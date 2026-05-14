@@ -7,6 +7,7 @@ import '../presentation/screens/exercises/exercises_screen.dart';
 import '../presentation/screens/exercises/exercise_detail_screen.dart';
 import '../presentation/screens/workout/workout_screen.dart';
 import '../presentation/screens/workout/active_workout_screen.dart';
+import '../presentation/screens/workout/workout_editor_screen.dart';
 import '../presentation/screens/progress/progress_screen.dart';
 import '../presentation/screens/profile/profile_screen.dart';
 import '../providers/user_provider.dart';
@@ -47,6 +48,12 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'active',
                 builder: (_, __) => const ActiveWorkoutScreen(),
+              ),
+              GoRoute(
+                path: 'edit/:id',
+                builder: (_, state) => WorkoutEditorScreen(
+                  workoutId: state.pathParameters['id']!,
+                ),
               ),
             ],
           ),

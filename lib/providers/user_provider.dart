@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/user_profile.dart';
 import '../data/models/exercise.dart';
 import '../data/models/workout.dart';
+import '../data/datasources/exercises_data.dart';
 
 const _uuid = Uuid();
 
@@ -12,7 +15,30 @@ final userProfileProvider =
 );
 
 class UserProfileNotifier extends StateNotifier<UserProfile?> {
-  UserProfileNotifier() : super(null);
+  static const _key = 'user_profile_v1';
+
+  UserProfileNotifier() : super(null) {
+    _load();
+  }
+
+  Future<void> _load() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_key);
+    if (raw != null) {
+      try {
+        state = UserProfile.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (state != null) {
+      await prefs.setString(_key, jsonEncode(state!.toJson()));
+    } else {
+      await prefs.remove(_key);
+    }
+  }
 
   void createProfile({
     required String name,
@@ -37,13 +63,18 @@ class UserProfileNotifier extends StateNotifier<UserProfile?> {
       equipment: equipment,
       workoutsPerWeek: workoutsPerWeek,
     );
+    _save();
   }
 
-  void update(UserProfile profile) => state = profile;
+  void update(UserProfile profile) {
+    state = profile;
+    _save();
+  }
 
   void updateMeasurements(Measurements measurements) {
     if (state == null) return;
     state = state!.copyWith(measurements: measurements);
+    _save();
   }
 }
 

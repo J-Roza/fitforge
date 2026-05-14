@@ -1,4 +1,4 @@
-package com.fitforge.app
+package com.fitforge.fitforge
 
 import io.flutter.embedding.android.FlutterActivity
 

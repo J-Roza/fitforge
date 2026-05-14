@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/exercise.dart';
 import '../../providers/exercise_provider.dart';
@@ -107,9 +108,10 @@ class ExerciseCard extends ConsumerWidget {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
-              child: Text(
-                exercise.primaryMuscle.emoji,
-                style: const TextStyle(fontSize: 22),
+              child: SvgPicture.asset(
+                exercise.iconAsset,
+                width: 28, height: 28,
+                colorFilter: ColorFilter.mode(exercise.primaryMuscle.color, BlendMode.srcIn),
               ),
             ),
           ),
@@ -152,11 +154,15 @@ class ExerciseCard extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(exercise.primaryMuscle.emoji, style: const TextStyle(fontSize: 40)),
-              const SizedBox(height: 8),
+              SvgPicture.asset(
+                exercise.iconAsset,
+                width: 64, height: 64,
+                colorFilter: ColorFilter.mode(exercise.primaryMuscle.color, BlendMode.srcIn),
+              ),
+              const SizedBox(height: 10),
               Text(
                 exercise.primaryMuscle.label,
-                style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                style: TextStyle(color: exercise.primaryMuscle.color, fontSize: 12, fontWeight: FontWeight.w600),
               ),
             ],
           ),

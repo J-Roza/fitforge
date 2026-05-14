@@ -206,8 +206,8 @@ class _GoalPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,24 +231,24 @@ class _GoalPage extends StatelessWidget {
             Text('Ton niveau', style: theme.textTheme.headlineMedium),
             const SizedBox(height: 12),
             Row(
-              children: FitnessLevel.values.map((l) => Expanded(
+              children: FitnessLevel.values.asMap().entries.map((e) => Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: e.key < FitnessLevel.values.length - 1 ? 8 : 0),
                   child: GestureDetector(
-                    onTap: () => onLevelChanged(l),
+                    onTap: () => onLevelChanged(e.value),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: level == l ? l.color.withOpacity(0.15) : AppColors.bgCard,
+                        color: level == e.value ? e.value.color.withOpacity(0.15) : AppColors.bgCard,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: level == l ? l.color : AppColors.border),
+                        border: Border.all(color: level == e.value ? e.value.color : AppColors.border),
                       ),
                       child: Center(
-                        child: Text(l.label,
+                        child: Text(e.value.label,
                             style: TextStyle(
-                                color: level == l ? l.color : AppColors.textMuted,
-                                fontWeight: level == l ? FontWeight.w600 : FontWeight.w400,
+                                color: level == e.value ? e.value.color : AppColors.textMuted,
+                                fontWeight: level == e.value ? FontWeight.w600 : FontWeight.w400,
                                 fontSize: 13)),
                       ),
                     ),
@@ -256,7 +256,7 @@ class _GoalPage extends StatelessWidget {
                 ),
               )).toList(),
             ),
-            const Spacer(),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(onPressed: onNext, child: const Text('Continuer')),
@@ -440,8 +440,8 @@ class _EquipmentPage extends StatelessWidget {
     ];
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -499,7 +499,7 @@ class _EquipmentPage extends StatelessWidget {
               label: '$workoutsPerWeek',
               onChanged: (v) => onWorkoutsChanged(v.toInt()),
             ),
-            const Spacer(),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

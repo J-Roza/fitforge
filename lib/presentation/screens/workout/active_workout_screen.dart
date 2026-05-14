@@ -4,8 +4,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/exercise.dart';
 import '../../../data/models/workout.dart';
 import '../../../providers/workout_provider.dart';
+import '../../../providers/strava_provider.dart';
 
 class ActiveWorkoutScreen extends ConsumerStatefulWidget {
   const ActiveWorkoutScreen({super.key});
@@ -75,6 +77,7 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
             totalSets: session.totalSets,
             restRemaining: _restRemaining,
             onFinish: _confirmFinish,
+            onCancel: _confirmCancel,
           ),
 
           // ── Exercise list ─────────────────────────────────────────────
@@ -103,33 +106,154 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
   }
 
   void _confirmFinish() {
+    final stravaAuth = ref.read(stravaProvider);
+    showDialog(
+      context: context,
+      builder: (_) => _FinishDialog(
+        stravaConnected: stravaAuth != null,
+        onFinish: (uploadToStrava) async {
+          ref.read(activeSessionProvider.notifier).finishSession();
+          final session = ref.read(activeSessionProvider);
+          if (session != null) {
+            ref.read(sessionHistoryProvider.notifier).addSession(session);
+            if (uploadToStrava) {
+              final ok = await ref.read(stravaProvider.notifier).uploadSession(session);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(ok ? 'Séance uploadée sur Strava ! 🧡' : 'Erreur upload Strava'),
+                  backgroundColor: ok ? const Color(0xFFFC4C02) : AppColors.error,
+                ));
+              }
+            }
+          }
+          ref.read(activeSessionProvider.notifier).cancelSession();
+          if (mounted) context.go('/home');
+        },
+      ),
+    );
+  }
+
+  void _confirmCancel() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Terminer la séance ?'),
-        content: const Text('Les séries non complétées seront ignorées.'),
+        title: const Text('Abandonner la séance ?'),
+        content: const Text('Aucune progression ne sera enregistrée.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: const Text('Continuer'),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () {
-              ref.read(activeSessionProvider.notifier).finishSession();
-              final session = ref.read(activeSessionProvider);
-              if (session != null) {
-                ref.read(sessionHistoryProvider.notifier).addSession(session);
-              }
               ref.read(activeSessionProvider.notifier).cancelSession();
               Navigator.pop(context);
-              context.go('/home');
+              context.go('/workout');
             },
-            child: const Text('Terminer'),
+            child: const Text('Abandonner'),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _FinishDialog extends StatefulWidget {
+  final bool stravaConnected;
+  final Future<void> Function(bool uploadToStrava) onFinish;
+  const _FinishDialog({required this.stravaConnected, required this.onFinish});
+
+  @override
+  State<_FinishDialog> createState() => _FinishDialogState();
+}
+
+class _FinishDialogState extends State<_FinishDialog> {
+  bool _uploadStrava = false;
+  bool _loading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.bgCard,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text('Terminer la séance ?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Les séries non complétées seront ignorées.'),
+          if (widget.stravaConnected) ...[
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () => setState(() => _uploadStrava = !_uploadStrava),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: _uploadStrava
+                      ? const Color(0xFFFC4C02).withOpacity(0.12)
+                      : AppColors.bgCardElevated,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: _uploadStrava
+                        ? const Color(0xFFFC4C02).withOpacity(0.5)
+                        : AppColors.border,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text('🧡', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text(
+                        'Uploader sur Strava',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      _uploadStrava
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      color: _uploadStrava
+                          ? const Color(0xFFFC4C02)
+                          : AppColors.textMuted,
+                      size: 22,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: _loading ? null : () => Navigator.pop(context),
+          child: const Text('Annuler'),
+        ),
+        ElevatedButton(
+          onPressed: _loading
+              ? null
+              : () async {
+                  setState(() => _loading = true);
+                  Navigator.pop(context);
+                  await widget.onFinish(_uploadStrava);
+                },
+          child: _loading
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Terminer'),
+        ),
+      ],
     );
   }
 }
@@ -141,6 +265,7 @@ class _WorkoutHeader extends StatelessWidget {
   final int totalSets;
   final int restRemaining;
   final VoidCallback onFinish;
+  final VoidCallback onCancel;
 
   const _WorkoutHeader({
     required this.workoutName,
@@ -149,6 +274,7 @@ class _WorkoutHeader extends StatelessWidget {
     required this.totalSets,
     required this.restRemaining,
     required this.onFinish,
+    required this.onCancel,
   });
 
   @override
@@ -194,14 +320,30 @@ class _WorkoutHeader extends StatelessWidget {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: onFinish,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  minimumSize: Size.zero,
-                ),
-                child: const Text('Terminer', style: TextStyle(fontSize: 13)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: onCancel,
+                    icon: const Icon(Icons.close_rounded, color: AppColors.error, size: 22),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.error.withOpacity(0.1),
+                      minimumSize: const Size(36, 36),
+                      padding: EdgeInsets.zero,
+                    ),
+                    tooltip: 'Abandonner',
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: onFinish,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.success,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      minimumSize: Size.zero,
+                    ),
+                    child: const Text('Terminer', style: TextStyle(fontSize: 13)),
+                  ),
+                ],
               ),
             ],
           ),

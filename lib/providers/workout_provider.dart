@@ -20,6 +20,10 @@ class WorkoutTemplatesNotifier extends StateNotifier<List<Workout>> {
   void removeWorkout(String id) =>
       state = state.where((w) => w.id != id).toList();
 
+  void updateWorkout(Workout updated) {
+    state = [for (final w in state) if (w.id == updated.id) updated else w];
+  }
+
   void toggleFavorite(String id) {
     state = [
       for (final w in state)
