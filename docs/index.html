@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -23,7 +23,7 @@ body{color:var(--t1);font-family:-apple-system,'SF Pro Display','Helvetica Neue'
 button{font-family:inherit;cursor:pointer;border:none}
 select{font-family:inherit}
 
-/* ══ HOME ══════════════════════════════════════════════ */
+/* â•â• HOME â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .home-top{padding:58px 20px 18px;background:linear-gradient(175deg,#1a1535 0%,var(--bg) 100%)}
 .home-top h1{font-size:32px;font-weight:800;letter-spacing:-.5px}
 .home-top h1 em{font-style:normal;color:var(--accent)}
@@ -44,7 +44,7 @@ select{font-family:inherit}
 .home-btn{flex:1;padding:13px 8px;border-radius:14px;background:var(--card);border:1px solid var(--bdr);color:var(--t2);font-size:13px;display:flex;align-items:center;justify-content:center;gap:7px}
 .home-btn:active{opacity:.7}
 
-/* ══ SESSION ════════════════════════════════════════════ */
+/* â•â• SESSION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .nav{display:flex;align-items:center;gap:10px;padding:54px 16px 12px;background:linear-gradient(175deg,#16132a 0%,var(--bg) 80%);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .back{width:36px;height:36px;background:var(--elev);border-radius:12px;color:var(--t1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .nav-info{flex:1;min-width:0}
@@ -70,7 +70,7 @@ select{font-family:inherit}
 .chip{font-size:12px;font-weight:600;background:var(--elev);border:1px solid var(--bdr);padding:5px 10px;border-radius:10px;display:flex;align-items:center;gap:6px;animation:popIn .2s ease}
 .chip .del{color:var(--t3);font-size:11px;cursor:pointer;padding:0 2px}
 .chip.pr{border-color:var(--gold);color:var(--gold);background:rgba(255,159,10,.1)}
-.chip.pr::before{content:'🏆 ';font-size:11px}
+.chip.pr::before{content:'ðŸ† ';font-size:11px}
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 
 .ex-input{display:flex;gap:8px;padding:8px 14px 14px;border-top:1px solid var(--bdr);align-items:flex-end}
@@ -92,7 +92,7 @@ select{font-family:inherit}
 .finish-btn{width:100%;padding:17px;border-radius:18px;background:var(--accent);color:#fff;font-size:16px;font-weight:700;letter-spacing:.3px;transition:transform .1s}
 .finish-btn:active{transform:scale(.97)}
 
-/* ══ HISTORY ════════════════════════════════════════════ */
+/* â•â• HISTORY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hist-top{display:flex;align-items:center;gap:10px;padding:52px 16px 12px}
 .hist-top h2{font-size:22px;font-weight:800;flex:1}
 .export-btn{padding:8px 14px;background:var(--elev);border-radius:12px;color:var(--t2);font-size:12px;font-weight:600;border:1px solid var(--bdr)}
@@ -105,7 +105,7 @@ select{font-family:inherit}
 .tab-content{display:none;padding:0 16px 40px}
 .tab-content.active{display:block}
 
-/* Séances tab */
+/* SÃ©ances tab */
 .hist-empty{text-align:center;padding:60px 20px;color:var(--t2);font-size:14px;line-height:1.8}
 .h-entry{background:var(--card);border:1px solid var(--bdr);border-radius:18px;margin-bottom:10px;overflow:hidden}
 .h-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;user-select:none}
@@ -147,7 +147,7 @@ select{font-family:inherit}
 .rec-row-sets{display:flex;gap:5px;flex-wrap:wrap}
 .rec-row-best{font-weight:700;color:var(--gold)}
 
-/* ══ MODAL (Export) ════════════════════════════════════ */
+/* â•â• MODAL (Export) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;display:none;align-items:flex-end;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:var(--card);border-radius:24px 24px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));width:100%;max-height:70vh;overflow-y:auto}
@@ -158,7 +158,7 @@ select{font-family:inherit}
 .modal-btn.primary{background:var(--accent);color:#fff}
 .modal-btn.ghost{background:var(--elev);color:var(--t2);border:1px solid var(--bdr)}
 
-/* ══ TOAST ══════════════════════════════════════════════ */
+/* â•â• TOAST â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(16px);padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;z-index:99;white-space:nowrap;transition:all .25s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{background:var(--green);color:#000;box-shadow:0 4px 16px rgba(48,209,88,.4)}
@@ -168,7 +168,7 @@ select{font-family:inherit}
 </head>
 <body>
 
-<!-- ══ HOME ════════════════════════════════════════════ -->
+<!-- â•â• HOME â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div id="screen-home" class="screen active">
   <div class="home-top">
     <h1>Fit<em>Forge</em> Log</h1>
@@ -188,7 +188,7 @@ select{font-family:inherit}
   </div>
 </div>
 
-<!-- ══ SESSION ══════════════════════════════════════════ -->
+<!-- â•â• SESSION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div id="screen-session" class="screen">
   <div class="nav" id="session-nav">
     <button class="back" onclick="confirmBack()">&#8592;</button>
@@ -201,11 +201,11 @@ select{font-family:inherit}
   <div class="nav-date" id="nav-date"></div>
   <div class="ex-list" id="ex-list"></div>
   <div class="finish-bar">
-    <button class="finish-btn" onclick="finishSession()">✓ &nbsp;Terminer &amp; sauvegarder</button>
+    <button class="finish-btn" onclick="finishSession()">âœ“ &nbsp;Terminer &amp; sauvegarder</button>
   </div>
 </div>
 
-<!-- ══ HISTORY ══════════════════════════════════════════ -->
+<!-- â•â• HISTORY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div id="screen-history" class="screen">
   <div class="hist-top">
     <button class="back" onclick="showHome()" style="width:36px;height:36px;background:var(--elev);border-radius:12px;color:var(--t1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:none;cursor:pointer">&#8592;</button>
@@ -213,17 +213,17 @@ select{font-family:inherit}
     <button class="export-btn" onclick="showExport()">Exporter</button>
   </div>
   <div class="tabs">
-    <button class="tab active" id="tab-seances" onclick="switchTab('seances')">📋 Séances</button>
-    <button class="tab" id="tab-records" onclick="switchTab('records')">🏆 Records</button>
+    <button class="tab active" id="tab-seances" onclick="switchTab('seances')">ðŸ“‹ SÃ©ances</button>
+    <button class="tab" id="tab-records" onclick="switchTab('records')">ðŸ† Records</button>
   </div>
   <div class="tab-content active" id="tc-seances"></div>
   <div class="tab-content" id="tc-records"></div>
 </div>
 
-<!-- ══ EXPORT MODAL ═════════════════════════════════════ -->
+<!-- â•â• EXPORT MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <div class="overlay" id="overlay" onclick="closeOverlay(event)">
   <div class="modal" id="modal">
-    <h3>📤 Exporter les données</h3>
+    <h3>ðŸ“¤ Exporter les donnÃ©es</h3>
     <textarea id="export-text" readonly></textarea>
     <div class="modal-btns">
       <button class="modal-btn primary" onclick="copyExport()">Copier</button>
@@ -236,86 +236,86 @@ select{font-family:inherit}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ══ EXERCISE & SESSION DATA ══════════════════════════ */
+/* â•â• EXERCISE & SESSION DATA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 const SESSIONS=[
-  {id:1,name:'PUSH',sub:'Pecs · Épaules · Biceps',color:'#E8484F',
+  {id:1,name:'PUSH',sub:'Pecs Â· Ã‰paules Â· Biceps',color:'#E8484F',
    exIds:['bench_press','incline_press','lateral_raise','incline_curl','preacher_curl']},
-  {id:2,name:'PULL + TRI',sub:'Dos · Triceps',color:'#4F9EE8',
+  {id:2,name:'PULL + TRI',sub:'Dos Â· Triceps',color:'#4F9EE8',
    exIds:['bent_row','one_arm_row','overhead_ext','skull_crusher','dips']},
-  {id:3,name:'LEGS',sub:'Jambes · Ischios · Fessiers',color:'#30D158',
+  {id:3,name:'LEGS',sub:'Jambes Â· Ischios Â· Fessiers',color:'#30D158',
    exIds:['deadlift','squat','lunges','leg_curl']},
-  {id:4,name:'ÉPAULES +',sub:'Épaules · Biceps · Dos',color:'#FF9F0A',
+  {id:4,name:'Ã‰PAULES +',sub:'Ã‰paules Â· Biceps Â· Dos',color:'#FF9F0A',
    exIds:['military_press','lateral_raise','bent_fly','hammer_curl','rowing_choice']},
 ];
 
 const EX={
-  bench_press:{name:'Développé Couché',muscle:'Pectoraux',color:'#E8484F',tip:'Dos plat · descente contrôlée · coudes à 75°',
+  bench_press:{name:'DÃ©veloppÃ© CouchÃ©',muscle:'Pectoraux',color:'#E8484F',tip:'Dos plat Â· descente contrÃ´lÃ©e Â· coudes Ã  75Â°',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="20" y="20" width="60" height="5" rx="2"/><rect fill="currentColor" x="7" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="80" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="34" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="61" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="24" y="44" width="50" height="9" rx="4"/><circle fill="currentColor" cx="78" cy="48" r="7"/><rect fill="currentColor" x="12" y="55" width="64" height="7" rx="3"/><rect fill="currentColor" x="12" y="61" width="5" height="14" rx="2"/><rect fill="currentColor" x="71" y="61" width="5" height="14" rx="2"/></svg>`},
-  incline_press:{name:'Développé Incliné',muscle:'Pectoraux',color:'#E8484F',tip:'Banc 30-45° · barre haut des pecs',
+  incline_press:{name:'DÃ©veloppÃ© InclinÃ©',muscle:'Pectoraux',color:'#E8484F',tip:'Banc 30-45Â° Â· barre haut des pecs',
     svg:`<svg viewBox="0 0 100 100"><polygon fill="currentColor" points="8,82 72,28 80,38 16,92"/><polygon fill="currentColor" points="72,28 82,28 90,62 80,62"/><rect fill="currentColor" x="24" y="38" width="44" height="9" rx="4" transform="rotate(-30,46,42)"/><circle fill="currentColor" cx="73" cy="27" r="7"/><rect fill="currentColor" x="22" y="10" width="44" height="5" rx="2" transform="rotate(-20,44,12)"/><rect fill="currentColor" x="32" y="14" width="5" height="20" rx="2" transform="rotate(-20,34,24)"/><rect fill="currentColor" x="54" y="10" width="5" height="20" rx="2" transform="rotate(-20,56,20)"/><rect fill="currentColor" x="10" y="5" width="12" height="18" rx="2" transform="rotate(-20,16,14)"/><rect fill="currentColor" x="74" y="2" width="12" height="18" rx="2" transform="rotate(-20,80,11)"/></svg>`},
-  lateral_raise:{name:'Élévation Latérale',muscle:'Épaules',color:'#FF9F0A',tip:'Légère flexion du coude · montée en arc',
+  lateral_raise:{name:'Ã‰lÃ©vation LatÃ©rale',muscle:'Ã‰paules',color:'#FF9F0A',tip:'LÃ©gÃ¨re flexion du coude Â· montÃ©e en arc',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="22" rx="5"/><rect fill="currentColor" x="8" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="36" y="51" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="51" width="10" height="22" rx="4"/></svg>`},
-  incline_curl:{name:'Curl Incliné',muscle:'Biceps',color:'#7C68EE',tip:'Bras derrière le corps · supination en montant',
+  incline_curl:{name:'Curl InclinÃ©',muscle:'Biceps',color:'#7C68EE',tip:'Bras derriÃ¨re le corps Â· supination en montant',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="20" rx="5"/><rect fill="currentColor" x="20" y="38" width="28" height="8" rx="4"/><rect fill="currentColor" x="30" y="30" width="7" height="18" rx="3"/><rect fill="currentColor" x="8" y="32" width="12" height="18" rx="3"/><rect fill="currentColor" x="56" y="45" width="28" height="8" rx="4"/><rect fill="currentColor" x="60" y="45" width="7" height="22" rx="3"/><rect fill="currentColor" x="44" y="53" width="10" height="26" rx="4"/><rect fill="currentColor" x="56" y="53" width="10" height="26" rx="4"/></svg>`},
-  preacher_curl:{name:'Curl Pupitre',muscle:'Biceps',color:'#7C68EE',tip:'Coude calé sur le pupitre · pleine amplitude',
+  preacher_curl:{name:'Curl Pupitre',muscle:'Biceps',color:'#7C68EE',tip:'Coude calÃ© sur le pupitre Â· pleine amplitude',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="20" rx="5"/><rect fill="currentColor" x="24" y="38" width="24" height="8" rx="4"/><rect fill="currentColor" x="30" y="30" width="7" height="16" rx="3"/><rect fill="currentColor" x="20" y="28" width="10" height="24" rx="3"/><rect fill="currentColor" x="56" y="45" width="24" height="8" rx="4"/><rect fill="currentColor" x="60" y="45" width="7" height="22" rx="3"/><rect fill="currentColor" x="68" y="28" width="10" height="24" rx="3"/><rect fill="currentColor" x="44" y="53" width="10" height="26" rx="4"/><rect fill="currentColor" x="56" y="53" width="10" height="26" rx="4"/></svg>`},
-  bent_row:{name:'Rowing Buste Penché',muscle:'Dos',color:'#4F9EE8',tip:'Dos droit · tirer les coudes vers l\'arrière',
+  bent_row:{name:'Rowing Buste PenchÃ©',muscle:'Dos',color:'#4F9EE8',tip:'Dos droit Â· tirer les coudes vers l\'arriÃ¨re',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="50" height="9" rx="4" transform="rotate(12,45,39)"/><rect fill="currentColor" x="56" y="20" width="7" height="30" rx="3" transform="rotate(-50,59,35)"/><rect fill="currentColor" x="36" y="20" width="7" height="30" rx="3" transform="rotate(-60,39,35)"/><rect fill="currentColor" x="18" y="48" width="56" height="5" rx="2" transform="rotate(12,46,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="80" y="45" width="12" height="18" rx="2" transform="rotate(12,86,54)"/><rect fill="currentColor" x="56" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="70" y="55" width="8" height="28" rx="4"/></svg>`},
-  one_arm_row:{name:'Rowing 1 Bras',muscle:'Dos',color:'#4F9EE8',tip:'Genou sur le banc · coude dans l\'axe du dos',
+  one_arm_row:{name:'Rowing 1 Bras',muscle:'Dos',color:'#4F9EE8',tip:'Genou sur le banc Â· coude dans l\'axe du dos',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="40" height="9" rx="4" transform="rotate(12,40,39)"/><rect fill="currentColor" x="46" y="22" width="7" height="28" rx="3" transform="rotate(-50,49,36)"/><rect fill="currentColor" x="18" y="48" width="44" height="5" rx="2" transform="rotate(12,40,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="60" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="74" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="30" y="55" width="32" height="6" rx="3"/><rect fill="currentColor" x="56" y="42" width="8" height="18" rx="3"/></svg>`},
-  overhead_ext:{name:'Extension Triceps',muscle:'Triceps',color:'#AF52DE',tip:'Coudes serrés · verrouiller les épaules',
+  overhead_ext:{name:'Extension Triceps',muscle:'Triceps',color:'#AF52DE',tip:'Coudes serrÃ©s Â· verrouiller les Ã©paules',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="18" rx="5"/><rect fill="currentColor" x="34" y="26" width="5" height="22" rx="2"/><rect fill="currentColor" x="61" y="26" width="5" height="22" rx="2"/><rect fill="currentColor" x="34" y="22" width="32" height="6" rx="3"/><rect fill="currentColor" x="37" y="45" width="5" height="24" rx="2" transform="rotate(-30,39,57)"/><rect fill="currentColor" x="58" y="45" width="5" height="24" rx="2" transform="rotate(30,60,57)"/><rect fill="currentColor" x="34" y="66" width="32" height="6" rx="3"/><rect fill="currentColor" x="28" y="58" width="10" height="20" rx="3"/><rect fill="currentColor" x="62" y="58" width="10" height="20" rx="3"/><rect fill="currentColor" x="38" y="47" width="10" height="22" rx="4"/><rect fill="currentColor" x="52" y="47" width="10" height="22" rx="4"/></svg>`},
-  skull_crusher:{name:'Barre au Front',muscle:'Triceps',color:'#AF52DE',tip:'EZ bar · coudes fixes · descente lente',
+  skull_crusher:{name:'Barre au Front',muscle:'Triceps',color:'#AF52DE',tip:'EZ bar Â· coudes fixes Â· descente lente',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="12" y="55" width="64" height="7" rx="3"/><rect fill="currentColor" x="12" y="61" width="5" height="15" rx="2"/><rect fill="currentColor" x="71" y="61" width="5" height="15" rx="2"/><circle fill="currentColor" cx="76" cy="48" r="7"/><rect fill="currentColor" x="26" y="42" width="46" height="9" rx="4"/><rect fill="currentColor" x="38" y="26" width="5" height="18" rx="2" transform="rotate(25,40,35)"/><rect fill="currentColor" x="56" y="24" width="5" height="18" rx="2" transform="rotate(25,58,33)"/><rect fill="currentColor" x="24" y="17" width="42" height="6" rx="3" transform="rotate(12,45,20)"/><rect fill="currentColor" x="12" y="10" width="10" height="18" rx="2" transform="rotate(12,17,19)"/><rect fill="currentColor" x="74" y="14" width="10" height="18" rx="2" transform="rotate(12,79,23)"/></svg>`},
-  dips:{name:'Dips',muscle:'Triceps',color:'#AF52DE',tip:'Corps légèrement incliné · descente complète',
+  dips:{name:'Dips',muscle:'Triceps',color:'#AF52DE',tip:'Corps lÃ©gÃ¨rement inclinÃ© Â· descente complÃ¨te',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="8" y="20" width="7" height="70" rx="3"/><rect fill="currentColor" x="85" y="20" width="7" height="70" rx="3"/><rect fill="currentColor" x="8" y="25" width="30" height="7" rx="3"/><rect fill="currentColor" x="62" y="25" width="30" height="7" rx="3"/><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="18" rx="5"/><rect fill="currentColor" x="20" y="28" width="24" height="6" rx="3"/><rect fill="currentColor" x="56" y="28" width="24" height="6" rx="3"/><rect fill="currentColor" x="18" y="34" width="6" height="20" rx="3"/><rect fill="currentColor" x="76" y="34" width="6" height="20" rx="3"/><rect fill="currentColor" x="42" y="47" width="7" height="24" rx="3"/><rect fill="currentColor" x="51" y="47" width="7" height="24" rx="3"/></svg>`},
-  deadlift:{name:'Deadlift',muscle:'Dos & Jambes',color:'#30D158',tip:'Dos plat · barre contre les tibias',
+  deadlift:{name:'Deadlift',muscle:'Dos & Jambes',color:'#30D158',tip:'Dos plat Â· barre contre les tibias',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="22" y="68" width="56" height="5" rx="2"/><circle fill="currentColor" cx="14" cy="72" r="11" opacity=".9"/><circle fill="currentColor" cx="14" cy="72" r="7"/><circle fill="currentColor" cx="86" cy="72" r="11" opacity=".9"/><circle fill="currentColor" cx="86" cy="72" r="7"/><circle fill="currentColor" cx="55" cy="22" r="7"/><rect fill="currentColor" x="30" y="30" width="32" height="8" rx="3" transform="rotate(20,46,34)"/><rect fill="currentColor" x="46" y="34" width="9" height="36" rx="4" transform="rotate(5,50,52)"/><rect fill="currentColor" x="36" y="65" width="8" height="22" rx="4"/><rect fill="currentColor" x="56" y="63" width="8" height="24" rx="4"/></svg>`},
-  squat:{name:'Squat Barre',muscle:'Jambes',color:'#30D158',tip:'Genoux dans l\'axe des pieds · dos droit',
+  squat:{name:'Squat Barre',muscle:'Jambes',color:'#30D158',tip:'Genoux dans l\'axe des pieds Â· dos droit',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="14" y="26" width="72" height="5" rx="2"/><rect fill="currentColor" x="6" y="18" width="12" height="22" rx="2"/><rect fill="currentColor" x="82" y="18" width="12" height="22" rx="2"/><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="34" y="28" width="5" height="16" rx="2"/><rect fill="currentColor" x="61" y="28" width="5" height="16" rx="2"/><rect fill="currentColor" x="40" y="34" width="20" height="16" rx="6"/><rect fill="currentColor" x="28" y="50" width="9" height="20" rx="4" transform="rotate(-20,32,60)"/><rect fill="currentColor" x="62" y="50" width="9" height="20" rx="4" transform="rotate(20,67,60)"/><rect fill="currentColor" x="22" y="68" width="9" height="20" rx="4" transform="rotate(25,26,78)"/><rect fill="currentColor" x="68" y="68" width="9" height="20" rx="4" transform="rotate(-25,73,78)"/></svg>`},
-  lunges:{name:'Fentes Haltères',muscle:'Jambes',color:'#30D158',tip:'Genou arrière frôle le sol · buste droit',
+  lunges:{name:'Fentes HaltÃ¨res',muscle:'Jambes',color:'#30D158',tip:'Genou arriÃ¨re frÃ´le le sol Â· buste droit',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="46" cy="18" r="7"/><rect fill="currentColor" x="40" y="25" width="12" height="22" rx="5"/><rect fill="currentColor" x="30" y="38" width="5" height="18" rx="2"/><rect fill="currentColor" x="58" y="38" width="5" height="18" rx="2"/><rect fill="currentColor" x="34" y="47" width="9" height="26" rx="4" transform="rotate(-12,38,60)"/><rect fill="currentColor" x="50" y="50" width="9" height="26" rx="4" transform="rotate(15,54,63)"/><rect fill="currentColor" x="20" y="72" width="9" height="20" rx="4" transform="rotate(10,24,82)"/><rect fill="currentColor" x="67" y="70" width="9" height="14" rx="4" transform="rotate(-5,71,77)"/><rect fill="currentColor" x="14" y="88" width="70" height="5" rx="2" opacity=".4"/></svg>`},
-  leg_curl:{name:'Leg Curl',muscle:'Ischios',color:'#5AC8FA',tip:'Contraction complète en haut · descente lente',
+  leg_curl:{name:'Leg Curl',muscle:'Ischios',color:'#5AC8FA',tip:'Contraction complÃ¨te en haut Â· descente lente',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="8" y="42" width="60" height="7" rx="3"/><rect fill="currentColor" x="8" y="48" width="6" height="30" rx="3"/><rect fill="currentColor" x="62" y="48" width="6" height="30" rx="3"/><circle fill="currentColor" cx="74" cy="38" r="7"/><rect fill="currentColor" x="68" y="45" width="12" height="18" rx="5"/><rect fill="currentColor" x="22" y="45" width="48" height="9" rx="4"/><rect fill="currentColor" x="36" y="52" width="9" height="26" rx="4" transform="rotate(-50,40,65)"/><rect fill="currentColor" x="54" y="52" width="9" height="26" rx="4" transform="rotate(-50,58,65)"/><rect fill="currentColor" x="18" y="22" width="9" height="20" rx="4" transform="rotate(40,22,32)"/><rect fill="currentColor" x="36" y="14" width="9" height="20" rx="4" transform="rotate(40,40,24)"/><rect fill="currentColor" x="16" y="10" width="32" height="7" rx="3" transform="rotate(40,32,13)"/></svg>`},
-  military_press:{name:'Développé Militaire',muscle:'Épaules',color:'#FF9F0A',tip:'Debout · gainage actif · coudes devant',
+  military_press:{name:'DÃ©veloppÃ© Militaire',muscle:'Ã‰paules',color:'#FF9F0A',tip:'Debout Â· gainage actif Â· coudes devant',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="18" y="14" width="64" height="5" rx="2"/><rect fill="currentColor" x="6" y="6" width="12" height="22" rx="2"/><rect fill="currentColor" x="82" y="6" width="12" height="22" rx="2"/><rect fill="currentColor" x="32" y="19" width="5" height="18" rx="2"/><rect fill="currentColor" x="63" y="19" width="5" height="18" rx="2"/><circle fill="currentColor" cx="50" cy="40" r="7"/><rect fill="currentColor" x="44" y="47" width="12" height="20" rx="5"/><rect fill="currentColor" x="36" y="67" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="67" width="10" height="22" rx="4"/></svg>`},
-  bent_fly:{name:'Oiseau / Fly Haltère',muscle:'Épaules',color:'#FF9F0A',tip:'Buste penché · légère flexion des coudes',
+  bent_fly:{name:'Oiseau / Fly HaltÃ¨re',muscle:'Ã‰paules',color:'#FF9F0A',tip:'Buste penchÃ© Â· lÃ©gÃ¨re flexion des coudes',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="32" r="7"/><rect fill="currentColor" x="44" y="39" width="12" height="16" rx="5" transform="rotate(30,50,47)"/><rect fill="currentColor" x="8" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="38" y="54" width="10" height="24" rx="4" transform="rotate(15,43,66)"/><rect fill="currentColor" x="52" y="54" width="10" height="24" rx="4" transform="rotate(-15,57,66)"/><rect fill="currentColor" x="30" y="75" width="9" height="16" rx="4" transform="rotate(20,34,83)"/><rect fill="currentColor" x="62" y="75" width="9" height="16" rx="4" transform="rotate(-20,66,83)"/></svg>`},
-  hammer_curl:{name:'Curl Marteau',muscle:'Biceps',color:'#7C68EE',tip:'Prise neutre · coudes fixes le long du corps',
+  hammer_curl:{name:'Curl Marteau',muscle:'Biceps',color:'#7C68EE',tip:'Prise neutre Â· coudes fixes le long du corps',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="18" rx="5"/><rect fill="currentColor" x="16" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="76" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="14" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="14" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="30" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="58" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="36" y="66" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="66" width="10" height="22" rx="4"/></svg>`},
-  rowing_choice:{name:'Rowing',muscle:'Dos',color:'#4F9EE8',tip:'Buste penché OU 1 bras — au choix',
+  rowing_choice:{name:'Rowing',muscle:'Dos',color:'#4F9EE8',tip:'Buste penchÃ© OU 1 bras â€” au choix',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="50" height="9" rx="4" transform="rotate(12,45,39)"/><rect fill="currentColor" x="56" y="20" width="7" height="30" rx="3" transform="rotate(-50,59,35)"/><rect fill="currentColor" x="36" y="20" width="7" height="30" rx="3" transform="rotate(-60,39,35)"/><rect fill="currentColor" x="18" y="48" width="56" height="5" rx="2" transform="rotate(12,46,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="80" y="45" width="12" height="18" rx="2" transform="rotate(12,86,54)"/><rect fill="currentColor" x="56" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="70" y="55" width="8" height="28" rx="4"/></svg>`},
 };
 
-const WEIGHTS=[5,7.5,10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50,52.5,55,57.5,60,62.5,65,67.5,70,72.5,75,77.5,80,82.5,85,87.5,90,95,100,105,110,115,120,130,140,150];
+const WEIGHTS=Array.from({length:96},(_,i)=>i+5);
 const REPS=Array.from({length:25},(_,i)=>i+1);
 
-/* ══ STATE ════════════════════════════════════════════ */
+/* â•â• STATE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let curSession=null, curSets={}, s4choice={rowing_choice:'bent_row'};
 let history=JSON.parse(localStorage.getItem('ff_hist')||'[]');
 let lastWeights=JSON.parse(localStorage.getItem('ff_lw')||'{}');
 
-/* ══ PERSISTENCE ═══════════════════════════════════════ */
+/* â•â• PERSISTENCE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function save(){
   localStorage.setItem('ff_hist',JSON.stringify(history));
   localStorage.setItem('ff_lw',JSON.stringify(lastWeights));
 }
 
-/* ══ HELPERS ══════════════════════════════════════════ */
+/* â•â• HELPERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function fmt(w){return w%1===0?w+'kg':w+'kg';}
 function vol(sets){return sets.reduce((s,x)=>s+x.w*x.r,0);}
 function best1set(sets){return sets.reduce((b,s)=>s.w>b.w||(s.w===b.w&&s.r>b.r)?s:b,{w:0,r:0});}
 function today(){return new Date().toISOString().slice(0,10);}
 function fmtDate(d){
   const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-  const mo=['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'];
+  const mo=['jan','fÃ©v','mar','avr','mai','juin','juil','aoÃ»','sep','oct','nov','dÃ©c'];
   const dt=new Date(d+'T12:00:00');
   return days[dt.getDay()]+' '+dt.getDate()+' '+mo[dt.getMonth()];
 }
 function todayFull(){
   const d=new Date();
   const days=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const mo=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const mo=['Janvier','FÃ©vrier','Mars','Avril','Mai','Juin','Juillet','AoÃ»t','Septembre','Octobre','Novembre','DÃ©cembre'];
   return days[d.getDay()]+' '+d.getDate()+' '+mo[d.getMonth()]+' '+d.getFullYear();
 }
 function getExHistory(eid){
@@ -346,7 +346,7 @@ function showToast(msg,type='ok'){
   setTimeout(()=>t.className='toast',type==='pr'?3200:2200);
 }
 
-/* ══ HOME ════════════════════════════════════════════ */
+/* â•â• HOME â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function initHome(){
   document.getElementById('home-date').textContent=todayFull();
   const week=history.filter(h=>{
@@ -355,29 +355,29 @@ function initHome(){
   }).length;
   const totalVolumeAll=history.reduce((t,h)=>t+Object.values(h.sets).reduce((a,s)=>a+vol(s),0),0);
   document.getElementById('home-stats').innerHTML=`
-    <div class="stat-box"><div class="stat-val">${history.length}</div><div class="stat-lbl">SÉANCES</div></div>
+    <div class="stat-box"><div class="stat-val">${history.length}</div><div class="stat-lbl">SÃ‰ANCES</div></div>
     <div class="stat-box"><div class="stat-val">${week}</div><div class="stat-lbl">CETTE SEMAINE</div></div>
     <div class="stat-box"><div class="stat-val">${totalVolumeAll>=1000?Math.round(totalVolumeAll/1000)+'t':totalVolumeAll+'kg'}</div><div class="stat-lbl">VOLUME TOTAL</div></div>`;
   document.getElementById('session-grid').innerHTML=SESSIONS.map(s=>{
     const last=history.filter(h=>h.sessionId===s.id).pop();
     return `<div class="s-card" style="--c:${s.color}" onclick="openSession(${s.id})">
-      <div class="s-num">SÉANCE ${s.id}</div>
+      <div class="s-num">SÃ‰ANCE ${s.id}</div>
       <div class="s-name">${s.name}</div>
       <div class="s-muscles">${s.sub}</div>
-      <div class="s-last">${last?'⏱ '+fmtDate(last.date):'Jamais réalisée'}</div>
+      <div class="s-last">${last?'â± '+fmtDate(last.date):'Jamais rÃ©alisÃ©e'}</div>
     </div>`;
   }).join('');
 }
 
-/* ══ SESSION ═════════════════════════════════════════ */
+/* â•â• SESSION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function openSession(id){
   curSession=SESSIONS.find(s=>s.id===id);
   curSets={}; curSession.exIds.forEach(e=>{curSets[e]=[];});
   s4choice={rowing_choice:'bent_row'};
   const c=curSession.color;
-  document.getElementById('nav-sub').textContent='SÉANCE '+curSession.id;
+  document.getElementById('nav-sub').textContent='SÃ‰ANCE '+curSession.id;
   document.getElementById('nav-sub').style.color=c;
-  document.getElementById('nav-main').textContent=curSession.name+' · '+curSession.sub.split(' · ')[0];
+  document.getElementById('nav-main').textContent=curSession.name+' Â· '+curSession.sub.split(' Â· ')[0];
   document.getElementById('nav-date').textContent=todayFull();
   renderExList();
   switchScreen('screen-session');
@@ -397,9 +397,9 @@ function renderExCard(eid){
   let prevHtml='';
   if(prevEntry){
     const pb=best1set(prevEntry.sets);
-    prevHtml=`<div class="ex-prev"><span class="prev-ico">📋</span>
-      <span>Dernière fois (${fmtDate(prevEntry.date)}) : <strong>${fmt(pb.w)} × ${pb.r}</strong></span>
-      ${pr.w>0?`<span class="pr-flag">🏆 PR: ${fmt(pr.w)}×${pr.r}</span>`:''}
+    prevHtml=`<div class="ex-prev"><span class="prev-ico">ðŸ“‹</span>
+      <span>DerniÃ¨re fois (${fmtDate(prevEntry.date)}) : <strong>${fmt(pb.w)} Ã— ${pb.r}</strong></span>
+      ${pr.w>0?`<span class="pr-flag">ðŸ† PR: ${fmt(pr.w)}Ã—${pr.r}</span>`:''}
     </div>`;
   }
 
@@ -407,13 +407,13 @@ function renderExCard(eid){
   if(eid==='rowing_choice'){
     const ch=s4choice.rowing_choice;
     choiceHtml=`<div class="s4-choice">
-      <button class="choice-btn${ch==='bent_row'?' active':''}" onclick="setRowingChoice('bent_row')" style="--ic:${c};--ibg:${bg}">Buste penché</button>
-      <button class="choice-btn${ch==='one_arm_row'?' active':''}" onclick="setRowingChoice('one_arm_row')" style="--ic:${c};--ibg:${bg}">1 bras haltère</button>
+      <button class="choice-btn${ch==='bent_row'?' active':''}" onclick="setRowingChoice('bent_row')" style="--ic:${c};--ibg:${bg}">Buste penchÃ©</button>
+      <button class="choice-btn${ch==='one_arm_row'?' active':''}" onclick="setRowingChoice('one_arm_row')" style="--ic:${c};--ibg:${bg}">1 bras haltÃ¨re</button>
     </div>`;
   }
 
   const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
-  const chips=sets.map((s,i)=>`<div class="chip${i===bestI&&sets.length>1?' pr':''}" ${i===bestI&&sets.length>1?`style="--ic:${c}"`:''}>${fmt(s.w)} × ${s.r}<span class="del" onclick="delSet('${eid}',${i})">✕</span></div>`).join('');
+  const chips=sets.map((s,i)=>`<div class="chip${i===bestI&&sets.length>1?' pr':''}" ${i===bestI&&sets.length>1?`style="--ic:${c}"`:''}>${fmt(s.w)} Ã— ${s.r}<span class="del" onclick="delSet('${eid}',${i})">âœ•</span></div>`).join('');
 
   const defW=lastWeights[eid]||20;
   const wOpts=WEIGHTS.map(w=>`<option${w==defW?' selected':''}>${w}</option>`).join('');
@@ -447,11 +447,11 @@ function addSet(eid){
   const sets=curSets[eid], c=EX[eid].color;
   const bestI=sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0);
   document.getElementById('sets-'+eid).innerHTML=sets.map((s,i)=>
-    `<div class="chip${i===bestI&&sets.length>1?' pr':''}">${fmt(s.w)} × ${s.r}<span class="del" onclick="delSet('${eid}',${i})">✕</span></div>`
+    `<div class="chip${i===bestI&&sets.length>1?' pr':''}">${fmt(s.w)} Ã— ${s.r}<span class="del" onclick="delSet('${eid}',${i})">âœ•</span></div>`
   ).join('');
   updateVolDisplay();
-  if(newPR) showToast('🏆 NOUVEAU RECORD ! '+fmt(w)+' × '+r,'pr');
-  else showToast('Série ajoutée ✓','ok');
+  if(newPR) showToast('ðŸ† NOUVEAU RECORD ! '+fmt(w)+' Ã— '+r,'pr');
+  else showToast('SÃ©rie ajoutÃ©e âœ“','ok');
 }
 
 function delSet(eid,idx){
@@ -459,7 +459,7 @@ function delSet(eid,idx){
   const sets=curSets[eid];
   const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
   document.getElementById('sets-'+eid).innerHTML=sets.map((s,i)=>
-    `<div class="chip${i===bestI&&sets.length>1?' pr':''}">${fmt(s.w)} × ${s.r}<span class="del" onclick="delSet('${eid}',${i})">✕</span></div>`
+    `<div class="chip${i===bestI&&sets.length>1?' pr':''}">${fmt(s.w)} Ã— ${s.r}<span class="del" onclick="delSet('${eid}',${i})">âœ•</span></div>`
   ).join('');
   updateVolDisplay();
 }
@@ -472,7 +472,7 @@ function updateVolDisplay(){
 function setRowingChoice(ch){
   s4choice.rowing_choice=ch;
   document.querySelectorAll('.choice-btn').forEach(b=>{
-    b.classList.toggle('active',b.textContent.includes(ch==='bent_row'?'penché':'bras'));
+    b.classList.toggle('active',b.textContent.includes(ch==='bent_row'?'penchÃ©':'bras'));
   });
 }
 
@@ -484,7 +484,7 @@ function confirmBack(){
 
 function finishSession(){
   const nonEmpty=curSession.exIds.filter(e=>(curSets[e]||[]).length>0);
-  if(!nonEmpty.length){showToast('Ajoute au moins 1 série !','warn');return;}
+  if(!nonEmpty.length){showToast('Ajoute au moins 1 sÃ©rie !','warn');return;}
   const entry={
     id:Date.now(),
     date:today(),
@@ -495,11 +495,11 @@ function finishSession(){
   nonEmpty.forEach(e=>{entry.sets[e]=curSets[e];});
   history.push(entry);
   save();
-  showToast('Séance sauvegardée 🏆','pr');
+  showToast('SÃ©ance sauvegardÃ©e ðŸ†','pr');
   setTimeout(()=>showHome(),700);
 }
 
-/* ══ HISTORY ═════════════════════════════════════════ */
+/* â•â• HISTORY â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let activeTab='seances';
 function showHistory(){
   renderSeances();
@@ -519,7 +519,7 @@ function switchTab(t){
 function renderSeances(){
   const el=document.getElementById('tc-seances');
   if(!history.length){
-    el.innerHTML=`<div class="hist-empty">Aucune séance enregistrée encore.<br><br>Lance-toi ! 💪</div>`;
+    el.innerHTML=`<div class="hist-empty">Aucune sÃ©ance enregistrÃ©e encore.<br><br>Lance-toi ! ðŸ’ª</div>`;
     return;
   }
   el.innerHTML=[...history].reverse().map((h,ri)=>{
@@ -533,7 +533,7 @@ function renderSeances(){
     const detail=Object.entries(h.sets).map(([eid,sets])=>{
       const ex=EX[eid];
       const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
-      const chips=sets.map((s,i)=>`<span class="h-set-chip${i===bestI&&sets.length>1?' best':''}">${fmt(s.w)}×${s.r}</span>`).join('');
+      const chips=sets.map((s,i)=>`<span class="h-set-chip${i===bestI&&sets.length>1?' best':''}">${fmt(s.w)}Ã—${s.r}</span>`).join('');
       const v=vol(sets);
       return `<div class="h-ex-block">
         <div class="h-ex-name">${ex?ex.name:eid}</div>
@@ -546,16 +546,16 @@ function renderSeances(){
       <div class="h-head" onclick="this.nextElementSibling.classList.toggle('open')">
         <div class="h-left">
           <div class="h-date">${fmtDate(h.date)}</div>
-          <div class="h-name">S${h.sessionId} · ${h.sessionName}</div>
+          <div class="h-name">S${h.sessionId} Â· ${h.sessionName}</div>
         </div>
         <div class="h-right">
-          <span class="h-badge" style="background:${color}22;color:${color}">${nEx} exo · ${totalSets} séries</span>
-          <span class="h-vol">📦 ${totalV} kg</span>
+          <span class="h-badge" style="background:${color}22;color:${color}">${nEx} exo Â· ${totalSets} sÃ©ries</span>
+          <span class="h-vol">ðŸ“¦ ${totalV} kg</span>
         </div>
       </div>
       <div class="h-detail">
         ${detail}
-        <button class="h-del-btn" onclick="delHistory(${idx})">🗑 Supprimer cette séance</button>
+        <button class="h-del-btn" onclick="delHistory(${idx})">ðŸ—‘ Supprimer cette sÃ©ance</button>
       </div>
     </div>`;
   }).join('');
@@ -566,7 +566,7 @@ function renderRecords(){
   const allEx=Object.keys(EX);
   const withHistory=allEx.filter(eid=>getExHistory(eid).length>0);
   if(!withHistory.length){
-    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>Complète ta première séance ! 💪</div>`;
+    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>ComplÃ¨te ta premiÃ¨re sÃ©ance ! ðŸ’ª</div>`;
     return;
   }
   el.innerHTML=withHistory.map(eid=>{
@@ -587,7 +587,7 @@ function renderRecords(){
 
     const rows=hist.map(h=>{
       const bestS=best1set(h.sets);
-      const chips=h.sets.map(s=>`<span class="h-set-chip">${fmt(s.w)}×${s.r}</span>`).join('');
+      const chips=h.sets.map(s=>`<span class="h-set-chip">${fmt(s.w)}Ã—${s.r}</span>`).join('');
       return `<div class="rec-row">
         <span class="rec-row-date">${fmtDate(h.date)}</span>
         <div class="rec-row-sets">${chips}</div>
@@ -599,13 +599,13 @@ function renderRecords(){
         <div class="rec-icon" style="background:${bg};color:${c}">${ex.svg}</div>
         <div class="rec-info">
           <div class="rec-name">${ex.name}</div>
-          <div class="rec-best">🏆 ${fmt(pr.w)} × ${pr.r} rep</div>
-          <div class="rec-date">Record le ${fmtDate(pr.date)} · ${hist.length} séance${hist.length>1?'s':''}</div>
+          <div class="rec-best">ðŸ† ${fmt(pr.w)} Ã— ${pr.r} rep</div>
+          <div class="rec-date">Record le ${fmtDate(pr.date)} Â· ${hist.length} sÃ©ance${hist.length>1?'s':''}</div>
         </div>
       </div>
       ${recent.length>1?`<div class="rec-trend">${bars}</div>`:''}
       <div class="rec-detail">
-        <div style="font-size:12px;font-weight:700;color:var(--t2);padding:10px 0 6px">TOUTES LES SÉANCES</div>
+        <div style="font-size:12px;font-weight:700;color:var(--t2);padding:10px 0 6px">TOUTES LES SÃ‰ANCES</div>
         ${rows}
       </div>
     </div>`;
@@ -613,33 +613,33 @@ function renderRecords(){
 }
 
 function delHistory(idx){
-  if(!confirm('Supprimer cette séance ? Cette action est irréversible.')) return;
+  if(!confirm('Supprimer cette sÃ©ance ? Cette action est irrÃ©versible.')) return;
   history.splice(idx,1);
   save();
-  showToast('Séance supprimée','warn');
+  showToast('SÃ©ance supprimÃ©e','warn');
   renderSeances();
   renderRecords();
 }
 
-/* ══ EXPORT ═══════════════════════════════════════════ */
+/* â•â• EXPORT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function showExport(){
-  if(!history.length){showToast('Aucune donnée à exporter','warn');return;}
-  let txt='FitForge Log — Export du '+todayFull()+'\n';
+  if(!history.length){showToast('Aucune donnÃ©e Ã  exporter','warn');return;}
+  let txt='FitForge Log â€” Export du '+todayFull()+'\n';
   txt+='='.repeat(40)+'\n\n';
   [...history].reverse().forEach(h=>{
     const s=SESSIONS.find(x=>x.id===h.sessionId);
     const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
-    txt+=`📅 ${fmtDate(h.date)} — S${h.sessionId} ${h.sessionName}\n`;
+    txt+=`ðŸ“… ${fmtDate(h.date)} â€” S${h.sessionId} ${h.sessionName}\n`;
     txt+=`Volume total : ${totalV} kg\n`;
     Object.entries(h.sets).forEach(([eid,sets])=>{
       const ex=EX[eid];
-      const setsStr=sets.map(s=>`${s.w}kg×${s.r}`).join(', ');
-      txt+=`  • ${ex?ex.name:eid} : ${setsStr} (vol: ${vol(sets)}kg)\n`;
+      const setsStr=sets.map(s=>`${s.w}kgÃ—${s.r}`).join(', ');
+      txt+=`  â€¢ ${ex?ex.name:eid} : ${setsStr} (vol: ${vol(sets)}kg)\n`;
     });
     txt+='\n';
   });
   txt+='='.repeat(40)+'\n';
-  txt+=`Total : ${history.length} séance(s)\n`;
+  txt+=`Total : ${history.length} sÃ©ance(s)\n`;
   document.getElementById('export-text').value=txt;
   document.getElementById('overlay').classList.add('open');
 }
@@ -648,10 +648,10 @@ function copyExport(){
   const ta=document.getElementById('export-text');
   ta.select();
   try{
-    navigator.clipboard.writeText(ta.value).then(()=>showToast('Copié ✓','ok')).catch(()=>{
-      document.execCommand('copy');showToast('Copié ✓','ok');
+    navigator.clipboard.writeText(ta.value).then(()=>showToast('CopiÃ© âœ“','ok')).catch(()=>{
+      document.execCommand('copy');showToast('CopiÃ© âœ“','ok');
     });
-  }catch(e){document.execCommand('copy');showToast('Copié ✓','ok');}
+  }catch(e){document.execCommand('copy');showToast('CopiÃ© âœ“','ok');}
 }
 
 function closeOverlay(e){
@@ -659,7 +659,7 @@ function closeOverlay(e){
     document.getElementById('overlay').classList.remove('open');
 }
 
-/* ══ NAVIGATION ══════════════════════════════════════ */
+/* â•â• NAVIGATION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function showHome(){initHome();switchScreen('screen-home');}
 function switchScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -668,7 +668,7 @@ function switchScreen(id){
   el.scrollTop=0;
 }
 
-/* ══ INIT ════════════════════════════════════════════ */
+/* â•â• INIT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 initHome();
 </script>
 </body>
