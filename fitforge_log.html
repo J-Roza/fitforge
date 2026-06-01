@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D0B1A">
+<title>FitForge Log</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+:root{
+  --bg:#0D0B1A;--card:#17152B;--elev:#201D38;
+  --accent:#7C68EE;--accent-dim:rgba(124,104,238,.15);
+  --t1:#E8E6FF;--t2:#9B99BC;--t3:#3E3C5C;
+  --bdr:rgba(255,255,255,.07);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{color:var(--t1);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
+.screen{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;background:var(--bg)}
+.screen.active{display:block}
+button{font-family:inherit;cursor:pointer;border:none}
+select{font-family:inherit}
+
+/* ══ HOME ══════════════════════════════════════════ */
+.home-top{padding:58px 20px 22px;background:linear-gradient(175deg,#1a1535 0%,var(--bg) 100%)}
+.home-top h1{font-size:32px;font-weight:800;letter-spacing:-.5px}
+.home-top h1 em{font-style:normal;color:var(--accent)}
+.home-date{font-size:13px;color:var(--t2);margin-top:5px}
+.last-session{margin:0 20px 16px;padding:12px 16px;background:var(--card);border:1px solid var(--bdr);border-radius:16px;font-size:13px;color:var(--t2)}
+.last-session strong{color:var(--t1);display:block;margin-bottom:2px;font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.s-card{background:var(--card);border:1px solid var(--bdr);border-radius:22px;padding:20px 16px 16px;cursor:pointer;overflow:hidden;transition:transform .12s,box-shadow .12s;position:relative}
+.s-card:active{transform:scale(.96)}
+.s-card::after{content:'';position:absolute;inset:0;background:var(--c);opacity:.06;pointer-events:none;border-radius:inherit}
+.s-num{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--c);margin-bottom:10px}
+.s-name{font-size:16px;font-weight:800;margin-bottom:5px;line-height:1.2}
+.s-muscles{font-size:11px;color:var(--t2);line-height:1.5}
+.s-last{font-size:10px;color:var(--t3);margin-top:10px;font-weight:600}
+.hist-btn{margin:14px 16px 36px;width:calc(100% - 32px);padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--bdr);color:var(--t2);font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.2px}
+.hist-btn:active{opacity:.7}
+
+/* ══ SESSION ═══════════════════════════════════════ */
+.nav{display:flex;align-items:center;gap:10px;padding:54px 16px 14px;background:linear-gradient(175deg,#16132a 0%,var(--bg) 80%);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.back{width:36px;height:36px;background:var(--elev);border-radius:12px;color:var(--t1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-info{flex:1;min-width:0}
+.nav-info .n-sub{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--c);text-transform:uppercase}
+.nav-info .n-main{font-size:17px;font-weight:800;line-height:1.2}
+.nav-date{font-size:12px;color:var(--t2);padding:0 16px 12px}
+
+.ex-list{padding:0 14px 110px}
+.ex-card{background:var(--card);border:1px solid var(--bdr);border-radius:20px;margin-bottom:12px;overflow:hidden}
+.ex-head{display:flex;gap:14px;align-items:center;padding:14px 14px 10px}
+.ex-img{width:76px;height:76px;border-radius:14px;background:var(--ibg);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ex-img svg{width:54px;height:54px;color:var(--ic)}
+.ex-body{flex:1;min-width:0}
+.ex-name{font-size:15px;font-weight:800;margin-bottom:5px}
+.ex-tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 9px;border-radius:20px;background:var(--ibg);color:var(--ic)}
+.ex-tip{font-size:11px;color:var(--t2);margin-top:5px;line-height:1.4}
+
+.sets-row{display:flex;flex-wrap:wrap;gap:6px;padding:4px 14px 10px;min-height:10px}
+.chip{font-size:12px;font-weight:600;background:var(--elev);border:1px solid var(--bdr);padding:4px 11px;border-radius:10px;display:flex;align-items:center;gap:6px;animation:popIn .2s ease}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.chip span{color:var(--t2);font-size:11px;cursor:pointer}
+.chip.top{border-color:var(--ic);color:var(--ic)}
+
+.ex-input{display:flex;gap:8px;padding:10px 14px 14px;border-top:1px solid var(--bdr);align-items:center}
+.ex-input select{flex:1;background:var(--elev);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--t1);font-size:14px;font-weight:600;padding:10px 6px;appearance:none;-webkit-appearance:none;text-align:center}
+.ex-input select:focus{outline:none;border-color:var(--ic)}
+.w-label{font-size:10px;color:var(--t2);text-align:center;margin-top:2px}
+.inp-wrap{display:flex;flex-direction:column;flex:1}
+.add-set{width:44px;height:44px;background:var(--accent);border-radius:12px;color:#fff;font-size:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.add-set:active{transform:scale(.88)}
+
+.s4-choice{display:flex;gap:8px;padding:10px 14px 6px}
+.choice-btn{flex:1;padding:8px 6px;border-radius:12px;background:var(--elev);border:2px solid var(--bdr);color:var(--t2);font-size:12px;font-weight:600;text-align:center;cursor:pointer;transition:all .15s}
+.choice-btn.active{background:var(--ibg);border-color:var(--ic);color:var(--ic)}
+
+.finish-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,var(--bg) 55%,transparent 100%);z-index:30}
+.finish-btn{width:100%;padding:17px;border-radius:18px;background:var(--accent);color:#fff;font-size:16px;font-weight:700;letter-spacing:.3px;transition:transform .1s}
+.finish-btn:active{transform:scale(.97)}
+
+/* ══ HISTORY ════════════════════════════════════════ */
+.hist-top{display:flex;align-items:center;gap:12px;padding:52px 16px 16px}
+.hist-top h2{font-size:22px;font-weight:800;flex:1}
+.hist-count{font-size:13px;color:var(--t2)}
+.hist-empty{text-align:center;padding:70px 20px;color:var(--t2);font-size:14px;line-height:1.8}
+.hist-items{padding:0 16px 40px}
+.h-entry{background:var(--card);border:1px solid var(--bdr);border-radius:18px;margin-bottom:10px;overflow:hidden;cursor:pointer}
+.h-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}
+.h-left .h-date{font-size:12px;color:var(--t2);margin-bottom:3px}
+.h-left .h-name{font-size:15px;font-weight:700}
+.h-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.h-detail{padding:0 16px 14px;display:none;border-top:1px solid var(--bdr)}
+.h-detail.open{display:block}
+.h-ex{padding:8px 0;border-bottom:1px solid var(--bdr)}
+.h-ex:last-child{border-bottom:none}
+.h-ex-name{font-size:12px;color:var(--t2);font-weight:600;margin-bottom:5px}
+.h-ex-sets{display:flex;flex-wrap:wrap;gap:5px}
+.h-set{font-size:11px;background:var(--elev);padding:3px 9px;border-radius:8px}
+.del-entry{padding:8px 16px 12px;border-top:1px solid var(--bdr)}
+.del-entry button{color:#E8484F;font-size:12px;background:none;opacity:.7}
+
+/* ══ TOAST ═════════════════════════════════════════ */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(16px);background:#34C759;color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;z-index:99;white-space:nowrap;transition:all .25s;box-shadow:0 4px 16px rgba(52,199,89,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.warn{background:#FF9F0A;box-shadow:0 4px 16px rgba(255,159,10,.4)}
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══════════════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-top">
+    <h1>Fit<em>Forge</em> Log</h1>
+    <div class="home-date" id="home-date"></div>
+  </div>
+  <div class="last-session" id="last-session" style="display:none"></div>
+  <div class="grid" id="session-grid"></div>
+  <button class="hist-btn" onclick="showHistory()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-3.36"/></svg>
+    Historique des séances
+  </button>
+</div>
+
+<!-- ══ SESSION ════════════════════════════════════════ -->
+<div id="screen-session" class="screen">
+  <div class="nav" id="session-nav">
+    <button class="back" onclick="showHome()">&#8592;</button>
+    <div class="nav-info">
+      <div class="n-sub" id="nav-sub"></div>
+      <div class="n-main" id="nav-main"></div>
+    </div>
+  </div>
+  <div class="nav-date" id="nav-date"></div>
+  <div class="ex-list" id="ex-list"></div>
+  <div class="finish-bar">
+    <button class="finish-btn" onclick="finishSession()">✓ &nbsp;Terminer la séance</button>
+  </div>
+</div>
+
+<!-- ══ HISTORY ═══════════════════════════════════════ -->
+<div id="screen-history" class="screen">
+  <div class="hist-top">
+    <button class="back" onclick="showHome()" style="width:36px;height:36px;background:var(--elev);border-radius:12px;color:var(--t1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">&#8592;</button>
+    <h2>Historique</h2>
+    <span class="hist-count" id="hist-count"></span>
+  </div>
+  <div id="hist-body"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ DATA ════════════════════════════════════════════ */
+const SESSIONS = [
+  { id:1, name:'PUSH', sub:'Pecs · Épaules · Biceps',  color:'#E8484F',
+    exIds:['bench_press','incline_press','lateral_raise','incline_curl','preacher_curl'] },
+  { id:2, name:'PULL + TRI', sub:'Dos · Triceps',       color:'#4F9EE8',
+    exIds:['bent_row','one_arm_row','overhead_ext','skull_crusher','dips'] },
+  { id:3, name:'LEGS', sub:'Jambes · Ischios · Fessiers', color:'#30D158',
+    exIds:['deadlift','squat','lunges','leg_curl'] },
+  { id:4, name:'ÉPAULES +', sub:'Épaules · Biceps · Dos', color:'#FF9F0A',
+    exIds:['military_press','lateral_raise','bent_fly','hammer_curl','rowing_choice'] },
+];
+
+const EXERCISES = {
+  bench_press:{name:'Développé Couché',muscle:'Pectoraux',color:'#E8484F',tip:'Dos plat · descente contrôlée · coudes à 75°',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="20" y="20" width="60" height="5" rx="2"/><rect fill="currentColor" x="7" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="80" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="34" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="61" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="24" y="44" width="50" height="9" rx="4"/><circle fill="currentColor" cx="78" cy="48" r="7"/><rect fill="currentColor" x="12" y="55" width="64" height="7" rx="3"/><rect fill="currentColor" x="12" y="61" width="5" height="14" rx="2"/><rect fill="currentColor" x="71" y="61" width="5" height="14" rx="2"/></svg>`},
+  incline_press:{name:'Développé Incliné',muscle:'Pectoraux',color:'#E8484F',tip:'Banc 30-45° · barre haut des pecs',
+    svg:`<svg viewBox="0 0 100 100"><polygon fill="currentColor" points="8,82 72,28 80,38 16,92"/><polygon fill="currentColor" points="72,28 82,28 90,62 80,62"/><rect fill="currentColor" x="24" y="38" width="44" height="9" rx="4" transform="rotate(-30,46,42)"/><circle fill="currentColor" cx="73" cy="27" r="7"/><rect fill="currentColor" x="22" y="10" width="44" height="5" rx="2" transform="rotate(-20,44,12)"/><rect fill="currentColor" x="32" y="14" width="5" height="20" rx="2" transform="rotate(-20,34,24)"/><rect fill="currentColor" x="54" y="10" width="5" height="20" rx="2" transform="rotate(-20,56,20)"/><rect fill="currentColor" x="10" y="5" width="12" height="18" rx="2" transform="rotate(-20,16,14)"/><rect fill="currentColor" x="74" y="2" width="12" height="18" rx="2" transform="rotate(-20,80,11)"/></svg>`},
+  lateral_raise:{name:'Élévation Latérale',muscle:'Épaules',color:'#FF9F0A',tip:'Légère flexion du coude · montée en arc',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="22" rx="5"/><rect fill="currentColor" x="8" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="36" y="51" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="51" width="10" height="22" rx="4"/></svg>`},
+  incline_curl:{name:'Curl Incliné',muscle:'Biceps',color:'#7C68EE',tip:'Bras derrière le corps · supination en montant',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="20" rx="5"/><rect fill="currentColor" x="20" y="38" width="28" height="8" rx="4"/><rect fill="currentColor" x="30" y="30" width="7" height="18" rx="3"/><rect fill="currentColor" x="8" y="32" width="12" height="18" rx="3"/><rect fill="currentColor" x="56" y="45" width="28" height="8" rx="4"/><rect fill="currentColor" x="60" y="45" width="7" height="22" rx="3"/><rect fill="currentColor" x="44" y="53" width="10" height="26" rx="4"/><rect fill="currentColor" x="56" y="53" width="10" height="26" rx="4"/></svg>`},
+  preacher_curl:{name:'Curl Pupitre',muscle:'Biceps',color:'#7C68EE',tip:'Coude calé sur le pupitre · pleine amplitude',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="20" rx="5"/><rect fill="currentColor" x="24" y="38" width="24" height="8" rx="4"/><rect fill="currentColor" x="30" y="30" width="7" height="16" rx="3"/><rect fill="currentColor" x="20" y="28" width="10" height="24" rx="3"/><rect fill="currentColor" x="56" y="45" width="24" height="8" rx="4"/><rect fill="currentColor" x="60" y="45" width="7" height="22" rx="3"/><rect fill="currentColor" x="68" y="28" width="10" height="24" rx="3"/><rect fill="currentColor" x="44" y="53" width="10" height="26" rx="4"/><rect fill="currentColor" x="56" y="53" width="10" height="26" rx="4"/></svg>`},
+  bent_row:{name:'Rowing Buste Penché',muscle:'Dos',color:'#4F9EE8',tip:'Dos droit · tirer les coudes vers l\'arrière',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="50" height="9" rx="4" transform="rotate(12,45,39)"/><rect fill="currentColor" x="56" y="20" width="7" height="30" rx="3" transform="rotate(-50,59,35)"/><rect fill="currentColor" x="36" y="20" width="7" height="30" rx="3" transform="rotate(-60,39,35)"/><rect fill="currentColor" x="18" y="48" width="56" height="5" rx="2" transform="rotate(12,46,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="80" y="45" width="12" height="18" rx="2" transform="rotate(12,86,54)"/><rect fill="currentColor" x="56" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="70" y="55" width="8" height="28" rx="4"/></svg>`},
+  one_arm_row:{name:'Rowing 1 Bras',muscle:'Dos',color:'#4F9EE8',tip:'Genou sur le banc · coude dans l\'axe du dos',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="40" height="9" rx="4" transform="rotate(12,40,39)"/><rect fill="currentColor" x="46" y="22" width="7" height="28" rx="3" transform="rotate(-50,49,36)"/><rect fill="currentColor" x="18" y="48" width="44" height="5" rx="2" transform="rotate(12,40,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="60" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="74" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="30" y="55" width="32" height="6" rx="3"/><rect fill="currentColor" x="56" y="42" width="8" height="18" rx="3"/></svg>`},
+  overhead_ext:{name:'Extension Triceps',muscle:'Triceps',color:'#AF52DE',tip:'Coudes serrés · verrouiller les épaules',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="18" rx="5"/><rect fill="currentColor" x="34" y="26" width="5" height="22" rx="2"/><rect fill="currentColor" x="61" y="26" width="5" height="22" rx="2"/><rect fill="currentColor" x="34" y="22" width="32" height="6" rx="3"/><rect fill="currentColor" x="37" y="45" width="5" height="24" rx="2" transform="rotate(-30,39,57)"/><rect fill="currentColor" x="58" y="45" width="5" height="24" rx="2" transform="rotate(30,60,57)"/><rect fill="currentColor" x="34" y="66" width="32" height="6" rx="3"/><rect fill="currentColor" x="28" y="58" width="10" height="20" rx="3"/><rect fill="currentColor" x="62" y="58" width="10" height="20" rx="3"/><rect fill="currentColor" x="38" y="47" width="10" height="22" rx="4"/><rect fill="currentColor" x="52" y="47" width="10" height="22" rx="4"/></svg>`},
+  skull_crusher:{name:'Barre au Front',muscle:'Triceps',color:'#AF52DE',tip:'EZ bar · coudes fixes · descente lente vers le front',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="12" y="55" width="64" height="7" rx="3"/><rect fill="currentColor" x="12" y="61" width="5" height="15" rx="2"/><rect fill="currentColor" x="71" y="61" width="5" height="15" rx="2"/><circle fill="currentColor" cx="76" cy="48" r="7"/><rect fill="currentColor" x="26" y="42" width="46" height="9" rx="4"/><rect fill="currentColor" x="38" y="26" width="5" height="18" rx="2" transform="rotate(25,40,35)"/><rect fill="currentColor" x="56" y="24" width="5" height="18" rx="2" transform="rotate(25,58,33)"/><rect fill="currentColor" x="24" y="17" width="42" height="6" rx="3" transform="rotate(12,45,20)"/><rect fill="currentColor" x="12" y="10" width="10" height="18" rx="2" transform="rotate(12,17,19)"/><rect fill="currentColor" x="74" y="14" width="10" height="18" rx="2" transform="rotate(12,79,23)"/></svg>`},
+  dips:{name:'Dips',muscle:'Triceps',color:'#AF52DE',tip:'Corps légèrement incliné avant · descente complète',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="8" y="20" width="7" height="70" rx="3"/><rect fill="currentColor" x="85" y="20" width="7" height="70" rx="3"/><rect fill="currentColor" x="8" y="25" width="30" height="7" rx="3"/><rect fill="currentColor" x="62" y="25" width="30" height="7" rx="3"/><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="18" rx="5"/><rect fill="currentColor" x="20" y="28" width="24" height="6" rx="3"/><rect fill="currentColor" x="56" y="28" width="24" height="6" rx="3"/><rect fill="currentColor" x="18" y="34" width="6" height="20" rx="3"/><rect fill="currentColor" x="76" y="34" width="6" height="20" rx="3"/><rect fill="currentColor" x="42" y="47" width="7" height="24" rx="3"/><rect fill="currentColor" x="51" y="47" width="7" height="24" rx="3"/></svg>`},
+  deadlift:{name:'Deadlift',muscle:'Dos & Jambes',color:'#30D158',tip:'Dos plat · barre contre les tibias · hanches en arrière',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="22" y="68" width="56" height="5" rx="2"/><circle fill="currentColor" cx="14" cy="72" r="11" opacity=".9"/><circle fill="currentColor" cx="14" cy="72" r="7"/><circle fill="currentColor" cx="86" cy="72" r="11" opacity=".9"/><circle fill="currentColor" cx="86" cy="72" r="7"/><circle fill="currentColor" cx="55" cy="22" r="7"/><rect fill="currentColor" x="30" y="30" width="32" height="8" rx="3" transform="rotate(20,46,34)"/><rect fill="currentColor" x="46" y="34" width="9" height="36" rx="4" transform="rotate(5,50,52)"/><rect fill="currentColor" x="36" y="65" width="8" height="22" rx="4"/><rect fill="currentColor" x="56" y="63" width="8" height="24" rx="4"/></svg>`},
+  squat:{name:'Squat Barre',muscle:'Jambes',color:'#30D158',tip:'Genoux dans l\'axe des pieds · dos droit',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="14" y="26" width="72" height="5" rx="2"/><rect fill="currentColor" x="6" y="18" width="12" height="22" rx="2"/><rect fill="currentColor" x="82" y="18" width="12" height="22" rx="2"/><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="34" y="28" width="5" height="16" rx="2"/><rect fill="currentColor" x="61" y="28" width="5" height="16" rx="2"/><rect fill="currentColor" x="40" y="34" width="20" height="16" rx="6"/><rect fill="currentColor" x="28" y="50" width="9" height="20" rx="4" transform="rotate(-20,32,60)"/><rect fill="currentColor" x="62" y="50" width="9" height="20" rx="4" transform="rotate(20,67,60)"/><rect fill="currentColor" x="22" y="68" width="9" height="20" rx="4" transform="rotate(25,26,78)"/><rect fill="currentColor" x="68" y="68" width="9" height="20" rx="4" transform="rotate(-25,73,78)"/></svg>`},
+  lunges:{name:'Fentes Haltères',muscle:'Jambes',color:'#30D158',tip:'Genou arrière frôle le sol · buste droit',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="46" cy="18" r="7"/><rect fill="currentColor" x="40" y="25" width="12" height="22" rx="5"/><rect fill="currentColor" x="30" y="38" width="5" height="18" rx="2"/><rect fill="currentColor" x="58" y="38" width="5" height="18" rx="2"/><rect fill="currentColor" x="34" y="47" width="9" height="26" rx="4" transform="rotate(-12,38,60)"/><rect fill="currentColor" x="50" y="50" width="9" height="26" rx="4" transform="rotate(15,54,63)"/><rect fill="currentColor" x="20" y="72" width="9" height="20" rx="4" transform="rotate(10,24,82)"/><rect fill="currentColor" x="67" y="70" width="9" height="14" rx="4" transform="rotate(-5,71,77)"/><rect fill="currentColor" x="14" y="88" width="70" height="5" rx="2" opacity=".4"/></svg>`},
+  leg_curl:{name:'Leg Curl',muscle:'Ischios',color:'#5AC8FA',tip:'Machine · contraction en haut de la montée',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="8" y="42" width="60" height="7" rx="3"/><rect fill="currentColor" x="8" y="48" width="6" height="30" rx="3"/><rect fill="currentColor" x="62" y="48" width="6" height="30" rx="3"/><circle fill="currentColor" cx="74" cy="38" r="7"/><rect fill="currentColor" x="68" y="45" width="12" height="18" rx="5"/><rect fill="currentColor" x="22" y="45" width="48" height="9" rx="4"/><rect fill="currentColor" x="36" y="52" width="9" height="26" rx="4" transform="rotate(-50,40,65)"/><rect fill="currentColor" x="54" y="52" width="9" height="26" rx="4" transform="rotate(-50,58,65)"/><rect fill="currentColor" x="18" y="22" width="9" height="20" rx="4" transform="rotate(40,22,32)"/><rect fill="currentColor" x="36" y="14" width="9" height="20" rx="4" transform="rotate(40,40,24)"/><rect fill="currentColor" x="16" y="10" width="32" height="7" rx="3" transform="rotate(40,32,13)"/></svg>`},
+  military_press:{name:'Développé Militaire',muscle:'Épaules',color:'#FF9F0A',tip:'Debout ou assis · gainage actif · coudes devant',
+    svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="18" y="14" width="64" height="5" rx="2"/><rect fill="currentColor" x="6" y="6" width="12" height="22" rx="2"/><rect fill="currentColor" x="82" y="6" width="12" height="22" rx="2"/><rect fill="currentColor" x="32" y="19" width="5" height="18" rx="2"/><rect fill="currentColor" x="63" y="19" width="5" height="18" rx="2"/><circle fill="currentColor" cx="50" cy="40" r="7"/><rect fill="currentColor" x="44" y="47" width="12" height="20" rx="5"/><rect fill="currentColor" x="36" y="67" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="67" width="10" height="22" rx="4"/></svg>`},
+  bent_fly:{name:'Oiseau / Fly Haltère',muscle:'Épaules',color:'#FF9F0A',tip:'Buste penché · légère flexion des coudes',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="32" r="7"/><rect fill="currentColor" x="44" y="39" width="12" height="16" rx="5" transform="rotate(30,50,47)"/><rect fill="currentColor" x="8" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="38" y="54" width="10" height="24" rx="4" transform="rotate(15,43,66)"/><rect fill="currentColor" x="52" y="54" width="10" height="24" rx="4" transform="rotate(-15,57,66)"/><rect fill="currentColor" x="30" y="75" width="9" height="16" rx="4" transform="rotate(20,34,83)"/><rect fill="currentColor" x="62" y="75" width="9" height="16" rx="4" transform="rotate(-20,66,83)"/></svg>`},
+  hammer_curl:{name:'Curl Marteau',muscle:'Biceps',color:'#7C68EE',tip:'Prise neutre · coudes fixes le long du corps',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="18" rx="5"/><rect fill="currentColor" x="16" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="76" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="14" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="14" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="30" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="58" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="36" y="66" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="66" width="10" height="22" rx="4"/></svg>`},
+  rowing_choice:{name:'Rowing',muscle:'Dos',color:'#4F9EE8',tip:'Buste penché OU 1 bras — au choix',
+    svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="50" height="9" rx="4" transform="rotate(12,45,39)"/><rect fill="currentColor" x="56" y="20" width="7" height="30" rx="3" transform="rotate(-50,59,35)"/><rect fill="currentColor" x="36" y="20" width="7" height="30" rx="3" transform="rotate(-60,39,35)"/><rect fill="currentColor" x="18" y="48" width="56" height="5" rx="2" transform="rotate(12,46,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="80" y="45" width="12" height="18" rx="2" transform="rotate(12,86,54)"/><rect fill="currentColor" x="56" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="70" y="55" width="8" height="28" rx="4"/></svg>`},
+};
+
+/* ══ WEIGHTS / REPS ══════════════════════════════════ */
+const WEIGHTS = [5,7.5,10,12.5,15,17.5,20,22.5,25,27.5,30,32.5,35,37.5,40,42.5,45,47.5,50,52.5,55,57.5,60,62.5,65,67.5,70,72.5,75,77.5,80,82.5,85,87.5,90,95,100,105,110,115,120,130,140,150];
+const REPS = Array.from({length:25},(_,i)=>i+1);
+
+/* ══ STATE ═══════════════════════════════════════════ */
+let curSession = null;
+let curSets = {};       // { exId: [{w,r}] }
+let s4choice = {};      // { rowing_choice: 'bent_row' | 'one_arm_row' }
+let lastWeights = {};   // { exId: weight }
+let history = JSON.parse(localStorage.getItem('ff_history')||'[]');
+
+/* ══ UTILITIES ═══════════════════════════════════════ */
+function fmt(n){ return n%1===0 ? n+'kg' : n+'kg'; }
+function fmtDate(d){
+  const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const months=['jan','fév','mar','avr','mai','juin','juil','aoû','sep','oct','nov','déc'];
+  const dt=new Date(d);
+  return days[dt.getDay()]+' '+dt.getDate()+' '+months[dt.getMonth()];
+}
+function today(){ return new Date().toISOString().slice(0,10); }
+function todayLong(){
+  const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const days=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const d=new Date();
+  return days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+function showToast(msg,warn=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(warn?' warn':'');
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>t.className='toast',2500);
+}
+function saveHistory(){ localStorage.setItem('ff_history',JSON.stringify(history)); }
+function hexAlpha(hex,a){ return hex+'26'.slice(0,Math.round(a*255).toString(16).length===1?1:0)+Math.round(a*255).toString(16); }
+
+/* ══ HOME ════════════════════════════════════════════ */
+function initHome(){
+  document.getElementById('home-date').textContent = todayLong();
+  const last = history[history.length-1];
+  const el = document.getElementById('last-session');
+  if(last){
+    const s = SESSIONS.find(x=>x.id===last.sessionId);
+    el.style.display='block';
+    el.innerHTML=`<strong>Dernière séance : ${s?'S'+s.id+' — '+s.name:''}</strong>${fmtDate(last.date)} · ${Object.keys(last.sets).length} exercices`;
+  }
+  const grid=document.getElementById('session-grid');
+  grid.innerHTML=SESSIONS.map(s=>{
+    const last=history.filter(h=>h.sessionId===s.id).pop();
+    return `<div class="s-card" style="--c:${s.color}" onclick="openSession(${s.id})">
+      <div class="s-num">SÉANCE ${s.id}</div>
+      <div class="s-name">${s.name}</div>
+      <div class="s-muscles">${s.sub}</div>
+      <div class="s-last">${last?'⏱ '+fmtDate(last.date):'Jamais réalisée'}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ══ SESSION ═════════════════════════════════════════ */
+function openSession(id){
+  curSession=SESSIONS.find(s=>s.id===id);
+  curSets={};
+  curSession.exIds.forEach(e=>{ curSets[e]=[]; });
+  s4choice={rowing_choice:'bent_row'};
+  document.getElementById('nav-sub').textContent='SÉANCE '+curSession.id;
+  document.getElementById('nav-sub').style.color=curSession.color;
+  document.getElementById('nav-main').textContent=curSession.name+' · '+curSession.sub.split(' · ')[0];
+  document.getElementById('nav-date').textContent=todayLong();
+  renderExList();
+  switchScreen('screen-session');
+}
+
+function renderExList(){
+  const list=document.getElementById('ex-list');
+  list.innerHTML=curSession.exIds.map(eid=>renderExCard(eid)).join('');
+}
+
+function renderExCard(eid){
+  const ex=EXERCISES[eid];
+  const sets=curSets[eid]||[];
+  const c=ex.color;
+  const bgAlpha=c+'28';
+
+  let choiceHtml='';
+  if(eid==='rowing_choice'){
+    const ch=s4choice.rowing_choice;
+    choiceHtml=`<div class="s4-choice">
+      <button class="choice-btn ${ch==='bent_row'?'active':''}" style="--ic:${c};--ibg:${bgAlpha}" onclick="setRowingChoice('bent_row')">Buste penché</button>
+      <button class="choice-btn ${ch==='one_arm_row'?'active':''}" style="--ic:${c};--ibg:${bgAlpha}" onclick="setRowingChoice('one_arm_row')">1 bras haltère</button>
+    </div>`;
+  }
+
+  const bestIdx=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
+  const chips=sets.map((s,i)=>`<div class="chip ${i===bestIdx&&sets.length>1?'top':''}" style="${i===bestIdx&&sets.length>1?'--ic:'+c:''}">${fmt(s.w)} × ${s.r}<span onclick="delSet('${eid}',${i})">✕</span></div>`).join('');
+
+  const defW=lastWeights[eid]||20;
+  const wOpts=WEIGHTS.map(w=>`<option${w==defW?' selected':''}>${w}</option>`).join('');
+  const rOpts=REPS.map(r=>`<option${r==10?' selected':''}>${r}</option>`).join('');
+
+  return `<div class="ex-card" id="card-${eid}" style="--ic:${c};--ibg:${bgAlpha}">
+    <div class="ex-head">
+      <div class="ex-img">${ex.svg}</div>
+      <div class="ex-body">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-tag">${ex.muscle}</div>
+        <div class="ex-tip">${ex.tip}</div>
+      </div>
+    </div>
+    ${choiceHtml}
+    <div class="sets-row" id="sets-${eid}">${chips}</div>
+    <div class="ex-input">
+      <div class="inp-wrap">
+        <select id="w-${eid}">${wOpts}</select>
+        <div class="w-label">kg</div>
+      </div>
+      <div class="inp-wrap">
+        <select id="r-${eid}">${rOpts}</select>
+        <div class="w-label">reps</div>
+      </div>
+      <button class="add-set" onclick="addSet('${eid}')">+</button>
+    </div>
+  </div>`;
+}
+
+function addSet(eid){
+  const w=parseFloat(document.getElementById('w-'+eid).value);
+  const r=parseInt(document.getElementById('r-'+eid).value);
+  curSets[eid].push({w,r});
+  lastWeights[eid]=w;
+  const sets=curSets[eid];
+  const c=EXERCISES[eid].color;
+  const bestIdx=sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0);
+  const row=document.getElementById('sets-'+eid);
+  row.innerHTML=sets.map((s,i)=>`<div class="chip ${i===bestIdx&&sets.length>1?'top':''}" style="${i===bestIdx&&sets.length>1?'--ic:'+c:''}">${fmt(s.w)} × ${s.r}<span onclick="delSet('${eid}',${i})">✕</span></div>`).join('');
+  showToast('Série ajoutée ✓');
+}
+
+function delSet(eid,idx){
+  curSets[eid].splice(idx,1);
+  const sets=curSets[eid];
+  const c=EXERCISES[eid].color;
+  const bestIdx=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
+  const row=document.getElementById('sets-'+eid);
+  row.innerHTML=sets.map((s,i)=>`<div class="chip ${i===bestIdx&&sets.length>1?'top':''}" style="${i===bestIdx&&sets.length>1?'--ic:'+c:''}">${fmt(s.w)} × ${s.r}<span onclick="delSet('${eid}',${i})">✕</span></div>`).join('');
+}
+
+function setRowingChoice(choice){
+  s4choice.rowing_choice=choice;
+  const c=EXERCISES.rowing_choice.color;
+  const bgAlpha=c+'28';
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.includes(choice==='bent_row'?'penché':'bras'));
+  });
+}
+
+function finishSession(){
+  const nonEmpty=curSession.exIds.filter(e=>(curSets[e]||[]).length>0);
+  if(!nonEmpty.length){ showToast('Ajoute au moins 1 série !',true); return; }
+  const entry={
+    date:today(),
+    sessionId:curSession.id,
+    sessionName:curSession.name,
+    sets:{}
+  };
+  nonEmpty.forEach(e=>{ entry.sets[e]=curSets[e]; });
+  history.push(entry);
+  saveHistory();
+  showToast('Séance enregistrée 🏆');
+  setTimeout(()=>showHome(),600);
+}
+
+/* ══ HISTORY ═════════════════════════════════════════ */
+function showHistory(){
+  const body=document.getElementById('hist-body');
+  document.getElementById('hist-count').textContent=history.length+' séance'+(history.length>1?'s':'');
+  if(!history.length){
+    body.innerHTML=`<div class="hist-empty">Aucune séance enregistrée.<br>Lance-toi ! 💪</div>`;
+  } else {
+    body.innerHTML=`<div class="hist-items">`+[...history].reverse().map((h,ri)=>{
+      const i=history.length-1-ri;
+      const s=SESSIONS.find(x=>x.id===h.sessionId);
+      const color=s?s.color:'#7C68EE';
+      const exDetails=Object.entries(h.sets).map(([eid,sets])=>{
+        const ex=EXERCISES[eid];
+        const chips=sets.map(s=>`<span class="h-set">${fmt(s.w)}×${s.r}</span>`).join('');
+        return `<div class="h-ex"><div class="h-ex-name">${ex?ex.name:eid}</div><div class="h-ex-sets">${chips}</div></div>`;
+      }).join('');
+      return `<div class="h-entry">
+        <div class="h-head" onclick="this.nextElementSibling.classList.toggle('open')">
+          <div class="h-left">
+            <div class="h-date">${fmtDate(h.date)}</div>
+            <div class="h-name">S${h.sessionId} · ${h.sessionName}</div>
+          </div>
+          <span class="h-badge" style="background:${color}28;color:${color}">${Object.keys(h.sets).length} exo</span>
+        </div>
+        <div class="h-detail">${exDetails}</div>
+        <div class="del-entry"><button onclick="delHistory(${i})">🗑 Supprimer</button></div>
+      </div>`;
+    }).join('')+`</div>`;
+  }
+  switchScreen('screen-history');
+}
+
+function delHistory(idx){
+  if(!confirm('Supprimer cette séance ?')) return;
+  history.splice(idx,1);
+  saveHistory();
+  showHistory();
+}
+
+/* ══ NAVIGATION ══════════════════════════════════════ */
+function showHome(){
+  initHome();
+  switchScreen('screen-home');
+}
+
+function switchScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(id).scrollTop=0;
+}
+
+/* ══ INIT ════════════════════════════════════════════ */
+initHome();
+</script>
+</body>
+</html>
