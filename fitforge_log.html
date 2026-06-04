@@ -635,7 +635,7 @@ function renderSeances(){
         <div class="h-ex-name">${ex?ex.name:eid}</div>
         <div class="h-sets-wrap">${chips}</div>
         <div class="h-ex-vol">Volume : ${v} kg</div>
-        ${(h.notes&&h.notes[eid])?"<div class=\\"h-note\\">&#128172; "+h.notes[eid]+"</div>":""}
+        ${(h.notes&&h.notes[eid])?'<div class="h-note">&#128172; '+h.notes[eid]+'</div>':''}
       </div>`;
     }).join('');
 
