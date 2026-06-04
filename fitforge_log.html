@@ -304,9 +304,9 @@ const SESSIONS=[
 ];
 
 const EX={
-  bench_press:{name:'D\u00e9velopp\u00e9 Couch\u00e9',muscle:'Pectoraux',color:'#E8484F',tip:'Dos plat \u00b7 descente contr\u00f4l\u00e9e \u00b7 coudes \u00e0 75\u00c2\u00b0',
+  bench_press:{name:'D\u00e9velopp\u00e9 Couch\u00e9',muscle:'Pectoraux',color:'#E8484F',tip:'Dos plat \u00b7 descente contr\u00f4l\u00e9e \u00b7 coudes \u00e0 75\u00b0',
     svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="20" y="20" width="60" height="5" rx="2"/><rect fill="currentColor" x="7" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="80" y="12" width="13" height="21" rx="2"/><rect fill="currentColor" x="34" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="61" y="25" width="5" height="20" rx="2"/><rect fill="currentColor" x="24" y="44" width="50" height="9" rx="4"/><circle fill="currentColor" cx="78" cy="48" r="7"/><rect fill="currentColor" x="12" y="55" width="64" height="7" rx="3"/><rect fill="currentColor" x="12" y="61" width="5" height="14" rx="2"/><rect fill="currentColor" x="71" y="61" width="5" height="14" rx="2"/></svg>`},
-  incline_press:{name:'D\u00e9velopp\u00e9 Inclin\u00e9',muscle:'Pectoraux',color:'#E8484F',tip:'Banc 30-45\u00c2\u00b0 \u00b7 barre haut des pecs',
+  incline_press:{name:'D\u00e9velopp\u00e9 Inclin\u00e9',muscle:'Pectoraux',color:'#E8484F',tip:'Banc 30-45\u00b0 \u00b7 barre haut des pecs',
     svg:`<svg viewBox="0 0 100 100"><polygon fill="currentColor" points="8,82 72,28 80,38 16,92"/><polygon fill="currentColor" points="72,28 82,28 90,62 80,62"/><rect fill="currentColor" x="24" y="38" width="44" height="9" rx="4" transform="rotate(-30,46,42)"/><circle fill="currentColor" cx="73" cy="27" r="7"/><rect fill="currentColor" x="22" y="10" width="44" height="5" rx="2" transform="rotate(-20,44,12)"/><rect fill="currentColor" x="32" y="14" width="5" height="20" rx="2" transform="rotate(-20,34,24)"/><rect fill="currentColor" x="54" y="10" width="5" height="20" rx="2" transform="rotate(-20,56,20)"/><rect fill="currentColor" x="10" y="5" width="12" height="18" rx="2" transform="rotate(-20,16,14)"/><rect fill="currentColor" x="74" y="2" width="12" height="18" rx="2" transform="rotate(-20,80,11)"/></svg>`},
   lateral_raise:{name:'\u00c9l\u00e9vation Lat\u00e9rale',muscle:'\u00c9paules',color:'#FF9F0A',tip:'L\u00e9g\u00e8re flexion du coude \u00b7 mont\u00e9e en arc',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="22" r="7"/><rect fill="currentColor" x="44" y="29" width="12" height="22" rx="5"/><rect fill="currentColor" x="8" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="43" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="38" width="8" height="18" rx="3"/><rect fill="currentColor" x="36" y="51" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="51" width="10" height="22" rx="4"/></svg>`},
@@ -488,9 +488,9 @@ function renderExCard(eid){
   let prevHtml='';
   if(prevEntry){
     const pb=best1set(prevEntry.sets);
-    prevHtml=`<div class="ex-prev"><span class="prev-ico">\u00f0\u0178\u201c\u2039</span>
+    prevHtml=`<div class="ex-prev"><span class="prev-ico">\uD83D\uDCCB</span>
       <span>Derni\u00e8re fois (${fmtDate(prevEntry.date)}) : <strong>${fmt(pb.w)} \u00d7 ${pb.r}</strong></span>
-      ${pr.w>0?`<span class="pr-flag">\u00f0\u0178\u008f\u2020 PR: ${fmt(pr.w)}\u00d7${pr.r}</span>`:''}
+      ${pr.w>0?`<span class="pr-flag">\uD83C\uDFC6 PR: ${fmt(pr.w)}\u00d7${pr.r}</span>`:''}
     </div>`;
   }
 
@@ -542,7 +542,7 @@ function addSet(eid){
     `<div class="chip${i===bestI&&sets.length>1?' pr':''}">${fmt(s.w)} \u00d7 ${s.r}<span class="del" onclick="delSet('${eid}',${i})">&#10005;</span></div>`
   ).join('');
   updateVolDisplay();
-  if(newPR) showToast('\u00f0\u0178\u008f\u2020 NOUVEAU RECORD ! '+fmt(w)+' \u00d7 '+r,'pr');
+  if(newPR) showToast('\uD83C\uDFC6 NOUVEAU RECORD ! '+fmt(w)+' \u00d7 '+r,'pr');
   else showToast('S\u00e9rie ajout\u00e9e &#10003;','ok');
   startTimer();
 }
@@ -591,7 +591,7 @@ function finishSession(){
   Object.keys(curNotes).forEach(e=>{if(curNotes[e])entry.notes[e]=curNotes[e];});
   history.push(entry);
   save();
-  showToast('S\u00e9ance sauvegard\u00e9e \u00f0\u0178\u008f\u2020','pr');
+  showToast('S\u00e9ance sauvegard\u00e9e \uD83C\uDFC6','pr');
   setTimeout(()=>showHome(),700);
 }
 
@@ -615,7 +615,7 @@ function switchTab(t){
 function renderSeances(){
   const el=document.getElementById('tc-seances');
   if(!history.length){
-    el.innerHTML=`<div class="hist-empty">Aucune s\u00e9ance enregistr\u00e9e encore.<br><br>Lance-toi ! \u00f0\u0178\u2019\u00aa</div>`;
+    el.innerHTML=`<div class="hist-empty">Aucune s\u00e9ance enregistr\u00e9e encore.<br><br>Lance-toi ! \uD83D\uDCAA</div>`;
     return;
   }
   el.innerHTML=[...history].reverse().map((h,ri)=>{
@@ -647,12 +647,12 @@ function renderSeances(){
         </div>
         <div class="h-right">
           <span class="h-badge" style="background:${color}22;color:${color}">${nEx} exo \u00b7 ${totalSets} s\u00e9ries</span>
-          <span class="h-vol">\u00f0\u0178\u201c\u00a6 ${totalV} kg</span>
+          <span class="h-vol">\uD83D\uDCE6 ${totalV} kg</span>
         </div>
       </div>
       <div class="h-detail">
         ${detail}
-        <button class="h-del-btn" onclick="delHistory(${idx})">\u00f0\u0178\u2014\u2018 Supprimer cette s\u00e9ance</button>
+        <button class="h-del-btn" onclick="delHistory(${idx})">\uD83D\uDDD1 Supprimer cette s\u00e9ance</button>
       </div>
     </div>`;
   }).join('');
@@ -663,7 +663,7 @@ function renderRecords(){
   const allEx=Object.keys(EX);
   const withHistory=allEx.filter(eid=>getExHistory(eid).length>0);
   if(!withHistory.length){
-    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>Compl\u00e8te ta premi\u00e8re s\u00e9ance ! \u00f0\u0178\u2019\u00aa</div>`;
+    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>Compl\u00e8te ta premi\u00e8re s\u00e9ance ! \uD83D\uDCAA</div>`;
     return;
   }
   el.innerHTML=withHistory.map(eid=>{
@@ -696,7 +696,7 @@ function renderRecords(){
         <div class="rec-icon" style="background:${bg};color:${c}">${ex.svg}</div>
         <div class="rec-info">
           <div class="rec-name">${ex.name}</div>
-          <div class="rec-best">\u00f0\u0178\u008f\u2020 ${fmt(pr.w)} \u00d7 ${pr.r} rep</div>
+          <div class="rec-best">\uD83C\uDFC6 ${fmt(pr.w)} \u00d7 ${pr.r} rep</div>
           <div class="rec-date">Record le ${fmtDate(pr.date)} \u00b7 ${hist.length} s\u00e9ance${hist.length>1?'s':''}</div>
         </div>
       </div>
@@ -726,7 +726,7 @@ function showExport(){
   [...history].reverse().forEach(h=>{
     const s=SESSIONS.find(x=>x.id===h.sessionId);
     const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
-    txt+=`\u00f0\u0178\u201c\u2026 ${fmtDate(h.date)} \u00e2\u20ac\u201d S${h.sessionId} ${h.sessionName}\n`;
+    txt+=`\uD83D\uDCC5 ${fmtDate(h.date)} \u00e2\u20ac\u201d S${h.sessionId} ${h.sessionName}\n`;
     txt+=`Volume total : ${totalV} kg\n`;
     Object.entries(h.sets).forEach(([eid,sets])=>{
       const ex=EX[eid];
