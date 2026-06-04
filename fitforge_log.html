@@ -16,6 +16,30 @@
   --bdr:rgba(255,255,255,.07);
   --green:#30D158;--gold:#FF9F0A;--red:#E8484F;
 }
+body.light{--bg:#F5F3FF;--card:#FFFFFF;--elev:#EDEAFC;--t1:#1A1835;--t2:#5A5872;--t3:#C0BED8;--bdr:rgba(0,0,0,.08)}
+body.light .home-top,body.light .nav{background:linear-gradient(175deg,#e8e4ff 0%,var(--bg) 100%)}
+body.light .stat-box{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.ex-note{display:block;width:calc(100% - 28px);margin:0 14px 12px;background:var(--elev);border:1px solid var(--bdr);border-radius:10px;color:var(--t1);font-size:12px;padding:8px 12px;font-family:inherit}
+.ex-note:focus{outline:none;border-color:var(--accent)}
+.ex-note::placeholder{color:var(--t3)}
+.h-note{font-size:12px;color:var(--t2);margin-top:5px;padding:6px 10px;background:var(--elev);border-radius:8px;font-style:italic}
+.rec-1rm{font-size:11px;color:var(--t2);margin-top:2px}
+.today-banner{margin:0 16px 14px;padding:14px 16px;background:var(--card);border:1px solid var(--bdr);border-radius:18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tb-sub{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);margin-bottom:3px}
+.tb-name{font-size:16px;font-weight:800;line-height:1.2}
+.tb-muscles{font-size:11px;color:var(--t2);margin-top:3px}
+.tb-start{padding:11px 18px;border-radius:14px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 16px 32px}
+.plan-day{background:var(--card);border:2px solid var(--bdr);border-radius:16px;padding:14px 4px 16px;text-align:center;cursor:pointer;transition:transform .12s;position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;min-height:84px;justify-content:center}
+.plan-day:active{transform:scale(.92)}
+.plan-day.today{border-color:var(--accent)}
+.plan-day.has-s::after{content:'';position:absolute;inset:0;background:var(--pc);opacity:.08;border-radius:14px;pointer-events:none}
+.plan-lbl{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.6px;position:absolute;top:8px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.plan-snum{font-size:22px;font-weight:800}
+.plan-sname{font-size:9px;color:var(--t2);line-height:1.3;padding:0 4px}
+.plan-rest{font-size:24px;opacity:.25}
+.plan-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);position:absolute;bottom:6px;left:50%;transform:translateX(-50%)}
+.plan-info{font-size:12px;color:var(--t2);padding:0 16px 16px;line-height:1.7}
 html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{color:var(--t1);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif}
 .screen{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;background:var(--bg)}
@@ -186,11 +210,19 @@ select{font-family:inherit}
 <div id="screen-home" class="screen active">
   <div class="home-top">
     <h1>Fit<em>Forge</em> Log</h1>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px">
     <div class="home-date" id="home-date"></div>
+    <button id="theme-btn" onclick="toggleTheme()" style="background:var(--elev);border:1px solid var(--bdr);border-radius:10px;padding:5px 11px;font-size:14px;font-weight:600;color:var(--t2);font-family:inherit">Mode clair</button>
+  </div>
   </div>
   <div class="home-stats" id="home-stats"></div>
+  <div id="today-banner" style="display:none"></div>
   <div class="grid" id="session-grid"></div>
   <div class="home-btns">
+    <button class="home-btn" onclick="showPlanning()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Planning
+    </button>
     <button class="home-btn" onclick="showHistory()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.18-3.36"/></svg>
       Historique
@@ -247,6 +279,15 @@ select{font-family:inherit}
   </div>
 </div>
 
+<!-- ══ PLANNING ══════════════════════════════════════════ -->
+<div id="screen-planning" class="screen">
+  <div class="hist-top">
+    <button class="back" onclick="showHome()" style="width:36px;height:36px;background:var(--elev);border-radius:12px;color:var(--t1);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:none;cursor:pointer">&#8592;</button>
+    <h2>Mon Programme</h2>
+  </div>
+  <p class="plan-info">Appuie sur un jour pour lui attribuer une seance. Appuie encore pour changer, encore une fois pour effacer.</p>
+  <div class="plan-grid" id="plan-grid"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -320,12 +361,16 @@ let lastWeights=JSON.parse(localStorage.getItem('ff_lw')||'{}');
 let customSessions=JSON.parse(localStorage.getItem('ff_custom')||'{}');
 let timerDurIdx=parseInt(localStorage.getItem('ff_tdur')||'1');
 let timerInterval=null,timerRemaining=0,timerTotal=0;
+let curNotes={};
+let weekPlan=JSON.parse(localStorage.getItem('ff_plan')||'{}');
+let isDark=localStorage.getItem('ff_theme')!=='light';
 
 /* â•â• PERSISTENCE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function save(){
   localStorage.setItem('ff_hist',JSON.stringify(history));
   localStorage.setItem('ff_lw',JSON.stringify(lastWeights));
   localStorage.setItem('ff_custom',JSON.stringify(customSessions));
+  localStorage.setItem('ff_plan',JSON.stringify(weekPlan));
 }
 function getSessionExIds(id){
   return customSessions[id]||SESSIONS.find(s=>s.id===id).exIds;
@@ -388,6 +433,17 @@ function initHome(){
     <div class="stat-box"><div class="stat-val">${history.length}</div><div class="stat-lbl">SÃ‰ANCES</div></div>
     <div class="stat-box"><div class="stat-val">${week}</div><div class="stat-lbl">CETTE SEMAINE</div></div>
     <div class="stat-box"><div class="stat-val">${totalVolumeAll>=1000?Math.round(totalVolumeAll/1000)+'t':totalVolumeAll+'kg'}</div><div class="stat-lbl">VOLUME TOTAL</div></div>`;
+  // Today's planned session banner
+  const todayD=new Date().getDay();
+  const todaySid=weekPlan[todayD];
+  const todayBanner=document.getElementById('today-banner');
+  if(todaySid){
+    const ts=SESSIONS.find(x=>x.id==todaySid);
+    todayBanner.style.display='flex';
+    todayBanner.innerHTML='<div><div class="tb-sub">AUJOURD\'HUI</div><div class="tb-name">S'+ts.id+' &middot; '+ts.name+'</div><div class="tb-muscles">'+ts.sub+'</div></div>'
+      +'<button class="tb-start" onclick="openSession('+ts.id+')">Demarrer &#8594;</button>';
+  } else { todayBanner.style.display='none'; }
+
   document.getElementById('session-grid').innerHTML=SESSIONS.map(s=>{
     const last=history.filter(h=>h.sessionId===s.id).pop();
     const exCount=getSessionExIds(s.id).length;
@@ -406,6 +462,7 @@ function openSession(id){
   curSession=SESSIONS.find(s=>s.id===id);
   const exIds=getSessionExIds(id);
   curSets={}; exIds.forEach(e=>{curSets[e]=[];});
+  curNotes={};
   s4choice={rowing_choice:'bent_row'};
   const c=curSession.color;
   document.getElementById('nav-sub').textContent='SÃ‰ANCE '+curSession.id;
@@ -464,6 +521,7 @@ function renderExCard(eid){
     </div>
     ${prevHtml}${choiceHtml}
     <div class="sets-row" id="sets-${eid}">${chips}</div>
+    <input type="text" class="ex-note" id="note-\" placeholder="Note..." oninput="curNotes['\']=this.value" value="\">
     <div class="ex-input">
       <div class="inp-wrap"><div class="inp-lbl">POIDS</div><select id="w-${eid}">${wOpts}</select></div>
       <div class="inp-wrap"><div class="inp-lbl">REPS</div><select id="r-${eid}">${rOpts}</select></div>
@@ -529,6 +587,8 @@ function finishSession(){
     sets:{}
   };
   nonEmpty.forEach(e=>{entry.sets[e]=curSets[e];});
+  entry.notes={};
+  Object.keys(curNotes).forEach(e=>{if(curNotes[e])entry.notes[e]=curNotes[e];});
   history.push(entry);
   save();
   showToast('SÃ©ance sauvegardÃ©e ðŸ†','pr');
@@ -575,6 +635,7 @@ function renderSeances(){
         <div class="h-ex-name">${ex?ex.name:eid}</div>
         <div class="h-sets-wrap">${chips}</div>
         <div class="h-ex-vol">Volume : ${v} kg</div>
+        ${(h.notes&&h.notes[eid])?"<div class=\\"h-note\\">&#128172; "+h.notes[eid]+"</div>":""}
       </div>`;
     }).join('');
 
@@ -772,6 +833,50 @@ function beep(){
     });
   }catch(e){}
 }
+/* == THEME TOGGLE ============================================= */
+function toggleTheme(){
+  isDark=!isDark;
+  applyTheme();
+  localStorage.setItem('ff_theme',isDark?'dark':'light');
+}
+function applyTheme(){
+  document.body.classList.toggle('light',!isDark);
+  const btn=document.getElementById('theme-btn');
+  if(btn) btn.textContent=isDark?'Mode clair':'Mode sombre';
+}
+
+/* == 1RM (Epley formula) ======================================= */
+function epley(w,r){ return r<=1?w:Math.round(w*(1+r/30)); }
+
+/* == WEEKLY PLANNING ========================================== */
+const DAY_NAMES=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+function showPlanning(){
+  renderPlanning();
+  switchScreen('screen-planning');
+}
+function renderPlanning(){
+  const days=[1,2,3,4,5,6,0];
+  const todayD=new Date().getDay();
+  document.getElementById('plan-grid').innerHTML=days.map(d=>{
+    const sid=weekPlan[d];
+    const s=sid?SESSIONS.find(x=>x.id==sid):null;
+    const isToday=todayD===d;
+    return '<div class="plan-day'+(sid?' has-s':'')+(isToday?' today':'')+'"'
+      +(s?' style="--pc:'+s.color+'"':'')+' onclick="cyclePlanDay('+d+')">'
+      +'<div class="plan-lbl">'+DAY_NAMES[d]+'</div>'
+      +(s?'<div class="plan-snum" style="color:'+s.color+'">S'+sid+'</div>'
+          +'<div class="plan-sname">'+s.name+'</div>'
+        :'<div class="plan-rest">&#8212;</div>')
+      +(isToday?'<div class="plan-dot"></div>':'')
+      +'</div>';
+  }).join('');
+}
+function cyclePlanDay(d){
+  const cur=weekPlan[d]||0;
+  const next=cur>=4?null:(cur||0)+1;
+  if(next===null) delete weekPlan[d]; else weekPlan[d]=next;
+  save(); renderPlanning(); initHome();
+}
 function showHome(){initHome();switchScreen('screen-home');}
 function switchScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -782,6 +887,7 @@ function switchScreen(id){
 
 /* â•â• INIT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 document.getElementById('timer-dur-btn').textContent=TIMER_DURATIONS[timerDurIdx]+'s';
+applyTheme();
 initHome();
 </script>
 </body>
