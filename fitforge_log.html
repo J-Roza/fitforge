@@ -521,7 +521,7 @@ function renderExCard(eid){
     </div>
     ${prevHtml}${choiceHtml}
     <div class="sets-row" id="sets-${eid}">${chips}</div>
-    <input type="text" class="ex-note" id="note-\" placeholder="Note..." oninput="curNotes['\']=this.value" value="\">
+    <input type="text" class="ex-note" id="note-${eid}" placeholder="Note..." oninput="curNotes['${eid}']=this.value" value="${curNotes[eid]||''}">
     <div class="ex-input">
       <div class="inp-wrap"><div class="inp-lbl">POIDS</div><select id="w-${eid}">${wOpts}</select></div>
       <div class="inp-wrap"><div class="inp-lbl">REPS</div><select id="r-${eid}">${rOpts}</select></div>
