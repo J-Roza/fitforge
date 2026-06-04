@@ -88,7 +88,21 @@ select{font-family:inherit}
 .vol-bar{margin:0 14px;padding:8px 12px;background:rgba(124,104,238,.08);border-radius:10px;font-size:12px;color:var(--t2);display:flex;justify-content:space-between}
 .vol-bar strong{color:var(--accent)}
 
-.finish-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,var(--bg) 55%,transparent 100%);z-index:30}
+.timer-wrap{position:fixed;bottom:0;left:0;right:0;z-index:29;pointer-events:none}
+.timer-bar{background:var(--card);border-top:1px solid var(--bdr);padding:8px 14px;display:flex;align-items:center;gap:10px;pointer-events:all;transform:translateY(100%);transition:transform .3s}
+.timer-bar.show{transform:translateY(0)}
+.timer-track{flex:1;height:6px;background:var(--elev);border-radius:4px;overflow:hidden}
+.timer-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .9s linear}
+.timer-num{font-size:14px;font-weight:800;color:var(--t1);min-width:32px;text-align:center}
+.timer-dur{font-size:11px;font-weight:700;color:var(--t2);background:var(--elev);border:1px solid var(--bdr);border-radius:8px;padding:3px 8px}
+.timer-dur:active{opacity:.7}
+.timer-close{font-size:16px;color:var(--t3);background:none;padding:4px}
+.editor-chip{display:flex;align-items:center;gap:8px;background:var(--elev);border:1px solid var(--bdr);border-radius:12px;padding:8px 10px;margin-bottom:6px}
+.editor-chip .rm{background:none;color:#E8484F;font-size:16px;margin-left:auto;padding:0 2px;line-height:1;border:none;cursor:pointer}
+.add-group-title{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--t2);margin:12px 0 6px;text-transform:uppercase}
+.add-ex-btn{display:inline-flex;align-items:center;gap:4px;background:var(--elev);border:1px solid var(--bdr);border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--t1);margin:0 6px 6px 0;cursor:pointer}
+.add-ex-btn:active{opacity:.7}
+.finish-bar{padding:8px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(0deg,var(--bg) 55%,transparent 100%);z-index:30}
 .finish-btn{width:100%;padding:17px;border-radius:18px;background:var(--accent);color:#fff;font-size:16px;font-weight:700;letter-spacing:.3px;transition:transform .1s}
 .finish-btn:active{transform:scale(.97)}
 
@@ -245,7 +259,7 @@ const SESSIONS=[
   {id:3,name:'LEGS',sub:'Jambes Â· Ischios Â· Fessiers',color:'#30D158',
    exIds:['deadlift','squat','lunges','leg_curl']},
   {id:4,name:'Ã‰PAULES +',sub:'Ã‰paules Â· Biceps Â· Dos',color:'#FF9F0A',
-   exIds:['military_press','lateral_raise','bent_fly','hammer_curl','rowing_choice']},
+   exIds:['bench_press','military_press','lateral_raise','bent_fly','hammer_curl','rowing_choice']},
 ];
 
 const EX={
@@ -289,16 +303,32 @@ const EX={
 
 const WEIGHTS=Array.from({length:96},(_,i)=>i+5);
 const REPS=Array.from({length:25},(_,i)=>i+1);
+const TIMER_DURATIONS=[60,90,120,180];
+const EX_BY_MUSCLE={
+  'Pectoraux':['bench_press','incline_press'],
+  'Epaules':['lateral_raise','military_press','bent_fly'],
+  'Biceps':['incline_curl','preacher_curl','hammer_curl'],
+  'Triceps':['overhead_ext','skull_crusher','dips'],
+  'Dos':['bent_row','one_arm_row','rowing_choice'],
+  'Jambes':['deadlift','squat','lunges','leg_curl'],
+};
 
 /* â•â• STATE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 let curSession=null, curSets={}, s4choice={rowing_choice:'bent_row'};
 let history=JSON.parse(localStorage.getItem('ff_hist')||'[]');
 let lastWeights=JSON.parse(localStorage.getItem('ff_lw')||'{}');
+let customSessions=JSON.parse(localStorage.getItem('ff_custom')||'{}');
+let timerDurIdx=parseInt(localStorage.getItem('ff_tdur')||'1');
+let timerInterval=null,timerRemaining=0,timerTotal=0;
 
 /* â•â• PERSISTENCE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function save(){
   localStorage.setItem('ff_hist',JSON.stringify(history));
   localStorage.setItem('ff_lw',JSON.stringify(lastWeights));
+  localStorage.setItem('ff_custom',JSON.stringify(customSessions));
+}
+function getSessionExIds(id){
+  return customSessions[id]||SESSIONS.find(s=>s.id===id).exIds;
 }
 
 /* â•â• HELPERS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
@@ -360,7 +390,9 @@ function initHome(){
     <div class="stat-box"><div class="stat-val">${totalVolumeAll>=1000?Math.round(totalVolumeAll/1000)+'t':totalVolumeAll+'kg'}</div><div class="stat-lbl">VOLUME TOTAL</div></div>`;
   document.getElementById('session-grid').innerHTML=SESSIONS.map(s=>{
     const last=history.filter(h=>h.sessionId===s.id).pop();
-    return `<div class="s-card" style="--c:${s.color}" onclick="openSession(${s.id})">
+    const exCount=getSessionExIds(s.id).length;
+    return `<div class="s-card" style="--c:${s.color};position:relative" onclick="openSession(${s.id})">
+      <button onclick="event.stopPropagation();openEditor(${s.id})" style="position:absolute;top:10px;right:10px;background:var(--elev);border:1px solid var(--bdr);border-radius:8px;color:var(--t2);font-size:12px;padding:4px 8px;cursor:pointer">✏️</button>
       <div class="s-num">SÃ‰ANCE ${s.id}</div>
       <div class="s-name">${s.name}</div>
       <div class="s-muscles">${s.sub}</div>
@@ -372,7 +404,8 @@ function initHome(){
 /* â•â• SESSION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function openSession(id){
   curSession=SESSIONS.find(s=>s.id===id);
-  curSets={}; curSession.exIds.forEach(e=>{curSets[e]=[];});
+  const exIds=getSessionExIds(id);
+  curSets={}; exIds.forEach(e=>{curSets[e]=[];});
   s4choice={rowing_choice:'bent_row'};
   const c=curSession.color;
   document.getElementById('nav-sub').textContent='SÃ‰ANCE '+curSession.id;
@@ -384,7 +417,8 @@ function openSession(id){
 }
 
 function renderExList(){
-  document.getElementById('ex-list').innerHTML=curSession.exIds.map(renderExCard).join('');
+  const exIds=getSessionExIds(curSession.id);
+  document.getElementById('ex-list').innerHTML=exIds.map(renderExCard).join('');
   updateVolDisplay();
 }
 
@@ -452,6 +486,7 @@ function addSet(eid){
   updateVolDisplay();
   if(newPR) showToast('ðŸ† NOUVEAU RECORD ! '+fmt(w)+' Ã— '+r,'pr');
   else showToast('SÃ©rie ajoutÃ©e âœ“','ok');
+  startTimer();
 }
 
 function delSet(eid,idx){
@@ -483,7 +518,8 @@ function confirmBack(){
 }
 
 function finishSession(){
-  const nonEmpty=curSession.exIds.filter(e=>(curSets[e]||[]).length>0);
+  stopTimer();
+  const nonEmpty=getSessionExIds(curSession.id).filter(e=>(curSets[e]||[]).length>0);
   if(!nonEmpty.length){showToast('Ajoute au moins 1 sÃ©rie !','warn');return;}
   const entry={
     id:Date.now(),
@@ -660,6 +696,82 @@ function closeOverlay(e){
 }
 
 /* â•â• NAVIGATION â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* == SESSION EDITOR ======================================== */
+let editingSessionId=null;
+function openEditor(sid){
+  editingSessionId=sid;
+  const s=SESSIONS.find(x=>x.id===sid);
+  const modal=document.getElementById('modal');
+  modal.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:17px;font-weight:800">Seance ${sid} - ${s.name}</h3><button onclick="closeOverlay()" style="background:none;color:var(--t2);font-size:22px;border:none;cursor:pointer">&times;</button></div><div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin-bottom:8px">EXERCICES ACTUELS</div><div id="editor-current"></div><div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin:14px 0 4px">AJOUTER</div><div id="editor-add"></div><button onclick="resetSession(${sid})" style="width:100%;margin-top:14px;padding:10px;border-radius:12px;background:rgba(232,72,79,.1);border:1px solid rgba(232,72,79,.25);color:#E8484F;font-size:13px;font-weight:600;cursor:pointer">Remettre les exercices par defaut</button>`;
+  renderEditorLists(sid,getSessionExIds(sid));
+  document.getElementById('overlay').classList.add('open');
+}
+function renderEditorLists(sid,current){
+  document.getElementById('editor-current').innerHTML=current.map(eid=>{
+    const ex=EX[eid];
+    return `<div class="editor-chip"><span style="font-size:12px;font-weight:700;flex:1">${ex.name}</span><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${ex.color}22;color:${ex.color}">${ex.muscle}</span>${current.length>1?`<button class="rm" onclick="removeFromEditor(${sid},'${eid}')">&times;</button>`:''}</div>`;
+  }).join('');
+  let h='';
+  Object.entries(EX_BY_MUSCLE).forEach(([m,ids])=>{
+    const avail=ids.filter(e=>!current.includes(e));
+    if(!avail.length) return;
+    h+=`<div class="add-group-title">${m}</div>`;
+    h+=avail.map(e=>`<button class="add-ex-btn" onclick="addToEditor(${sid},'${e}')">+ ${EX[e].name}</button>`).join('');
+  });
+  document.getElementById('editor-add').innerHTML=h||'<p style="font-size:12px;color:var(--t2)">Tous les exercices sont deja dans la seance.</p>';
+}
+function addToEditor(sid,eid){
+  const c=[...getSessionExIds(sid),eid];
+  customSessions[sid]=c; save(); renderEditorLists(sid,c); initHome();
+}
+function removeFromEditor(sid,eid){
+  const c=getSessionExIds(sid).filter(e=>e!==eid);
+  customSessions[sid]=c; save(); renderEditorLists(sid,c); initHome();
+}
+function resetSession(sid){
+  delete customSessions[sid]; save();
+  renderEditorLists(sid,SESSIONS.find(s=>s.id===sid).exIds); initHome();
+}/* == REST TIMER ============================================ */
+function startTimer(){
+  stopTimer();
+  timerTotal=TIMER_DURATIONS[timerDurIdx];
+  timerRemaining=timerTotal;
+  updateTimerUI();
+  document.getElementById('timer-bar').classList.add('show');
+  timerInterval=setInterval(()=>{
+    timerRemaining--;
+    if(timerRemaining<=0){stopTimer();beep();showToast('Repos fini - Go !','ok');return;}
+    updateTimerUI();
+  },1000);
+}
+function stopTimer(){
+  clearInterval(timerInterval);timerInterval=null;
+  const bar=document.getElementById('timer-bar');
+  if(bar) bar.classList.remove('show');
+}
+function updateTimerUI(){
+  const m=Math.floor(timerRemaining/60),s=timerRemaining%60;
+  document.getElementById('timer-num').textContent=m+':'+(s<10?'0':'')+s;
+  document.getElementById('timer-fill').style.width=(timerRemaining/timerTotal*100)+'%';
+}
+function cycleTimerDur(){
+  timerDurIdx=(timerDurIdx+1)%TIMER_DURATIONS.length;
+  localStorage.setItem('ff_tdur',timerDurIdx);
+  document.getElementById('timer-dur-btn').textContent=TIMER_DURATIONS[timerDurIdx]+'s';
+  if(timerInterval) startTimer();
+}
+function beep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [880,1100].forEach((freq,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.frequency.value=freq;
+      g.gain.setValueAtTime(0.25,ctx.currentTime+i*0.18);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.3);
+      o.start(ctx.currentTime+i*0.18);o.stop(ctx.currentTime+i*0.18+0.35);
+    });
+  }catch(e){}
+}
 function showHome(){initHome();switchScreen('screen-home');}
 function switchScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -669,6 +781,7 @@ function switchScreen(id){
 }
 
 /* â•â• INIT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+document.getElementById('timer-dur-btn').textContent=TIMER_DURATIONS[timerDurIdx]+'s';
 initHome();
 </script>
 </body>
