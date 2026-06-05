@@ -886,9 +886,15 @@ function switchScreen(id){
 }
 
 /* \u00e2\u2022\u0090\u00e2\u2022\u0090 INIT \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
-document.getElementById('timer-dur-btn').textContent=TIMER_DURATIONS[timerDurIdx]+'s';
-applyTheme();
-initHome();
+try{
+  var _t=document.getElementById('timer-dur-btn');if(_t)_t.textContent=TIMER_DURATIONS[timerDurIdx]+'s';
+  applyTheme();
+  initHome();
+}catch(err){
+  var sg=document.getElementById('session-grid');
+  if(sg)sg.innerHTML='<div style="padding:16px;color:#E8484F;font-size:13px"><b>JS Error:</b><br>'+err.message+'</div>';
+  console.error(err);
+}
 </script>
 </body>
 </html>
