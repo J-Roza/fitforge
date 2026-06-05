@@ -94,7 +94,7 @@ select{font-family:inherit}
 .chip{font-size:12px;font-weight:600;background:var(--elev);border:1px solid var(--bdr);padding:5px 10px;border-radius:10px;display:flex;align-items:center;gap:6px;animation:popIn .2s ease}
 .chip .del{color:var(--t3);font-size:11px;cursor:pointer;padding:0 2px}
 .chip.pr{border-color:var(--gold);color:var(--gold);background:rgba(255,159,10,.1)}
-.chip.pr::before{content:'&#240;&#376;&#143;&#8224; ';font-size:11px}
+.chip.pr::before{content:'\1F3C6\20';font-size:11px}
 @keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 
 .ex-input{display:flex;gap:8px;padding:8px 14px 14px;border-top:1px solid var(--bdr);align-items:flex-end}
@@ -259,8 +259,8 @@ select{font-family:inherit}
     <button class="export-btn" onclick="showExport()">Exporter</button>
   </div>
   <div class="tabs">
-    <button class="tab active" id="tab-seances" onclick="switchTab('seances')">&#240;&#376;&#8220;&#8249; S&#233;ances</button>
-    <button class="tab" id="tab-records" onclick="switchTab('records')">&#240;&#376;&#143;&#8224; Records</button>
+    <button class="tab active" id="tab-seances" onclick="switchTab('seances')">&#128203; S&#233;ances</button>
+    <button class="tab" id="tab-records" onclick="switchTab('records')">&#127942; Records</button>
   </div>
   <div class="tab-content active" id="tc-seances"></div>
   <div class="tab-content" id="tc-records"></div>
