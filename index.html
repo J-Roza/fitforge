@@ -759,124 +759,464 @@ function closeOverlay(e){
 /* \u00e2\u2022\u0090\u00e2\u2022\u0090 NAVIGATION \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
 /* == SESSION EDITOR ======================================== */
 let editingSessionId=null;
+let editorDraft=[];
+
 function openEditor(sid){
   editingSessionId=sid;
+  editorDraft=[...getSessionExIds(sid)];
   const s=SESSIONS.find(x=>x.id===sid);
   const modal=document.getElementById('modal');
-  modal.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font-size:17px;font-weight:800">Seance ${sid} - ${s.name}</h3><button onclick="closeOverlay()" style="background:none;color:var(--t2);font-size:22px;border:none;cursor:pointer">&times;</button></div><div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin-bottom:8px">EXERCICES ACTUELS</div><div id="editor-current"></div><div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin:14px 0 4px">AJOUTER</div><div id="editor-add"></div><button onclick="resetSession(${sid})" style="width:100%;margin-top:14px;padding:10px;border-radius:12px;background:rgba(232,72,79,.1);border:1px solid rgba(232,72,79,.25);color:#E8484F;font-size:13px;font-weight:600;cursor:pointer">Remettre les exercices par defaut</button>`;
-  renderEditorLists(sid,getSessionExIds(sid));
+  modal.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+    +'<h3 style="font-size:17px;font-weight:800">S'+sid+' — '+s.name+'</h3>'
+    +'<button onclick="closeOverlay()" style="background:none;color:var(--t2);font-size:22px;border:none;cursor:pointer">&times;</button>'
+    +'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin-bottom:8px">EXERCICES</div>'
+    +'<div id="editor-current"></div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.5px;margin:14px 0 4px">AJOUTER</div>'
+    +'<div id="editor-add"></div>'
+    +'<button onclick="draftReset()" style="width:100%;margin-top:12px;padding:9px;border-radius:12px;background:rgba(232,72,79,.08);border:1px solid rgba(232,72,79,.2);color:#E8484F;font-size:12px;font-weight:600;cursor:pointer">Remettre par défaut</button>'
+    +'<div style="display:flex;gap:8px;margin-top:10px">'
+    +'<button onclick="closeOverlay()" style="flex:1;padding:12px;border-radius:14px;background:var(--elev);border:1px solid var(--bdr);color:var(--t2);font-size:14px;font-weight:700;cursor:pointer">Annuler</button>'
+    +'<button onclick="saveEditorDraft()" style="flex:1;padding:12px;border-radius:14px;background:var(--accent);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Valider</button>'
+    +'</div>';
+  renderEditorLists();
   document.getElementById('overlay').classList.add('open');
 }
-function renderEditorLists(sid,current){
+function renderEditorLists(){
+  const current=editorDraft;
   document.getElementById('editor-current').innerHTML=current.map(eid=>{
     const ex=EX[eid];
-    return `<div class="editor-chip"><span style="font-size:12px;font-weight:700;flex:1">${ex.name}</span><span style="font-size:10px;padding:2px 7px;border-radius:10px;background:${ex.color}22;color:${ex.color}">${ex.muscle}</span>${current.length>1?`<button class="rm" onclick="removeFromEditor(${sid},'${eid}')">&times;</button>`:''}</div>`;
+    return '<div class="editor-chip"><span style="font-size:12px;font-weight:700;flex:1">'+ex.name+'</span>'
+      +'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+ex.color+'22;color:'+ex.color+'">'+ex.muscle+'</span>'
+      +(current.length>1?'<button class="rm" data-eid="'+eid+'" onclick="draftRemove(this.dataset.eid)">&times;</button>':'')
+      +'</div>';
   }).join('');
   let h='';
   Object.entries(EX_BY_MUSCLE).forEach(([m,ids])=>{
     const avail=ids.filter(e=>!current.includes(e));
     if(!avail.length) return;
-    h+=`<div class="add-group-title">${m}</div>`;
-    h+=avail.map(e=>`<button class="add-ex-btn" onclick="addToEditor(${sid},'${e}')">+ ${EX[e].name}</button>`).join('');
+    h+='<div class="add-group-title">'+m+'</div>';
+    h+=avail.map(e=>'<button class="add-ex-btn" onclick="draftAdd(\''+e+'\')">+ '+EX[e].name+'</button>').join('');
   });
-  document.getElementById('editor-add').innerHTML=h||'<p style="font-size:12px;color:var(--t2)">Tous les exercices sont deja dans la seance.</p>';
+  document.getElementById('editor-add').innerHTML=h||'<p style="font-size:12px;color:var(--t2)">Tous les exercices sont déjà dans la séance.</p>';
 }
-function addToEditor(sid,eid){
-  const c=[...getSessionExIds(sid),eid];
-  customSessions[sid]=c; save(); renderEditorLists(sid,c); initHome();
+function draftAdd(eid){ if(!editorDraft.includes(eid)){ editorDraft=[...editorDraft,eid]; renderEditorLists(); } }
+function draftRemove(eid){ if(editorDraft.length>1){ editorDraft=editorDraft.filter(e=>e!==eid); renderEditorLists(); } }
+function draftReset(){ editorDraft=[...SESSIONS.find(s=>s.id===editingSessionId).exIds]; renderEditorLists(); }
+function saveEditorDraft(){
+  const sid=editingSessionId;
+  const def=SESSIONS.find(s=>s.id===sid).exIds;
+  const same=editorDraft.length===def.length&&editorDraft.every((e,i)=>e===def[i]);
+  if(same) delete customSessions[sid]; else customSessions[sid]=[...editorDraft];
+  save(); initHome(); closeOverlay();
+  showToast('Séance mise à jour','ok');
 }
-function removeFromEditor(sid,eid){
-  const c=getSessionExIds(sid).filter(e=>e!==eid);
-  customSessions[sid]=c; save(); renderEditorLists(sid,c); initHome();
+function updateVolDisplay(){
+  const v=totalVol();
+  document.getElementById('nav-vol').textContent=v>0?v+'kg total':'';
 }
-function resetSession(sid){
-  delete customSessions[sid]; save();
-  renderEditorLists(sid,SESSIONS.find(s=>s.id===sid).exIds); initHome();
-}/* == REST TIMER ============================================ */
-function startTimer(){
+
+function setRowingChoice(ch){
+  s4choice.rowing_choice=ch;
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.includes(ch==='bent_row'?'pench\u00e9':'bras'));
+  });
+}
+
+function confirmBack(){
+  const hasSets=curSession.exIds.some(e=>(curSets[e]||[]).length>0);
+  if(!hasSets){showHome();return;}
+  if(confirm('Quitter sans sauvegarder ?')) showHome();
+}
+
+function finishSession(){
   stopTimer();
-  timerTotal=TIMER_DURATIONS[timerDurIdx];
-  timerRemaining=timerTotal;
-  updateTimerUI();
-  document.getElementById('timer-bar').classList.add('show');
-  timerInterval=setInterval(()=>{
-    timerRemaining--;
-    if(timerRemaining<=0){stopTimer();beep();showToast('Repos fini - Go !','ok');return;}
-    updateTimerUI();
-  },1000);
-}
-function stopTimer(){
-  clearInterval(timerInterval);timerInterval=null;
-  const bar=document.getElementById('timer-bar');
-  if(bar) bar.classList.remove('show');
-}
-function updateTimerUI(){
-  const m=Math.floor(timerRemaining/60),s=timerRemaining%60;
-  document.getElementById('timer-num').textContent=m+':'+(s<10?'0':'')+s;
-  document.getElementById('timer-fill').style.width=(timerRemaining/timerTotal*100)+'%';
-}
-function cycleTimerDur(){
-  timerDurIdx=(timerDurIdx+1)%TIMER_DURATIONS.length;
-  localStorage.setItem('ff_tdur',timerDurIdx);
-  document.getElementById('timer-dur-btn').textContent=TIMER_DURATIONS[timerDurIdx]+'s';
-  if(timerInterval) startTimer();
-}
-function beep(){
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    [880,1100].forEach((freq,i)=>{
-      const o=ctx.createOscillator(),g=ctx.createGain();
-      o.connect(g);g.connect(ctx.destination);o.frequency.value=freq;
-      g.gain.setValueAtTime(0.25,ctx.currentTime+i*0.18);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.3);
-      o.start(ctx.currentTime+i*0.18);o.stop(ctx.currentTime+i*0.18+0.35);
-    });
-  }catch(e){}
-}
-/* == THEME TOGGLE ============================================= */
-function toggleTheme(){
-  isDark=!isDark;
-  applyTheme();
-  localStorage.setItem('ff_theme',isDark?'dark':'light');
-}
-function applyTheme(){
-  document.body.classList.toggle('light',!isDark);
-  const btn=document.getElementById('theme-btn');
-  if(btn) btn.textContent=isDark?'Mode clair':'Mode sombre';
+  const nonEmpty=getSessionExIds(curSession.id).filter(e=>(curSets[e]||[]).length>0);
+  if(!nonEmpty.length){showToast('Ajoute au moins 1 s\u00e9rie !','warn');return;}
+  const entry={
+    id:Date.now(),
+    date:today(),
+    sessionId:curSession.id,
+    sessionName:curSession.name,
+    sets:{}
+  };
+  nonEmpty.forEach(e=>{entry.sets[e]=curSets[e];});
+  entry.notes={};
+  Object.keys(curNotes).forEach(e=>{if(curNotes[e])entry.notes[e]=curNotes[e];});
+  history.push(entry);
+  save();
+  showToast('S\u00e9ance sauvegard\u00e9e \uD83C\uDFC6','pr');
+  setTimeout(()=>showHome(),700);
 }
 
-/* == 1RM (Epley formula) ======================================= */
-function epley(w,r){ return r<=1?w:Math.round(w*(1+r/30)); }
-
-/* == WEEKLY PLANNING ========================================== */
-const DAY_NAMES=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-function showPlanning(){
-  renderPlanning();
-  switchScreen('screen-planning');
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 HISTORY \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+let activeTab='seances';
+function showHistory(){
+  renderSeances();
+  renderRecords();
+  switchTab(activeTab);
+  switchScreen('screen-history');
 }
-function renderPlanning(){
-  const days=[1,2,3,4,5,6,0];
-  const todayD=new Date().getDay();
-  document.getElementById('plan-grid').innerHTML=days.map(d=>{
-    const sid=weekPlan[d];
-    const s=sid?SESSIONS.find(x=>x.id==sid):null;
-    const isToday=todayD===d;
-    return '<div class="plan-day'+(sid?' has-s':'')+(isToday?' today':'')+'"'
-      +(s?' style="--pc:'+s.color+'"':'')+' onclick="cyclePlanDay('+d+')">'
-      +'<div class="plan-lbl">'+DAY_NAMES[d]+'</div>'
-      +(s?'<div class="plan-snum" style="color:'+s.color+'">S'+sid+'</div>'
-          +'<div class="plan-sname">'+s.name+'</div>'
-        :'<div class="plan-rest">&#8212;</div>')
-      +(isToday?'<div class="plan-dot"></div>':'')
-      +'</div>';
+
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tc-'+t).classList.add('active');
+}
+
+function renderSeances(){
+  const el=document.getElementById('tc-seances');
+  if(!history.length){
+    el.innerHTML=`<div class="hist-empty">Aucune s\u00e9ance enregistr\u00e9e encore.<br><br>Lance-toi ! \uD83D\uDCAA</div>`;
+    return;
+  }
+  el.innerHTML=[...history].reverse().map((h,ri)=>{
+    const idx=history.length-1-ri;
+    const s=SESSIONS.find(x=>x.id===h.sessionId);
+    const color=s?s.color:'#7C68EE';
+    const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
+    const nEx=Object.keys(h.sets).length;
+    const totalSets=Object.values(h.sets).reduce((t,s)=>t+s.length,0);
+
+    const detail=Object.entries(h.sets).map(([eid,sets])=>{
+      const ex=EX[eid];
+      const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
+      const chips=sets.map((s,i)=>`<span class="h-set-chip${i===bestI&&sets.length>1?' best':''}">${fmt(s.w)}\u00d7${s.r}</span>`).join('');
+      const v=vol(sets);
+      return `<div class="h-ex-block">
+        <div class="h-ex-name">${ex?ex.name:eid}</div>
+        <div class="h-sets-wrap">${chips}</div>
+        <div class="h-ex-vol">Volume : ${v} kg</div>
+        ${(h.notes&&h.notes[eid])?'<div class="h-note">&#128172; '+h.notes[eid]+'</div>':''}
+      </div>`;
+    }).join('');
+
+    return `<div class="h-entry">
+      <div class="h-head" onclick="this.nextElementSibling.classList.toggle('open')">
+        <div class="h-left">
+          <div class="h-date">${fmtDate(h.date)}</div>
+          <div class="h-name">S${h.sessionId} \u00b7 ${h.sessionName}</div>
+        </div>
+        <div class="h-right">
+          <span class="h-badge" style="background:${color}22;color:${color}">${nEx} exo \u00b7 ${totalSets} s\u00e9ries</span>
+          <span class="h-vol">\uD83D\uDCE6 ${totalV} kg</span>
+        </div>
+      </div>
+      <div class="h-detail">
+        ${detail}
+        <button class="h-del-btn" onclick="delHistory(${idx})">\uD83D\uDDD1 Supprimer cette s\u00e9ance</button>
+      </div>
+    </div>`;
   }).join('');
 }
-function cyclePlanDay(d){
-  const cur=weekPlan[d]||0;
-  const next=cur>=4?null:(cur||0)+1;
-  if(next===null) delete weekPlan[d]; else weekPlan[d]=next;
-  save(); renderPlanning(); initHome();
+
+function renderRecords(){
+  const el=document.getElementById('tc-records');
+  const allEx=Object.keys(EX);
+  const withHistory=allEx.filter(eid=>getExHistory(eid).length>0);
+  if(!withHistory.length){
+    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>Compl\u00e8te ta premi\u00e8re s\u00e9ance ! \uD83D\uDCAA</div>`;
+    return;
+  }
+  el.innerHTML=withHistory.map(eid=>{
+    const ex=EX[eid], c=ex.color, bg=c+'22';
+    const hist=getExHistory(eid); // most recent first
+    const pr=getPR(eid);
+    const recent=hist.slice(0,5).reverse(); // oldest to newest for chart
+    const maxW=recent.reduce((m,h)=>Math.max(m,h.best.w),0);
+
+    const bars=recent.map(h=>{
+      const pct=maxW>0?Math.round((h.best.w/maxW)*32):4;
+      return `<div class="trend-bar">
+        <div class="trend-val" style="color:${c}">${fmt(h.best.w)}</div>
+        <div class="trend-fill" style="height:${pct}px;background:${c}66"></div>
+        <div class="trend-date">${fmtDate(h.date).slice(0,6)}</div>
+      </div>`;
+    }).join('');
+
+    const rows=hist.map(h=>{
+      const bestS=best1set(h.sets);
+      const chips=h.sets.map(s=>`<span class="h-set-chip">${fmt(s.w)}\u00d7${s.r}</span>`).join('');
+      return `<div class="rec-row">
+        <span class="rec-row-date">${fmtDate(h.date)}</span>
+        <div class="rec-row-sets">${chips}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="rec-card">
+      <div class="rec-head" onclick="this.parentElement.querySelector('.rec-detail').classList.toggle('open')">
+        <div class="rec-icon" style="background:${bg};color:${c}">${ex.svg}</div>
+        <div class="rec-info">
+          <div class="rec-name">${ex.name}</div>
+          <div class="rec-best">\uD83C\uDFC6 ${fmt(pr.w)} \u00d7 ${pr.r} rep</div>
+          <div class="rec-date">Record le ${fmtDate(pr.date)} \u00b7 ${hist.length} s\u00e9ance${hist.length>1?'s':''}</div>
+        </div>
+      </div>
+      ${recent.length>1?`<div class="rec-trend">${bars}</div>`:''}
+      <div class="rec-detail">
+        <div style="font-size:12px;font-weight:700;color:var(--t2);padding:10px 0 6px">TOUTES LES S\u00c9ANCES</div>
+        ${rows}
+      </div>
+    </div>`;
+  }).join('');
 }
+
+function delHistory(idx){
+  if(!confirm('Supprimer cette s\u00e9ance ? Cette action est irr\u00e9versible.')) return;
+  history.splice(idx,1);
+  save();
+  showToast('S\u00e9ance supprim\u00e9e','warn');
+  renderSeances();
+  renderRecords();
+}
+
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 EXPORT \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+function showExport(){
+  if(!history.length){showToast('Aucune donn\u00e9e \u00e0 exporter','warn');return;}
+  let txt='FitForge Log \u00e2\u20ac\u201d Export du '+todayFull()+'\n';
+  txt+='='.repeat(40)+'\n\n';
+  [...history].reverse().forEach(h=>{
+    const s=SESSIONS.find(x=>x.id===h.sessionId);
+    const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
+    txt+=`\uD83D\uDCC5 ${fmtDate(h.date)} \u00e2\u20ac\u201d S${h.sessionId} ${h.sessionName}\n`;
+    txt+=`Volume total : ${totalV} kg\n`;
+    Object.entries(h.sets).forEach(([eid,sets])=>{
+      const ex=EX[eid];
+      const setsStr=sets.map(s=>`${s.w}kg\u00d7${s.r}`).join(', ');
+      txt+=`  \u00e2\u20ac\u00a2 ${ex?ex.name:eid} : ${setsStr} (vol: ${vol(sets)}kg)\n`;
+    });
+    txt+='\n';
+  });
+  txt+='='.repeat(40)+'\n';
+  txt+=`Total : ${history.length} s\u00e9ance(s)\n`;
+  document.getElementById('export-text').value=txt;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function copyExport(){
+  const ta=document.getElementById('export-text');
+  ta.select();
+  try{
+    navigator.clipboard.writeText(ta.value).then(()=>showToast('Copi\u00e9 &#10003;','ok')).catch(()=>{
+      document.execCommand('copy');showToast('Copi\u00e9 &#10003;','ok');
+    });
+  }catch(e){document.execCommand('copy');showToast('Copi\u00e9 &#10003;','ok');}
+}
+
+function closeOverlay(e){
+  if(!e||e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 NAVIGATION \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+/* == SESSION EDITOR ======================================== */
+let editingSessionId=null;
+function updateVolDisplay(){
+  const v=totalVol();
+  document.getElementById('nav-vol').textContent=v>0?v+'kg total':'';
+}
+
+function setRowingChoice(ch){
+  s4choice.rowing_choice=ch;
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent.includes(ch==='bent_row'?'pench\u00e9':'bras'));
+  });
+}
+
+function confirmBack(){
+  const hasSets=curSession.exIds.some(e=>(curSets[e]||[]).length>0);
+  if(!hasSets){showHome();return;}
+  if(confirm('Quitter sans sauvegarder ?')) showHome();
+}
+
+function finishSession(){
+  stopTimer();
+  const nonEmpty=getSessionExIds(curSession.id).filter(e=>(curSets[e]||[]).length>0);
+  if(!nonEmpty.length){showToast('Ajoute au moins 1 s\u00e9rie !','warn');return;}
+  const entry={
+    id:Date.now(),
+    date:today(),
+    sessionId:curSession.id,
+    sessionName:curSession.name,
+    sets:{}
+  };
+  nonEmpty.forEach(e=>{entry.sets[e]=curSets[e];});
+  entry.notes={};
+  Object.keys(curNotes).forEach(e=>{if(curNotes[e])entry.notes[e]=curNotes[e];});
+  history.push(entry);
+  save();
+  showToast('S\u00e9ance sauvegard\u00e9e \uD83C\uDFC6','pr');
+  setTimeout(()=>showHome(),700);
+}
+
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 HISTORY \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+let activeTab='seances';
+function showHistory(){
+  renderSeances();
+  renderRecords();
+  switchTab(activeTab);
+  switchScreen('screen-history');
+}
+
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tc-'+t).classList.add('active');
+}
+
+function renderSeances(){
+  const el=document.getElementById('tc-seances');
+  if(!history.length){
+    el.innerHTML=`<div class="hist-empty">Aucune s\u00e9ance enregistr\u00e9e encore.<br><br>Lance-toi ! \uD83D\uDCAA</div>`;
+    return;
+  }
+  el.innerHTML=[...history].reverse().map((h,ri)=>{
+    const idx=history.length-1-ri;
+    const s=SESSIONS.find(x=>x.id===h.sessionId);
+    const color=s?s.color:'#7C68EE';
+    const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
+    const nEx=Object.keys(h.sets).length;
+    const totalSets=Object.values(h.sets).reduce((t,s)=>t+s.length,0);
+
+    const detail=Object.entries(h.sets).map(([eid,sets])=>{
+      const ex=EX[eid];
+      const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
+      const chips=sets.map((s,i)=>`<span class="h-set-chip${i===bestI&&sets.length>1?' best':''}">${fmt(s.w)}\u00d7${s.r}</span>`).join('');
+      const v=vol(sets);
+      return `<div class="h-ex-block">
+        <div class="h-ex-name">${ex?ex.name:eid}</div>
+        <div class="h-sets-wrap">${chips}</div>
+        <div class="h-ex-vol">Volume : ${v} kg</div>
+        ${(h.notes&&h.notes[eid])?'<div class="h-note">&#128172; '+h.notes[eid]+'</div>':''}
+      </div>`;
+    }).join('');
+
+    return `<div class="h-entry">
+      <div class="h-head" onclick="this.nextElementSibling.classList.toggle('open')">
+        <div class="h-left">
+          <div class="h-date">${fmtDate(h.date)}</div>
+          <div class="h-name">S${h.sessionId} \u00b7 ${h.sessionName}</div>
+        </div>
+        <div class="h-right">
+          <span class="h-badge" style="background:${color}22;color:${color}">${nEx} exo \u00b7 ${totalSets} s\u00e9ries</span>
+          <span class="h-vol">\uD83D\uDCE6 ${totalV} kg</span>
+        </div>
+      </div>
+      <div class="h-detail">
+        ${detail}
+        <button class="h-del-btn" onclick="delHistory(${idx})">\uD83D\uDDD1 Supprimer cette s\u00e9ance</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecords(){
+  const el=document.getElementById('tc-records');
+  const allEx=Object.keys(EX);
+  const withHistory=allEx.filter(eid=>getExHistory(eid).length>0);
+  if(!withHistory.length){
+    el.innerHTML=`<div class="hist-empty">Aucun record encore.<br>Compl\u00e8te ta premi\u00e8re s\u00e9ance ! \uD83D\uDCAA</div>`;
+    return;
+  }
+  el.innerHTML=withHistory.map(eid=>{
+    const ex=EX[eid], c=ex.color, bg=c+'22';
+    const hist=getExHistory(eid); // most recent first
+    const pr=getPR(eid);
+    const recent=hist.slice(0,5).reverse(); // oldest to newest for chart
+    const maxW=recent.reduce((m,h)=>Math.max(m,h.best.w),0);
+
+    const bars=recent.map(h=>{
+      const pct=maxW>0?Math.round((h.best.w/maxW)*32):4;
+      return `<div class="trend-bar">
+        <div class="trend-val" style="color:${c}">${fmt(h.best.w)}</div>
+        <div class="trend-fill" style="height:${pct}px;background:${c}66"></div>
+        <div class="trend-date">${fmtDate(h.date).slice(0,6)}</div>
+      </div>`;
+    }).join('');
+
+    const rows=hist.map(h=>{
+      const bestS=best1set(h.sets);
+      const chips=h.sets.map(s=>`<span class="h-set-chip">${fmt(s.w)}\u00d7${s.r}</span>`).join('');
+      return `<div class="rec-row">
+        <span class="rec-row-date">${fmtDate(h.date)}</span>
+        <div class="rec-row-sets">${chips}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="rec-card">
+      <div class="rec-head" onclick="this.parentElement.querySelector('.rec-detail').classList.toggle('open')">
+        <div class="rec-icon" style="background:${bg};color:${c}">${ex.svg}</div>
+        <div class="rec-info">
+          <div class="rec-name">${ex.name}</div>
+          <div class="rec-best">\uD83C\uDFC6 ${fmt(pr.w)} \u00d7 ${pr.r} rep</div>
+          <div class="rec-date">Record le ${fmtDate(pr.date)} \u00b7 ${hist.length} s\u00e9ance${hist.length>1?'s':''}</div>
+        </div>
+      </div>
+      ${recent.length>1?`<div class="rec-trend">${bars}</div>`:''}
+      <div class="rec-detail">
+        <div style="font-size:12px;font-weight:700;color:var(--t2);padding:10px 0 6px">TOUTES LES S\u00c9ANCES</div>
+        ${rows}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function delHistory(idx){
+  if(!confirm('Supprimer cette s\u00e9ance ? Cette action est irr\u00e9versible.')) return;
+  history.splice(idx,1);
+  save();
+  showToast('S\u00e9ance supprim\u00e9e','warn');
+  renderSeances();
+  renderRecords();
+}
+
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 EXPORT \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+function showExport(){
+  if(!history.length){showToast('Aucune donn\u00e9e \u00e0 exporter','warn');return;}
+  let txt='FitForge Log \u00e2\u20ac\u201d Export du '+todayFull()+'\n';
+  txt+='='.repeat(40)+'\n\n';
+  [...history].reverse().forEach(h=>{
+    const s=SESSIONS.find(x=>x.id===h.sessionId);
+    const totalV=Object.values(h.sets).reduce((t,s)=>t+vol(s),0);
+    txt+=`\uD83D\uDCC5 ${fmtDate(h.date)} \u00e2\u20ac\u201d S${h.sessionId} ${h.sessionName}\n`;
+    txt+=`Volume total : ${totalV} kg\n`;
+    Object.entries(h.sets).forEach(([eid,sets])=>{
+      const ex=EX[eid];
+      const setsStr=sets.map(s=>`${s.w}kg\u00d7${s.r}`).join(', ');
+      txt+=`  \u00e2\u20ac\u00a2 ${ex?ex.name:eid} : ${setsStr} (vol: ${vol(sets)}kg)\n`;
+    });
+    txt+='\n';
+  });
+  txt+='='.repeat(40)+'\n';
+  txt+=`Total : ${history.length} s\u00e9ance(s)\n`;
+  document.getElementById('export-text').value=txt;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function copyExport(){
+  const ta=document.getElementById('export-text');
+  ta.select();
+  try{
+    navigator.clipboard.writeText(ta.value).then(()=>showToast('Copi\u00e9 &#10003;','ok')).catch(()=>{
+      document.execCommand('copy');showToast('Copi\u00e9 &#10003;','ok');
+    });
+  }catch(e){document.execCommand('copy');showToast('Copi\u00e9 &#10003;','ok');}
+}
+
+function closeOverlay(e){
+  if(!e||e.target===document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+
+/* \u00e2\u2022\u0090\u00e2\u2022\u0090 NAVIGATION \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
+/* == SESSION EDITOR ======================================== */
+let editingSessionId=null;
+let editorDraft=[];
+
 function showHome(){initHome();switchScreen('screen-home');}
 function switchScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
