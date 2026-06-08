@@ -294,9 +294,9 @@ select{font-family:inherit}
 /* \u00e2\u2022\u0090\u00e2\u2022\u0090 EXERCISE & SESSION DATA \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
 const SESSIONS=[
   {id:1,name:'PUSH',sub:'Pecs \u00b7 \u00c9paules \u00b7 Biceps',color:'#E8484F',
-   exIds:['bench_press','incline_press','lateral_raise','incline_curl','preacher_curl']},
-  {id:2,name:'PULL + TRI',sub:'Dos \u00b7 Triceps',color:'#4F9EE8',
-   exIds:['bent_row','one_arm_row','overhead_ext','skull_crusher','dips']},
+   exIds:['bench_press','incline_press','lateral_raise','overhead_ext','skull_crusher','dips']},
+  {id:2,name:'PULL + BICEPS',sub:'Dos \u00b7 Biceps',color:'#4F9EE8',
+   exIds:['bent_row','one_arm_row','incline_curl','preacher_curl','hammer_curl']},
   {id:3,name:'LEGS',sub:'Jambes \u00b7 Ischios \u00b7 Fessiers',color:'#30D158',
    exIds:['deadlift','squat','lunges','leg_curl']},
   {id:4,name:'\u00c9PAULES +',sub:'\u00c9paules \u00b7 Biceps \u00b7 Dos',color:'#FF9F0A',
@@ -338,19 +338,21 @@ const EX={
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="32" r="7"/><rect fill="currentColor" x="44" y="39" width="12" height="16" rx="5" transform="rotate(30,50,47)"/><rect fill="currentColor" x="8" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="56" y="42" width="36" height="8" rx="4"/><rect fill="currentColor" x="6" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="86" y="36" width="8" height="18" rx="3"/><rect fill="currentColor" x="38" y="54" width="10" height="24" rx="4" transform="rotate(15,43,66)"/><rect fill="currentColor" x="52" y="54" width="10" height="24" rx="4" transform="rotate(-15,57,66)"/><rect fill="currentColor" x="30" y="75" width="9" height="16" rx="4" transform="rotate(20,34,83)"/><rect fill="currentColor" x="62" y="75" width="9" height="16" rx="4" transform="rotate(-20,66,83)"/></svg>`},
   hammer_curl:{name:'Curl Marteau',muscle:'Biceps',color:'#7C68EE',tip:'Prise neutre \u00b7 coudes fixes le long du corps',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="50" cy="18" r="7"/><rect fill="currentColor" x="44" y="25" width="12" height="18" rx="5"/><rect fill="currentColor" x="16" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="76" y="40" width="8" height="32" rx="3"/><rect fill="currentColor" x="14" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="36" width="12" height="8" rx="3"/><rect fill="currentColor" x="14" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="74" y="68" width="12" height="8" rx="3"/><rect fill="currentColor" x="30" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="58" y="38" width="12" height="30" rx="4"/><rect fill="currentColor" x="36" y="66" width="10" height="22" rx="4"/><rect fill="currentColor" x="54" y="66" width="10" height="22" rx="4"/></svg>`},
+  push_up:{name:'Pompes',muscle:'Pectoraux',color:'#E8484F',tip:'Corps droit du talon a la tete',svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="82" cy="34" r="7"/><rect fill="currentColor" x="20" y="38" width="58" height="9" rx="4"/><rect fill="currentColor" x="14" y="47" width="8" height="18" rx="4"/><rect fill="currentColor" x="78" y="47" width="8" height="18" rx="4"/><rect fill="currentColor" x="10" y="64" width="16" height="5" rx="2"/><rect fill="currentColor" x="74" y="64" width="16" height="5" rx="2"/><rect fill="currentColor" x="34" y="47" width="10" height="18" rx="4"/><rect fill="currentColor" x="48" y="47" width="10" height="18" rx="4"/><rect fill="currentColor" x="30" y="64" width="40" height="5" rx="2"/></svg>`},
+  pull_up:{name:'Tractions',muscle:'Dos',color:'#4F9EE8',tip:'Prise large - menton au-dessus de la barre',svg:`<svg viewBox="0 0 100 100"><rect fill="currentColor" x="8" y="12" width="84" height="7" rx="3"/><rect fill="currentColor" x="8" y="8" width="7" height="20" rx="3"/><rect fill="currentColor" x="85" y="8" width="7" height="20" rx="3"/><circle fill="currentColor" cx="50" cy="33" r="7"/><rect fill="currentColor" x="30" y="18" width="5" height="16" rx="2"/><rect fill="currentColor" x="65" y="18" width="5" height="16" rx="2"/><rect fill="currentColor" x="44" y="40" width="12" height="20" rx="5"/><rect fill="currentColor" x="38" y="60" width="7" height="22" rx="3"/><rect fill="currentColor" x="55" y="60" width="7" height="22" rx="3"/></svg>`},
   rowing_choice:{name:'Rowing',muscle:'Dos',color:'#4F9EE8',tip:'Buste pench\u00e9 OU 1 bras \u00e2\u20ac\u201d au choix',
     svg:`<svg viewBox="0 0 100 100"><circle fill="currentColor" cx="22" cy="28" r="7"/><rect fill="currentColor" x="20" y="35" width="50" height="9" rx="4" transform="rotate(12,45,39)"/><rect fill="currentColor" x="56" y="20" width="7" height="30" rx="3" transform="rotate(-50,59,35)"/><rect fill="currentColor" x="36" y="20" width="7" height="30" rx="3" transform="rotate(-60,39,35)"/><rect fill="currentColor" x="18" y="48" width="56" height="5" rx="2" transform="rotate(12,46,50)"/><rect fill="currentColor" x="6" y="42" width="12" height="18" rx="2" transform="rotate(12,12,51)"/><rect fill="currentColor" x="80" y="45" width="12" height="18" rx="2" transform="rotate(12,86,54)"/><rect fill="currentColor" x="56" y="55" width="8" height="28" rx="4"/><rect fill="currentColor" x="70" y="55" width="8" height="28" rx="4"/></svg>`},
 };
 
-const WEIGHTS=Array.from({length:96},(_,i)=>i+5);
+const WEIGHTS=['PDC',...Array.from({length:96},(_,i)=>i+5)];
 const REPS=Array.from({length:25},(_,i)=>i+1);
 const TIMER_DURATIONS=[60,90,120,180];
 const EX_BY_MUSCLE={
-  'Pectoraux':['bench_press','incline_press'],
+  'Pectoraux':['bench_press','incline_press','push_up'],
   'Epaules':['lateral_raise','military_press','bent_fly'],
   'Biceps':['incline_curl','preacher_curl','hammer_curl'],
   'Triceps':['overhead_ext','skull_crusher','dips'],
-  'Dos':['bent_row','one_arm_row','rowing_choice'],
+  'Dos':['bent_row','one_arm_row','pull_up','rowing_choice'],
   'Jambes':['deadlift','squat','lunges','leg_curl'],
 };
 
@@ -377,8 +379,8 @@ function getSessionExIds(id){
 }
 
 /* \u00e2\u2022\u0090\u00e2\u2022\u0090 HELPERS \u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090\u00e2\u2022\u0090 */
-function fmt(w){return w%1===0?w+'kg':w+'kg';}
-function vol(sets){return sets.reduce((s,x)=>s+x.w*x.r,0);}
+function fmt(w){return w==='PDC'?'PDC':w+'kg';}
+function vol(sets){return sets.reduce((s,x)=>s+(x.w==='PDC'?0:x.w*x.r),0);}
 function best1set(sets){return sets.reduce((b,s)=>s.w>b.w||(s.w===b.w&&s.r>b.r)?s:b,{w:0,r:0});}
 function today(){return new Date().toISOString().slice(0,10);}
 function fmtDate(d){
@@ -506,7 +508,7 @@ function renderExCard(eid){
   const bestI=sets.length?sets.reduce((bi,s,i)=>s.w*s.r>sets[bi].w*sets[bi].r?i:bi,0):-1;
   const chips=sets.map((s,i)=>`<div class="chip${i===bestI&&sets.length>1?' pr':''}" ${i===bestI&&sets.length>1?`style="--ic:${c}"`:''}>${fmt(s.w)} \u00d7 ${s.r}<span class="del" onclick="delSet('${eid}',${i})">&#10005;</span></div>`).join('');
 
-  const defW=lastWeights[eid]||20;
+  const bwList=['dips','push_up','pull_up']; const defW=lastWeights[eid]||(bwList.includes(eid)?'PDC':20);
   const wOpts=WEIGHTS.map(w=>`<option${w==defW?' selected':''}>${w}</option>`).join('');
   const rOpts=REPS.map(r=>`<option${r==10?' selected':''}>${r}</option>`).join('');
 
@@ -531,7 +533,7 @@ function renderExCard(eid){
 }
 
 function addSet(eid){
-  const w=parseFloat(document.getElementById('w-'+eid).value);
+  const wRaw=document.getElementById('w-'+eid).value; const w=(wRaw==='PDC')?'PDC':parseFloat(wRaw);
   const r=parseInt(document.getElementById('r-'+eid).value);
   const newPR=isNewPR(eid,w,r);
   curSets[eid].push({w,r});
