@@ -47,6 +47,7 @@ class LogSession {
   final int sessionType;
   final List<LogExercise> exercises;
   final String? notes;
+  final String? feeling; // 'great' | 'ok' | 'hard'
 
   LogSession({
     String? id,
@@ -54,6 +55,7 @@ class LogSession {
     required this.sessionType,
     required this.exercises,
     this.notes,
+    this.feeling,
   }) : id = id ?? _uuid.v4();
 
   factory LogSession.fromJson(Map<String, dynamic> j) => LogSession(
@@ -62,6 +64,7 @@ class LogSession {
         sessionType: j['type'] as int,
         exercises: (j['exercises'] as List).map((e) => LogExercise.fromJson(e as Map<String, dynamic>)).toList(),
         notes: j['notes'] as String?,
+        feeling: j['feeling'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -70,6 +73,7 @@ class LogSession {
         'type': sessionType,
         'exercises': exercises.map((e) => e.toJson()).toList(),
         'notes': notes,
+        'feeling': feeling,
       };
 
   double get totalVolume => exercises.fold(0.0, (v, e) => v + e.totalVolume);

@@ -1,15 +1,18 @@
 ﻿import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
+import '../../../services/health_service.dart';
 
 // Weight options: null = PDC, then 5..100
 final _weights = <double?>[null, ...List.generate(96, (i) => (i + 5).toDouble())];
@@ -38,6 +41,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
   @override
   void initState() {
     super.initState();
+    WakelockPlus.enable();
     WidgetsBinding.instance.addPostFrameCallback((_) => _initDefaults());
   }
 
@@ -79,6 +83,19 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       _sets[exId] = [...(_sets[exId] ?? []), set];
     });
     ref.read(lastWeightsProvider.notifier).setWeight(exId, w);
+
+    // Haptic feedback
+    final oldPrs = ref.read(personalRecordsProvider);
+    final newSets = _sets[exId] ?? [];
+    final best = newSets.isEmpty
+        ? null
+        : newSets.reduce((a, b) => a.score >= b.score ? a : b);
+    final old = oldPrs[exId];
+    if (best != null && (old == null || best.score > old.score)) {
+      HapticFeedback.heavyImpact();
+    }
+    HapticFeedback.lightImpact();
+
     _startRestTimer();
   }
 
@@ -126,6 +143,25 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     }
     _stopRestTimer();
 
+    // Ressenti de fin de séance
+    final feeling = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Comment s\'est passée la séance ?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _FeelingButton(emoji: '💪', label: 'Super', value: 'great'),
+            _FeelingButton(emoji: '😐', label: 'Moyen', value: 'ok'),
+            _FeelingButton(emoji: '😴', label: 'Difficile', value: 'hard'),
+          ],
+        ),
+      ),
+    );
+
     final exercises = _sets.entries
         .where((e) => e.value.isNotEmpty)
         .map((e) => LogExercise(
@@ -135,7 +171,8 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     final session = LogSession(
         date: DateTime.now(),
         sessionType: widget.sessionType,
-        exercises: exercises);
+        exercises: exercises,
+        feeling: feeling);
     await ref.read(logHistoryProvider.notifier).addSession(session);
 
     // Check PRs
@@ -148,6 +185,16 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
         if (old == null || best.score > old.score) newPrs.add(ex.exerciseId);
       }
     }
+
+    // Sync Health Connect (Zepp)
+    HealthService.writeWorkout(session).then((ok) {
+      if (ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Synchro Health Connect ✓'),
+              backgroundColor: Color(0xFF30D158)));
+      }
+    });
 
     if (mounted) {
       if (newPrs.isNotEmpty) {
@@ -173,6 +220,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
   @override
   void dispose() {
     _restTimer?.cancel();
+    WakelockPlus.disable();
     super.dispose();
   }
 
@@ -191,13 +239,15 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
             slivers: [
               SliverAppBar(
                 pinned: true,
-                backgroundColor: AppColors.bg,
+                backgroundColor: config.color.withOpacity(.12),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('S${config.type} · ${config.name}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800)),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: config.color)),
                     Text('${_totalVolume.toStringAsFixed(0)} kg total',
                         style: const TextStyle(
                             fontSize: 11,
@@ -205,7 +255,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                   ],
                 ),
                 leading: IconButton(
-                  icon: const Icon(Icons.arrow_back_rounded),
+                  icon: Icon(Icons.arrow_back_rounded, color: config.color),
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -334,6 +384,28 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
   }
 }
 
+// ── Feeling button (fin de séance) ────────────────────────────
+class _FeelingButton extends StatelessWidget {
+  final String emoji, label, value;
+  const _FeelingButton(
+      {required this.emoji, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => Navigator.pop(context, value),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 30)),
+            const SizedBox(height: 4),
+            Text(label,
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      );
+}
+
 // ── Exercise Card ─────────────────────────────────────────────
 class _ExerciseCard extends ConsumerWidget {
   final Exercise exercise;
@@ -367,6 +439,23 @@ class _ExerciseCard extends ConsumerWidget {
     final prs = ref.watch(personalRecordsProvider);
     final pr = prs[exercise.id];
     final lastEntry = hist.isNotEmpty ? hist.first : null;
+
+    // Poids suggéré : dernier poids utilisé + progression si toutes séries >10 reps
+    final isBodyweightExercise =
+        exercise.equipment.contains(Equipment.bodyweight) ||
+            _bwExercises.contains(exercise.id);
+    double? suggestedWeight;
+    if (hist.isNotEmpty && !isBodyweightExercise) {
+      final lastSets = hist.first.sets.where((s) => !s.isBodyweight).toList();
+      if (lastSets.isNotEmpty) {
+        final lastWeight = lastSets
+            .map((s) => s.weight ?? 0)
+            .reduce((a, b) => a >= b ? a : b);
+        final allOver10 =
+            lastSets.isNotEmpty && lastSets.every((s) => s.reps > 10);
+        suggestedWeight = allOver10 ? lastWeight + 2.5 : lastWeight;
+      }
+    }
 
     final bestIdx = sets.isEmpty
         ? -1
@@ -443,6 +532,15 @@ class _ExerciseCard extends ConsumerWidget {
                             style: const TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFFFF9F0A))),
+                      ],
+                      if (suggestedWeight != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                            '💡 Suggéré : ${suggestedWeight % 1 == 0 ? suggestedWeight.toInt() : suggestedWeight}kg',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: color,
+                                fontWeight: FontWeight.w600)),
                       ],
                     ],
                   ),

@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -321,16 +322,8 @@ class _RecordsTab extends ConsumerWidget {
             ? null
             : (pr.weight! * (1 + pr.reps / 30));
 
-        // Mini bar chart (last 5)
-        final recent = hist.take(5).toList().reversed.toList();
-        final maxScore = recent.isEmpty
-            ? 1.0
-            : recent.map((h) {
-                if (h.sets.isEmpty) return 0.0;
-                return h.sets
-                    .map((s) => s.score)
-                    .reduce((a, b) => a >= b ? a : b);
-              }).reduce((a, b) => a >= b ? a : b);
+        // LineChart : 10 dernières séances
+        final recentHistory = hist.take(10).toList().reversed.toList();
 
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
@@ -340,60 +333,77 @@ class _RecordsTab extends ConsumerWidget {
               border: Border.all(color: AppColors.border)),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(ex.name,
-                          style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700)),
-                      const SizedBox(height: 4),
-                      Text('🏆 ${pr.display}',
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFFFF9F0A))),
-                      if (estRM != null)
-                        Text('≈ 1RM : ${estRM.round()} kg',
-                            style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textSecondary)),
-                      Text('${hist.length} séance(s)',
-                          style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textMuted)),
-                    ],
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(ex.name,
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 4),
+                          Text('🏆 ${pr.display}',
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFFFF9F0A))),
+                          if (estRM != null)
+                            Text('≈ 1RM : ${estRM.round()} kg',
+                                style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary)),
+                          Text('${hist.length} séance(s)',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textMuted)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                if (recent.length > 1)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: recent.map((h) {
-                      final best = h.sets.isEmpty
-                          ? 0.0
-                          : h.sets
-                              .map((s) => s.score)
-                              .reduce((a, b) => a >= b ? a : b);
-                      final height = maxScore > 0
-                          ? (best / maxScore * 40).clamp(4.0, 40.0)
-                          : 4.0;
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Container(
-                            width: 12,
-                            height: height,
-                            decoration: BoxDecoration(
-                              color: ex.primaryMuscle.color
-                                  .withOpacity(.6),
-                              borderRadius: BorderRadius.circular(3),
-                            )),
-                      );
-                    }).toList(),
+                if (recentHistory.length > 1) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 60,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: const FlGridData(show: false),
+                        titlesData: const FlTitlesData(show: false),
+                        borderData: FlBorderData(show: false),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: recentHistory.asMap().entries.map((e) {
+                              final best = e.value.sets.isEmpty
+                                  ? null
+                                  : e.value.sets.reduce((a, b) =>
+                                      a.score >= b.score ? a : b);
+                              final y = best == null
+                                  ? 0.0
+                                  : (best.isBodyweight
+                                      ? best.reps.toDouble()
+                                      : (best.weight ?? 0));
+                              return FlSpot(e.key.toDouble(), y);
+                            }).toList(),
+                            isCurved: true,
+                            color: ex.primaryMuscle.color,
+                            barWidth: 2.5,
+                            dotData: const FlDotData(show: true),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              color: ex.primaryMuscle.color.withOpacity(.08),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                ],
               ],
             ),
           ),

@@ -33,6 +33,27 @@ class LogHomeScreen extends ConsumerWidget {
         ? '${(totalVol / 1000).toStringAsFixed(1)}t'
         : '${totalVol.toStringAsFixed(0)}kg';
 
+    // Calcul du streak : nombre de semaines consécutives avec au moins 1 séance
+    int weekStreak = 0;
+    {
+      final now = DateTime.now();
+      // Numéro de semaine ISO pour chaque séance
+      Set<int> weeksWithSession(int startOffset) {
+        return history
+            .map((s) {
+              final diff = now.difference(s.date).inDays + startOffset;
+              return diff ~/ 7;
+            })
+            .toSet();
+      }
+      final weeks = weeksWithSession(0);
+      int w = 0;
+      while (weeks.contains(w)) {
+        weekStreak++;
+        w++;
+      }
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: AppBar(
@@ -56,6 +77,8 @@ class LogHomeScreen extends ConsumerWidget {
               _StatBox(value: '$weekCount', label: 'CETTE SEMAINE'),
               const SizedBox(width: 10),
               _StatBox(value: volStr, label: 'VOLUME TOTAL'),
+              const SizedBox(width: 10),
+              _StatBox(value: '${weekStreak}sem', label: 'STREAK'),
             ],
           ).animate().fadeIn(delay: 50.ms),
           const SizedBox(height: 16),

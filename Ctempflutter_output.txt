@@ -1,0 +1,29 @@
+Launching lib\main.dart on Pixel 8 in debug mode...
+Running Gradle task 'assembleDebug'...                              4,4s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...           5,5s
+D/FlutterJNI(29242): Beginning load of flutter...
+D/FlutterJNI(29242): flutter (null) was loaded normally!
+I/flutter (29242): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+D/FlutterRenderer(29242): Width is zero. 0,0
+D/FlutterRenderer(29242): Width is zero. 0,0
+D/FlutterJNI(29242): Sending viewport metrics to the engine.
+Syncing files to device Pixel 8...                              
+I/Choreographer(29242): Skipped 118 frames!  The application may be doing too much work on its main thread.
+I/HWUI    (29242): Davey! duration=995ms; Flags=1, FrameTimelineVsyncId=129578627, IntendedVsync=202006884144333, Vsync=202007867438333, InputEventId=0, HandleInputStart=202007872342409, AnimationStart=202007872343874, PerformTraversalsStart=202007872344566, DrawStart=202007873512331, FrameDeadline=202006900744333, FrameStartTime=202007872120485, FrameInterval=8333000, WorkloadTarget=16600000, SyncQueued=202007873997642, SyncStart=202007874034955, IssueDrawCommandsStart=202007874249391, SwapBuffers=202007877631187, FrameCompleted=202007879345257, DequeueBufferDuration=1304240, QueueBufferDuration=197835, GpuCompleted=202007879345257, SwapBuffersCompleted=202007877857912, DisplayPresentTime=0, CommandSubmissionCompleted=202007877631187, 
+Syncing files to device Pixel 8...                                 114ms
+
+Flutter run key commands.
+r Hot reload. 
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on Pixel 8 is available at: http://127.0.0.1:59737/KBKRJCSVFIk=/
+The Flutter DevTools debugger and profiler on Pixel 8 is available at: http://127.0.0.1:59737/KBKRJCSVFIk=/devtools/?uri=ws://127.0.0.1:59737/KBKRJCSVFIk=/ws
+D/WindowLayoutComponentImpl(29242): Register WindowLayoutInfoListener on Context=com.fitforge.fitforge.MainActivity@658674d, of which baseContext=android.app.ContextImpl@feca90d
+D/FlutterJNI(29242): Sending viewport metrics to the engine.
+D/ProfileInstaller(29242): Installing profile for com.fitforge.fitforge
+Lost connection to device.
