@@ -9,7 +9,6 @@ import '../../../data/models/user_profile.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/workout_provider.dart';
-import '../../../providers/exercise_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -201,6 +200,64 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ),
+          // ── Log CTA ───────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: GestureDetector(
+                onTap: () => context.go('/log'),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF7C5CFC).withOpacity(.15),
+                        const Color(0xFF7C5CFC).withOpacity(.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withOpacity(.15),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Icon(Icons.menu_book_rounded,
+                            color: AppColors.accent, size: 26),
+                      ),
+                      const SizedBox(width: 14),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Carnet d\'entraînement',
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.textPrimary)),
+                            SizedBox(height: 3),
+                            Text('Logguez vos séances · Suivez vos records',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary)),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios_rounded,
+                          color: AppColors.accent, size: 16),
+                    ],
+                  ),
+                ),
+              ).animate().fadeIn(delay: 350.ms),
+            ),
+          ),
+
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
