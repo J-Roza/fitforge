@@ -72,20 +72,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/log',
             builder: (_, __) => const LogHomeScreen(),
-          ),
-          GoRoute(
-            path: '/log/history',
-            builder: (_, __) => const HistoryScreen(),
-          ),
-          GoRoute(
-            path: '/log/planning',
-            builder: (_, __) => const PlanningScreen(),
-          ),
-          GoRoute(
-            path: '/log/session/:type',
-            builder: (_, state) => ActiveLogScreen(
-              sessionType: int.parse(state.pathParameters['type'] ?? '1'),
-            ),
+            routes: [
+              GoRoute(
+                path: 'history',
+                builder: (_, __) => const HistoryScreen(),
+              ),
+              GoRoute(
+                path: 'planning',
+                builder: (_, __) => const PlanningScreen(),
+              ),
+              GoRoute(
+                path: 'session/:type',
+                builder: (_, state) => ActiveLogScreen(
+                  sessionType: int.parse(state.pathParameters['type'] ?? '1'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
