@@ -1,10 +1,10 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/log_models.dart';
@@ -166,7 +166,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                   color: Colors.black, fontWeight: FontWeight.w700)),
         ));
       }
-      context.pop();
+      Navigator.pop(context);
     }
   }
 
@@ -221,7 +221,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                           TextButton(
                               onPressed: () {
                                 Navigator.pop(context);
-                                context.pop();
+                                Navigator.pop(context);
                               },
                               child: const Text('Quitter',
                                   style: TextStyle(

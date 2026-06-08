@@ -10,10 +10,6 @@ import '../presentation/screens/workout/active_workout_screen.dart';
 import '../presentation/screens/workout/workout_editor_screen.dart';
 import '../presentation/screens/progress/progress_screen.dart';
 import '../presentation/screens/profile/profile_screen.dart';
-import '../presentation/screens/log/log_home_screen.dart';
-import '../presentation/screens/log/active_log_screen.dart';
-import '../presentation/screens/log/history_screen.dart';
-import '../presentation/screens/log/planning_screen.dart';
 import '../providers/user_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -68,27 +64,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             builder: (_, __) => const ProfileScreen(),
-          ),
-        ],
-      ),
-      // Log screens — outside ShellRoute (no bottom nav, full screen)
-      GoRoute(
-        path: '/log',
-        builder: (_, __) => const LogHomeScreen(),
-        routes: [
-          GoRoute(
-            path: 'history',
-            builder: (_, __) => const HistoryScreen(),
-          ),
-          GoRoute(
-            path: 'planning',
-            builder: (_, __) => const PlanningScreen(),
-          ),
-          GoRoute(
-            path: 'session/:type',
-            builder: (_, state) => ActiveLogScreen(
-              sessionType: int.parse(state.pathParameters['type'] ?? '1'),
-            ),
           ),
         ],
       ),

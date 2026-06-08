@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'active_log_screen.dart';
+import 'history_screen.dart';
+import 'planning_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/log_models.dart';
@@ -47,7 +49,7 @@ class LogHomeScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.calendar_month_rounded),
-                onPressed: () => context.push('/log/planning'),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanningScreen())),
               ),
             ],
           ),
@@ -58,7 +60,7 @@ class LogHomeScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  _StatBox(value: '${history.length}', label: 'SÉANCES'),
+                  _StatBox(value: '${history.length}', label: 'SÃ‰ANCES'),
                   const SizedBox(width: 10),
                   _StatBox(value: '$weekCount', label: 'CETTE SEMAINE'),
                   const SizedBox(width: 10),
@@ -110,7 +112,7 @@ class LogHomeScreen extends ConsumerWidget {
                     child: _NavButton(
                       icon: Icons.history_rounded,
                       label: 'Historique',
-                      onTap: () => context.push('/log/history'),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -118,7 +120,7 @@ class LogHomeScreen extends ConsumerWidget {
                     child: _NavButton(
                       icon: Icons.calendar_today_rounded,
                       label: 'Planning',
-                      onTap: () => context.push('/log/planning'),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanningScreen())),
                     ),
                   ),
                 ],
@@ -191,7 +193,7 @@ class _TodayBanner extends ConsumerWidget {
                             color: session.color,
                             letterSpacing: 1)),
                     const SizedBox(height: 3),
-                    Text('S${session.type} · ${session.name}',
+                    Text('S${session.type} Â· ${session.name}',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w800)),
                     Text(session.subtitle,
@@ -203,7 +205,7 @@ class _TodayBanner extends ConsumerWidget {
               const SizedBox(width: 12),
               TextButton(
                 onPressed: () =>
-                    context.push('/log/session/${session.type}'),
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveLogScreen(sessionType: session.type))),
                 style: TextButton.styleFrom(
                   backgroundColor: session.color.withOpacity(.15),
                   foregroundColor: session.color,
@@ -212,7 +214,7 @@ class _TodayBanner extends ConsumerWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Démarrer →',
+                child: const Text('DÃ©marrer â†’',
                     style: TextStyle(
                         fontWeight: FontWeight.w700, fontSize: 13)),
               ),
@@ -237,7 +239,7 @@ class _SessionCard extends StatelessWidget {
         : 'Jamais';
 
     return GestureDetector(
-      onTap: () => context.push('/log/session/${config.type}'),
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveLogScreen(sessionType: config.type))),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -248,7 +250,7 @@ class _SessionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('S${config.type} · $exCount exo',
+            Text('S${config.type} Â· $exCount exo',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -264,7 +266,7 @@ class _SessionCard extends StatelessWidget {
                     fontSize: 10, color: AppColors.textSecondary),
                 maxLines: 2),
             const SizedBox(height: 10),
-            Text('⏱ $lastStr',
+            Text('â± $lastStr',
                 style: const TextStyle(
                     fontSize: 10,
                     color: AppColors.textMuted,
@@ -318,3 +320,4 @@ extension _ListExt<T> on List<T> {
     return null;
   }
 }
+

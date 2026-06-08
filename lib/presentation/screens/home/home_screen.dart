@@ -9,6 +9,7 @@ import '../../../data/models/user_profile.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/workout_provider.dart';
+import '../log/log_home_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -205,7 +206,7 @@ class HomeScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: GestureDetector(
-                onTap: () => context.push('/log'),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogHomeScreen())),
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
