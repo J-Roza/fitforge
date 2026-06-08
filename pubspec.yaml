@@ -1,4 +1,4 @@
-name: fitforge
+﻿name: fitforge
 description: Fitness app for muscle training — iOS & Android
 publish_to: 'none'
 version: 1.0.0+1
@@ -30,7 +30,6 @@ dependencies:
 
   # Screen & health
   wakelock_plus: ^1.3.4
-  health: ^10.2.0
 
   # Utils
   uuid: ^4.4.0
