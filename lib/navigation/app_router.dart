@@ -69,25 +69,26 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/profile',
             builder: (_, __) => const ProfileScreen(),
           ),
+        ],
+      ),
+      // Log screens — outside ShellRoute (no bottom nav, full screen)
+      GoRoute(
+        path: '/log',
+        builder: (_, __) => const LogHomeScreen(),
+        routes: [
           GoRoute(
-            path: '/log',
-            builder: (_, __) => const LogHomeScreen(),
-            routes: [
-              GoRoute(
-                path: 'history',
-                builder: (_, __) => const HistoryScreen(),
-              ),
-              GoRoute(
-                path: 'planning',
-                builder: (_, __) => const PlanningScreen(),
-              ),
-              GoRoute(
-                path: 'session/:type',
-                builder: (_, state) => ActiveLogScreen(
-                  sessionType: int.parse(state.pathParameters['type'] ?? '1'),
-                ),
-              ),
-            ],
+            path: 'history',
+            builder: (_, __) => const HistoryScreen(),
+          ),
+          GoRoute(
+            path: 'planning',
+            builder: (_, __) => const PlanningScreen(),
+          ),
+          GoRoute(
+            path: 'session/:type',
+            builder: (_, state) => ActiveLogScreen(
+              sessionType: int.parse(state.pathParameters['type'] ?? '1'),
+            ),
           ),
         ],
       ),

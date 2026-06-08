@@ -205,7 +205,7 @@ class HomeScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: GestureDetector(
-                onTap: () => context.go('/log'),
+                onTap: () => context.push('/log'),
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
