@@ -13,6 +13,7 @@ import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../services/health_service.dart';
+import '../../../services/tcx_service.dart';
 
 // Weight options: null = PDC, then 5..100
 final _weights = <double?>[null, ...List.generate(96, (i) => (i + 5).toDouble())];
@@ -212,6 +213,38 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
               style: TextStyle(
                   color: Colors.black, fontWeight: FontWeight.w700)),
         ));
+      }
+      // After saving session and showing snackbar
+      if (mounted) {
+        final configs = ref.read(sessionsConfigProvider);
+        final config = configs.firstWhere((c) => c.type == widget.sessionType, orElse: () => configs.first);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            backgroundColor: AppColors.bgCard,
+            title: const Text('Exporter la séance ?'),
+            content: const Text('Exporte en format TCX pour importer dans Strava, Garmin Connect, Zepp ou toute autre appli fitness.', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Ignorer'),
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.share_rounded, size: 16),
+                label: const Text('Exporter TCX'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await TcxService.exportSession(session, 'S${config.type} - ${config.name}');
+                },
+              ),
+            ],
+          ),
+        );
       }
       Navigator.pop(context);
     }

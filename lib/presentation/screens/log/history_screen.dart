@@ -7,6 +7,7 @@ import '../../../data/models/exercise.dart';
 import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
+import '../../../services/tcx_service.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
@@ -240,7 +241,37 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: GestureDetector(
+                onTap: () async {
+                  final configs = ref.read(sessionsConfigProvider);
+                  final config = configs.firstWhere((c) => c.type == s.sessionType, orElse: () => configs.first);
+                  await TcxService.exportSession(s, 'S${s.sessionType} - ${config.name}');
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.accent.withOpacity(.2)),
+                  ),
+                  child: const Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.share_rounded, size: 15, color: AppColors.accent),
+                        SizedBox(width: 6),
+                        Text('Exporter en TCX', style: TextStyle(color: AppColors.accent, fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: GestureDetector(
                 onTap: () async {
                   final ok = await showDialog<bool>(

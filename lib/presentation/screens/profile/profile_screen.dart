@@ -5,8 +5,6 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/workout_provider.dart';
-import '../../../providers/strava_provider.dart';
-import '../../../services/strava_service.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -67,12 +65,6 @@ class ProfileScreen extends ConsumerWidget {
                               .animate()
                               .fadeIn(delay: 350.ms),
                         const SizedBox(height: 28),
-
-                        // ── Strava ────────────────────────────────────────
-                        _StravaSection()
-                            .animate()
-                            .fadeIn(delay: 380.ms),
-                        const SizedBox(height: 16),
 
                         // ── Settings ──────────────────────────────────────
                         _SettingsSection(user: user, ref: ref)
@@ -389,120 +381,6 @@ class _SettingsTile extends StatelessWidget {
 class _Separator extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Divider(height: 1, indent: 56);
-}
-
-class _StravaSection extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final strava = ref.watch(stravaProvider);
-    final isConnected = strava != null;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isConnected
-              ? const Color(0xFFFC4C02).withOpacity(0.4)
-              : AppColors.border,
-        ),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFC4C02).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Text('🧡', style: TextStyle(fontSize: 22)),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Strava',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                        ),
-                      ),
-                      Text(
-                        isConnected
-                            ? 'Connecté · ${strava.athleteName}'
-                            : 'Synchronise tes séances',
-                        style: const TextStyle(
-                            color: AppColors.textMuted, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                if (isConnected)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFC4C02).withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      '● Connecté',
-                      style: TextStyle(
-                        color: Color(0xFFFC4C02),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: isConnected
-                ? SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () async {
-                        await ref.read(stravaProvider.notifier).disconnect();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Strava déconnecté')),
-                          );
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: BorderSide(color: AppColors.error.withOpacity(0.4)),
-                      ),
-                      child: const Text('Déconnecter'),
-                    ),
-                  )
-                : SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: StravaService.openAuthPage,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFC4C02),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Connecter Strava'),
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _NoProfile extends StatelessWidget {
