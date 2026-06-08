@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -206,7 +206,7 @@ class HomeScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogHomeScreen())),
+                onTap: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (_) => const LogHomeScreen())),
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
