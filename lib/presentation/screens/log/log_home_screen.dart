@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
+import '../../../providers/exercise_provider.dart';
+import '../../../data/datasources/exercises_data.dart';
 import 'active_log_screen.dart';
 import 'history_screen.dart';
 import 'planning_screen.dart';
@@ -200,14 +202,14 @@ class _TodayBanner extends ConsumerWidget {
 }
 
 // ── Session card ──────────────────────────────────────────────
-class _SessionCard extends StatelessWidget {
+class _SessionCard extends ConsumerWidget {
   final SessionConfig config;
   final int exCount;
   final DateTime? lastDate;
   const _SessionCard({required this.config, required this.exCount, this.lastDate});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final lastStr = lastDate != null
         ? '${lastDate!.day}/${lastDate!.month}'
         : 'Jamais';
@@ -225,10 +227,28 @@ class _SessionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('S${config.type} · $exCount exo',
-                style: TextStyle(
-                    fontSize: 10, fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2, color: config.color)),
+            Row(
+              children: [
+                Expanded(
+                  child: Text('S${config.type} · $exCount exo',
+                      style: TextStyle(
+                          fontSize: 10, fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2, color: config.color)),
+                ),
+                GestureDetector(
+                  onTap: () => _openEditor(context, ref),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgCardElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: const Icon(Icons.edit_outlined, size: 13, color: AppColors.textMuted),
+                  ),
+                ),
+              ],
+            ),
             const Spacer(),
             Text(config.name,
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
@@ -244,6 +264,213 @@ class _SessionCard extends StatelessWidget {
                     fontWeight: FontWeight.w600)),
           ],
         ),
+      ),
+    );
+  }
+
+  void _openEditor(BuildContext context, WidgetRef ref) {
+    final sessions = ref.read(sessionsConfigProvider);
+    final custom   = ref.read(customSessionsProvider).value ?? {};
+    final current  = List<String>.from(getSessionExerciseIds(config.type, custom, sessions));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.bgCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => ProviderScope(
+        parent: ProviderScope.containerOf(context),
+        child: _SessionEditorSheet(config: config, initialIds: current),
+      ),
+    );
+  }
+}
+
+// ── Session editor bottom sheet ───────────────────────────────
+class _SessionEditorSheet extends ConsumerStatefulWidget {
+  final SessionConfig config;
+  final List<String> initialIds;
+  const _SessionEditorSheet({required this.config, required this.initialIds});
+
+  @override
+  ConsumerState<_SessionEditorSheet> createState() => _SessionEditorSheetState();
+}
+
+class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
+  late List<String> _draft;
+
+  // All exercises grouped by muscle
+  static const _groups = {
+    'Pectoraux': ['bench_press', 'incline_bench_press', 'dumbbell_bench_press', 'machine_chest_press_flat', 'dips_chest', 'push_up', 'dumbbell_flyes', 'cable_crossover'],
+    'Dos':       ['pull_up', 'barbell_row', 'dumbbell_row', 'lat_pulldown', 'seated_row', 'face_pull'],
+    'Epaules':   ['ohp', 'arnold_press', 'lateral_raise', 'front_raise'],
+    'Biceps':    ['barbell_curl', 'preacher_curl', 'concentration_curl', 'hammer_curl'],
+    'Triceps':   ['skull_crusher', 'tricep_pushdown', 'overhead_tricep_extension', 'close_grip_bench', 'dips_chest'],
+    'Jambes':    ['squat', 'deadlift', 'romanian_deadlift', 'leg_press', 'lunges', 'leg_extension', 'leg_curl', 'calf_raise', 'hip_thrust'],
+    'Abdos':     ['plank', 'crunch', 'leg_raise', 'ab_wheel', 'russian_twist'],
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _draft = List.from(widget.initialIds);
+  }
+
+  String _exName(String id) {
+    try {
+      return allExercises.firstWhere((e) => e.id == id).name;
+    } catch (_) { return id; }
+  }
+
+  void _save() {
+    final sessions = ref.read(sessionsConfigProvider);
+    final defaults = sessions.firstWhere((s) => s.type == widget.config.type).defaultExerciseIds;
+    final isSameAsDefault = _draft.length == defaults.length &&
+        _draft.asMap().entries.every((e) => e.value == defaults[e.key]);
+    if (isSameAsDefault) {
+      ref.read(customSessionsProvider.notifier).resetSession(widget.config.type, defaults);
+    } else {
+      ref.read(customSessionsProvider.notifier).setSession(widget.config.type, _draft);
+    }
+    Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      maxChildSize: 0.95,
+      minChildSize: 0.4,
+      builder: (_, sc) => Column(
+        children: [
+          const SizedBox(height: 12),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(height: 14),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('S${widget.config.type} · ${widget.config.name}',
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: widget.config.color)),
+                ),
+                TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Annuler')),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _save,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Valider', style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 16),
+          Expanded(
+            child: ListView(
+              controller: sc,
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+              children: [
+                // Current exercises
+                const Text('EXERCICES ACTUELS', style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted, letterSpacing: .5)),
+                const SizedBox(height: 8),
+                ..._draft.map((id) => Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgCardElevated,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(_exName(id),
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
+                      if (_draft.length > 1)
+                        GestureDetector(
+                          onTap: () => setState(() => _draft.remove(id)),
+                          child: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
+                        ),
+                    ],
+                  ),
+                )),
+
+                const SizedBox(height: 20),
+                const Text('AJOUTER UN EXERCICE', style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted, letterSpacing: .5)),
+                const SizedBox(height: 10),
+
+                // Available exercises by group
+                ..._groups.entries.map((entry) {
+                  final avail = entry.value.where((id) => !_draft.contains(id)).toList();
+                  if (avail.isEmpty) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 6),
+                        child: Text(entry.key.toUpperCase(), style: const TextStyle(
+                            fontSize: 10, color: AppColors.textMuted,
+                            fontWeight: FontWeight.w700, letterSpacing: .5)),
+                      ),
+                      Wrap(
+                        spacing: 8, runSpacing: 8,
+                        children: avail.map((id) => GestureDetector(
+                          onTap: () => setState(() => _draft.add(id)),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                            decoration: BoxDecoration(
+                              color: AppColors.bgCardElevated,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.add_rounded, size: 14, color: AppColors.accent),
+                                const SizedBox(width: 4),
+                                Text(_exName(id), style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ),
+                        )).toList(),
+                      ),
+                    ],
+                  );
+                }),
+
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    final defaults = ref.read(sessionsConfigProvider)
+                        .firstWhere((s) => s.type == widget.config.type).defaultExerciseIds;
+                    setState(() => _draft = List.from(defaults));
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withOpacity(.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.error.withOpacity(.2)),
+                    ),
+                    child: const Center(child: Text('Remettre les exercices par defaut',
+                        style: TextStyle(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w600))),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
