@@ -1,37 +1,31 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'active_log_screen.dart';
-import 'history_screen.dart';
-import 'planning_screen.dart';
-import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
+import 'active_log_screen.dart';
+import 'history_screen.dart';
+import 'planning_screen.dart';
 
 class LogHomeScreen extends ConsumerWidget {
   const LogHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sessions    = ref.watch(sessionsConfigProvider);
-    final histAsync   = ref.watch(logHistoryProvider);
-    final planAsync   = ref.watch(planningProvider);
-    final customAsync = ref.watch(customSessionsProvider);
-    final history     = histAsync.value ?? [];
-    final plan        = planAsync.value ?? {};
-    final custom      = customAsync.value ?? {};
+    final sessions  = ref.watch(sessionsConfigProvider);
+    final history   = ref.watch(logHistoryProvider).value ?? [];
+    final plan      = ref.watch(planningProvider).value ?? {};
+    final custom    = ref.watch(customSessionsProvider).value ?? {};
 
-    final todayType = plan[DateTime.now().weekday % 7];
-    final todaySession = todayType != null
+    final todayWeekday = DateTime.now().weekday % 7;
+    final todayType    = plan[todayWeekday];
+    final todayConfig  = todayType != null
         ? sessions.firstWhere((s) => s.type == todayType, orElse: () => sessions.first)
         : null;
 
-    // Stats
-    final weekCount = history.where((s) {
-      final diff = DateTime.now().difference(s.date).inDays;
-      return diff < 7;
-    }).length;
+    final weekCount = history.where((s) =>
+        DateTime.now().difference(s.date).inDays < 7).length;
     final totalVol = history.fold<double>(0, (v, s) => v + s.totalVolume);
     final volStr = totalVol >= 1000
         ? '${(totalVol / 1000).toStringAsFixed(1)}t'
@@ -39,100 +33,94 @@ class LogHomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: AppColors.bg,
-            title: const Text('FitForge Log',
-                style: TextStyle(fontWeight: FontWeight.w800)),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.calendar_month_rounded),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanningScreen())),
-              ),
-            ],
-          ),
-
+      appBar: AppBar(
+        backgroundColor: AppColors.bg,
+        elevation: 0,
+        title: const Text('FitForge Log',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
           // Stats
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Row(
-                children: [
-                  _StatBox(value: '${history.length}', label: 'SÃ‰ANCES'),
-                  const SizedBox(width: 10),
-                  _StatBox(value: '$weekCount', label: 'CETTE SEMAINE'),
-                  const SizedBox(width: 10),
-                  _StatBox(value: volStr, label: 'VOLUME TOTAL'),
-                ],
-              ),
-            ),
+          Row(
+            children: [
+              _StatBox(value: '${history.length}', label: 'SEANCES'),
+              const SizedBox(width: 10),
+              _StatBox(value: '$weekCount', label: 'CETTE SEMAINE'),
+              const SizedBox(width: 10),
+              _StatBox(value: volStr, label: 'VOLUME TOTAL'),
+            ],
           ).animate().fadeIn(delay: 50.ms),
+          const SizedBox(height: 16),
 
           // Today banner
-          if (todaySession != null)
-            SliverToBoxAdapter(
-              child: _TodayBanner(session: todaySession)
-                  .animate()
-                  .fadeIn(delay: 100.ms)
-                  .slideY(begin: 0.05),
-            ),
+          if (todayConfig != null) ...[
+            _TodayBanner(config: todayConfig).animate().fadeIn(delay: 80.ms),
+            const SizedBox(height: 16),
+          ],
 
-          // Session grid
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            sliver: SliverGrid.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              childAspectRatio: 1.0,
-              children: sessions.map((s) {
-                final last = history.lastWhereOrNull((h) => h.sessionType == s.type);
-                final exIds = getSessionExerciseIds(s.type, custom, sessions);
-                return _SessionCard(
-                  config: s,
-                  lastSession: last,
-                  exCount: exIds.length,
-                )
-                    .animate()
-                    .fadeIn(delay: Duration(milliseconds: 150 + sessions.indexOf(s) * 40))
-                    .slideY(begin: 0.05);
-              }).toList(),
-            ),
+          // Session grid 2x2
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: 1.0,
+            children: List.generate(sessions.length, (i) {
+              final s = sessions[i];
+              final exIds = getSessionExerciseIds(s.type, custom, sessions);
+              final last = _lastSessionOfType(history, s.type);
+              return _SessionCard(
+                config: s,
+                exCount: exIds.length,
+                lastDate: last?.date,
+              ).animate().fadeIn(delay: Duration(milliseconds: 120 + i * 50));
+            }),
           ),
+          const SizedBox(height: 16),
 
-          // Bottom buttons
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: _NavButton(
-                      icon: Icons.history_rounded,
-                      label: 'Historique',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _NavButton(
-                      icon: Icons.calendar_today_rounded,
-                      label: 'Planning',
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlanningScreen())),
-                    ),
-                  ),
-                ],
+          // Navigation buttons
+          Row(
+            children: [
+              Expanded(
+                child: _NavBtn(
+                  icon: Icons.history_rounded,
+                  label: 'Historique',
+                  onTap: () => Navigator.of(context, rootNavigator: true)
+                      .push(MaterialPageRoute(builder: (_) => const HistoryScreen())),
+                ),
               ),
-            ),
-          ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _NavBtn(
+                  icon: Icons.calendar_today_rounded,
+                  label: 'Planning',
+                  onTap: () => Navigator.of(context, rootNavigator: true)
+                      .push(MaterialPageRoute(builder: (_) => const PlanningScreen())),
+                ),
+              ),
+            ],
+          ).animate().fadeIn(delay: 300.ms),
         ],
       ),
     );
   }
+
+  LogSession? _lastSessionOfType(List<LogSession> history, int type) {
+    for (var i = history.length - 1; i >= 0; i--) {
+      if (history[i].sessionType == type) return history[i];
+    }
+    return null;
+  }
 }
 
+// ── Stat box ──────────────────────────────────────────────────
 class _StatBox extends StatelessWidget {
   final String value, label;
   const _StatBox({required this.value, required this.label});
@@ -148,128 +136,111 @@ class _StatBox extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Text(value,
-                  style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.accent)),
+              Text(value, style: const TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.accent)),
               const SizedBox(height: 2),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 9,
-                      color: AppColors.textMuted,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: .4)),
+              Text(label, style: const TextStyle(
+                  fontSize: 9, color: AppColors.textMuted,
+                  fontWeight: FontWeight.w600, letterSpacing: .4)),
             ],
           ),
         ),
       );
 }
 
+// ── Today banner ──────────────────────────────────────────────
 class _TodayBanner extends ConsumerWidget {
-  final SessionConfig session;
-  const _TodayBanner({required this.session});
+  final SessionConfig config;
+  const _TodayBanner({required this.config});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("AUJOURD'HUI",
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: session.color,
-                            letterSpacing: 1)),
-                    const SizedBox(height: 3),
-                    Text('S${session.type} Â· ${session.name}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w800)),
-                    Text(session.subtitle,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textSecondary)),
-                  ],
-                ),
+  Widget build(BuildContext context, WidgetRef ref) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.bgCard,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("AUJOURD'HUI", style: TextStyle(
+                      fontSize: 10, fontWeight: FontWeight.w700,
+                      color: config.color, letterSpacing: 1)),
+                  const SizedBox(height: 3),
+                  Text('S${config.type} · ${config.name}',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                  Text(config.subtitle,
+                      style: const TextStyle(
+                          fontSize: 11, color: AppColors.textSecondary)),
+                ],
               ),
-              const SizedBox(width: 12),
-              TextButton(
-                onPressed: () =>
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveLogScreen(sessionType: session.type))),
-                style: TextButton.styleFrom(
-                  backgroundColor: session.color.withOpacity(.15),
-                  foregroundColor: session.color,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                child: const Text('DÃ©marrer â†’',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(builder: (_) =>
+                      ActiveLogScreen(sessionType: config.type))),
+              style: TextButton.styleFrom(
+                backgroundColor: config.color.withOpacity(.15),
+                foregroundColor: config.color,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
-            ],
-          ),
+              child: const Text('Demarrer',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            ),
+          ],
         ),
       );
 }
 
+// ── Session card ──────────────────────────────────────────────
 class _SessionCard extends StatelessWidget {
   final SessionConfig config;
-  final LogSession? lastSession;
   final int exCount;
-
-  const _SessionCard(
-      {required this.config, this.lastSession, required this.exCount});
+  final DateTime? lastDate;
+  const _SessionCard({required this.config, required this.exCount, this.lastDate});
 
   @override
   Widget build(BuildContext context) {
-    final lastStr = lastSession != null
-        ? DateFormat('dd MMM', 'fr_FR').format(lastSession!.date)
+    final lastStr = lastDate != null
+        ? '${lastDate!.day}/${lastDate!.month}'
         : 'Jamais';
-
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ActiveLogScreen(sessionType: config.type))),
+      onTap: () => Navigator.of(context, rootNavigator: true).push(
+          MaterialPageRoute(builder: (_) =>
+              ActiveLogScreen(sessionType: config.type))),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('S${config.type} Â· $exCount exo',
+            Text('S${config.type} · $exCount exo',
                 style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                    color: config.color)),
+                    fontSize: 10, fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2, color: config.color)),
             const Spacer(),
             Text(config.name,
-                style: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 4),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 3),
             Text(config.subtitle,
                 style: const TextStyle(
                     fontSize: 10, color: AppColors.textSecondary),
                 maxLines: 2),
-            const SizedBox(height: 10),
-            Text('â± $lastStr',
+            const SizedBox(height: 8),
+            Text('Derniere : $lastStr',
                 style: const TextStyle(
-                    fontSize: 10,
-                    color: AppColors.textMuted,
+                    fontSize: 10, color: AppColors.textMuted,
                     fontWeight: FontWeight.w600)),
           ],
         ),
@@ -278,13 +249,12 @@ class _SessionCard extends StatelessWidget {
   }
 }
 
-class _NavButton extends StatelessWidget {
+// ── Nav button ────────────────────────────────────────────────
+class _NavBtn extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-
-  const _NavButton(
-      {required this.icon, required this.label, required this.onTap});
+  const _NavBtn({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -301,23 +271,11 @@ class _NavButton extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
-              Text(label,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              Text(label, style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
       );
 }
-
-extension _ListExt<T> on List<T> {
-  T? lastWhereOrNull(bool Function(T) test) {
-    for (var i = length - 1; i >= 0; i--) {
-      if (test(this[i])) return this[i];
-    }
-    return null;
-  }
-}
-
