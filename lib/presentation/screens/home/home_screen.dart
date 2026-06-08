@@ -206,17 +206,9 @@ class HomeScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
               child: GestureDetector(
-                onTap: () {
-                  debugPrint('LOG BUTTON TAPPED');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tap OK - ouverture...'), duration: Duration(seconds: 1)),
-                  );
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    Navigator.of(context, rootNavigator: true).push(
-                      MaterialPageRoute(builder: (_) => const LogHomeScreen()),
-                    );
-                  });
-                },
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(builder: (_) => const LogHomeScreen()),
+                ),
                 child: Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
