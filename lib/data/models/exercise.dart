@@ -219,16 +219,16 @@ extension MuscleGroupExt on MuscleGroup {
 
   String get emoji {
     switch (this) {
-      case MuscleGroup.chest: return '💪';
-      case MuscleGroup.back: return '🔙';
-      case MuscleGroup.shoulders: return '🏋️';
-      case MuscleGroup.biceps: return '💪';
-      case MuscleGroup.triceps: return '💪';
-      case MuscleGroup.legs: return '🦵';
-      case MuscleGroup.glutes: return '🍑';
-      case MuscleGroup.core: return '🎯';
-      case MuscleGroup.cardio: return '❤️';
-      case MuscleGroup.fullBody: return '⚡';
+      case MuscleGroup.chest: return '🫸';      // poussée pectoraux
+      case MuscleGroup.back: return '🫷';       // traction dos
+      case MuscleGroup.shoulders: return '🏋️'; // épaules / presses
+      case MuscleGroup.biceps: return '💪';     // biceps classique
+      case MuscleGroup.triceps: return '👊';    // extension triceps
+      case MuscleGroup.legs: return '🦵';       // jambes
+      case MuscleGroup.glutes: return '🍑';     // fessiers
+      case MuscleGroup.core: return '🔥';       // abdos / gainage
+      case MuscleGroup.cardio: return '❤️‍🔥';    // cardio
+      case MuscleGroup.fullBody: return '⚡';   // full body
     }
   }
 }

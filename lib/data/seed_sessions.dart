@@ -1,4 +1,4 @@
-import 'log_models.dart';
+import 'models/log_models.dart';
 
 /// Séances historiques à injecter une seule fois au démarrage.
 /// Clé SharedPreferences : 'ff_log_seeded_v1'
