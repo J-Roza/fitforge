@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../providers/user_provider.dart';
-import '../../../providers/workout_provider.dart';
+import '../../../providers/log_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -12,7 +12,6 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProfileProvider);
-    final history = ref.watch(sessionHistoryProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -54,7 +53,7 @@ class ProfileScreen extends ConsumerWidget {
                         const SizedBox(height: 24),
 
                         // ── Training stats ────────────────────────────────
-                        _TrainingStats(history: history)
+                        const _TrainingStats()
                             .animate()
                             .fadeIn(delay: 300.ms),
                         const SizedBox(height: 28),
@@ -206,23 +205,27 @@ class _Divider extends StatelessWidget {
       );
 }
 
-class _TrainingStats extends StatelessWidget {
-  final List history;
-  const _TrainingStats({required this.history});
+class _TrainingStats extends ConsumerWidget {
+  const _TrainingStats();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final history = ref.watch(logHistoryProvider).value ?? [];
+    final now = DateTime.now();
     final totalSessions = history.length;
-    final totalMinutes = history.fold(0, (sum, s) => sum + (s.duration as Duration).inMinutes);
-    final totalVolume = history.fold(0, (sum, s) => sum + (s.totalVolume as int));
+    final totalVolume = history.fold<double>(0, (sum, s) => sum + s.totalVolume);
+    final weekSessions = history.where((s) => now.difference(s.date).inDays < 7).length;
+    final volStr = totalVolume >= 1000
+        ? '${(totalVolume / 1000).toStringAsFixed(1)}t'
+        : '${totalVolume.toStringAsFixed(0)}kg';
 
     return Row(
       children: [
         _TrainingStat(value: '$totalSessions', label: 'Séances', icon: Icons.fitness_center_rounded, color: AppColors.accent),
         const SizedBox(width: 12),
-        _TrainingStat(value: '${totalMinutes}h', label: 'Temps total', icon: Icons.timer_outlined, color: AppColors.secondary),
+        _TrainingStat(value: '$weekSessions', label: 'Cette semaine', icon: Icons.calendar_today_rounded, color: AppColors.secondary),
         const SizedBox(width: 12),
-        _TrainingStat(value: '${(totalVolume / 1000).toStringAsFixed(0)}t', label: 'Volume total', icon: Icons.show_chart_rounded, color: AppColors.chest),
+        _TrainingStat(value: volStr, label: 'Volume total', icon: Icons.show_chart_rounded, color: AppColors.chest),
       ],
     );
   }
