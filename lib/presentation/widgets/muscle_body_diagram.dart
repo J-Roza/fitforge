@@ -91,7 +91,7 @@ class MuscleBodyDiagram extends StatelessWidget {
           ),
         ),
 
-        // Diagramme SVG
+        // Diagramme SVG — AspectRatio 200:280 pour éviter l'hauteur infinie
         Container(
           decoration: BoxDecoration(
             color: const Color(0xFF0F0D1C),
@@ -100,10 +100,12 @@ class MuscleBodyDiagram extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: SvgPicture.string(
-              _buildSvg(),
-              fit: BoxFit.contain,
-              width: double.infinity,
+            child: AspectRatio(
+              aspectRatio: 200 / 280,
+              child: SvgPicture.string(
+                _buildSvg(),
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),
