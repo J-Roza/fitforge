@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../data/models/exercise.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  MuscleBodyDiagram  —  style anatomique : corps chair + muscles en rouge
+//  MuscleBodyDiagram  —  SVG anatomique fourni, couleurs substituées par muscle
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MuscleBodyDiagram extends StatelessWidget {
@@ -16,401 +16,280 @@ class MuscleBodyDiagram extends StatelessWidget {
     required this.secondaryMuscles,
   });
 
-  String _color(MuscleGroup m) {
-    if (m == primaryMuscle) return '#E53935';
-    if (secondaryMuscles.contains(m)) return '#FF7043';
-    return '#9E5E48'; // muscle inactif — couleur chair sombre
-  }
+  // Correspondance MuscleGroup → id SVG
+  static const _svgId = {
+    MuscleGroup.chest:     'chest',
+    MuscleGroup.back:      'back',
+    MuscleGroup.shoulders: 'shoulders',
+    MuscleGroup.biceps:    'biceps',
+    MuscleGroup.triceps:   'triceps',
+    MuscleGroup.core:      'core',
+    MuscleGroup.legs:      'legs',
+    MuscleGroup.glutes:    'glutes',
+  };
 
-  String _opacity(MuscleGroup m) {
-    if (m == primaryMuscle) return '0.92';
-    if (secondaryMuscles.contains(m)) return '0.80';
-    return '0.55';
+  static const _inactive  = '#9E5840';
+  static const _primary   = '#E53935';
+  static const _secondary = '#FF7043';
+
+  String _buildSvg() {
+    var svg = _kBodySvg;
+
+    // Muscle primaire → rouge
+    final pid = _svgId[primaryMuscle];
+    if (pid != null) {
+      svg = svg.replaceAll(
+        'id="$pid" fill="$_inactive"',
+        'id="$pid" fill="$_primary"',
+      );
+    }
+
+    // Muscles secondaires → orange
+    for (final m in secondaryMuscles) {
+      if (m == primaryMuscle) continue;
+      final sid = _svgId[m];
+      if (sid != null) {
+        svg = svg.replaceAll(
+          'id="$sid" fill="$_inactive"',
+          'id="$sid" fill="$_secondary"',
+        );
+      }
+    }
+
+    return svg;
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = {for (var m in MuscleGroup.values) m: _color(m)};
-    final o = {for (var m in MuscleGroup.values) m: _opacity(m)};
-
-    return Container(
-      height: 320,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F0D1C),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF2A2440)),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: _BodyView(svg: _frontSvg(c, o), label: 'AVANT')),
-          Container(width: 1, margin: const EdgeInsets.symmetric(vertical: 16),
-              color: const Color(0xFF2A2440)),
-          Expanded(child: _BodyView(svg: _backSvg(c, o), label: 'ARRIÈRE')),
-        ],
-      ),
-    );
-  }
-
-  // ── SVG AVANT ──────────────────────────────────────────────────────────────
-  String _frontSvg(Map<MuscleGroup, String> c, Map<MuscleGroup, String> o) => '''
-<svg viewBox="0 0 100 230" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="headGrad" cx="50%" cy="45%" r="50%">
-      <stop offset="0%" stop-color="#C07858"/>
-      <stop offset="100%" stop-color="#8A4A2E"/>
-    </radialGradient>
-    <linearGradient id="torsoGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#7A3A22"/>
-      <stop offset="40%" stop-color="#9E5840"/>
-      <stop offset="60%" stop-color="#9E5840"/>
-      <stop offset="100%" stop-color="#7A3A22"/>
-    </linearGradient>
-  </defs>
-
-  <!-- ── TÊTE ── -->
-  <ellipse cx="50" cy="12" rx="11" ry="13" fill="url(#headGrad)" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- oreilles -->
-  <ellipse cx="39" cy="13" rx="2.5" ry="4" fill="#8A4A2E" stroke="#5A2A14" stroke-width="0.4"/>
-  <ellipse cx="61" cy="13" rx="2.5" ry="4" fill="#8A4A2E" stroke="#5A2A14" stroke-width="0.4"/>
-  <!-- traits visage -->
-  <path d="M 46 10 Q 50 9 54 10" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.6"/>
-  <line x1="50" y1="16" x2="50" y2="19" stroke="#5A2A14" stroke-width="0.4" opacity="0.5"/>
-
-  <!-- ── COU ── -->
-  <path d="M 45 23 Q 50 21 55 23 L 55 33 Q 50 31 45 33 Z"
-        fill="#9E5840" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- sterno-cléido -->
-  <line x1="48" y1="24" x2="44" y2="33" stroke="#7A3A22" stroke-width="0.6" opacity="0.7"/>
-  <line x1="52" y1="24" x2="56" y2="33" stroke="#7A3A22" stroke-width="0.6" opacity="0.7"/>
-
-  <!-- ── CLAVICULES ── -->
-  <path d="M 44 32 Q 38 30 24 36" fill="none" stroke="#C89070" stroke-width="1.0" opacity="0.7"/>
-  <path d="M 56 32 Q 62 30 76 36" fill="none" stroke="#C89070" stroke-width="1.0" opacity="0.7"/>
-
-  <!-- ── ÉPAULES (deltoïde antérieur) ── -->
-  <path d="M 22 38 Q 14 36 10 44 Q 8 52 12 60 Q 16 66 22 64 Q 26 60 26 52 Z"
-        fill="${c[MuscleGroup.shoulders]}" opacity="${o[MuscleGroup.shoulders]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 78 38 Q 86 36 90 44 Q 92 52 88 60 Q 84 66 78 64 Q 74 60 74 52 Z"
-        fill="${c[MuscleGroup.shoulders]}" opacity="${o[MuscleGroup.shoulders]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- fibres deltoïdes -->
-  <path d="M 14 42 Q 18 54 22 60" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 86 42 Q 82 54 78 60" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── PECTORAUX ── -->
-  <path d="M 26 34 Q 26 32 48 32 Q 50 46 48 66 L 36 72 Q 24 64 22 52 Q 22 38 26 34 Z"
-        fill="${c[MuscleGroup.chest]}" opacity="${o[MuscleGroup.chest]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 74 34 Q 74 32 52 32 Q 50 46 52 66 L 64 72 Q 76 64 78 52 Q 78 38 74 34 Z"
-        fill="${c[MuscleGroup.chest]}" opacity="${o[MuscleGroup.chest]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <!-- séparation sternum pecs -->
-  <line x1="50" y1="32" x2="50" y2="70" stroke="#5A2A14" stroke-width="0.6" opacity="0.7"/>
-  <!-- fibres pecs -->
-  <path d="M 28 38 Q 38 52 48 64" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 72 38 Q 62 52 52 64" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 26 46 Q 36 58 46 68" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-  <path d="M 74 46 Q 64 58 54 68" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-
-  <!-- ── BICEPS ── -->
-  <path d="M 10 62 Q 8 68 8 78 Q 8 92 10 98 Q 14 104 18 100 Q 22 94 22 80 Q 22 68 20 62 Z"
-        fill="${c[MuscleGroup.biceps]}" opacity="${o[MuscleGroup.biceps]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 90 62 Q 92 68 92 78 Q 92 92 90 98 Q 86 104 82 100 Q 78 94 78 80 Q 78 68 80 62 Z"
-        fill="${c[MuscleGroup.biceps]}" opacity="${o[MuscleGroup.biceps]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- séparation biceps/brachial -->
-  <path d="M 11 70 Q 15 82 11 96" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 89 70 Q 85 82 89 96" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-
-  <!-- ── TRICEPS (légèrement visibles côté) ── -->
-  <path d="M 10 62 Q 8 68 8 78 Q 8 92 10 98 Q 14 104 18 100 Q 22 94 22 80 Q 22 68 20 62 Z"
-        fill="${c[MuscleGroup.triceps]}" opacity="0.2" stroke="none"/>
-  <path d="M 90 62 Q 92 68 92 78 Q 92 92 90 98 Q 86 104 82 100 Q 78 94 78 80 Q 78 68 80 62 Z"
-        fill="${c[MuscleGroup.triceps]}" opacity="0.2" stroke="none"/>
-
-  <!-- ── AVANT-BRAS ── -->
-  <path d="M 8 100 Q 6 108 6 118 Q 6 130 8 136 L 18 136 L 20 128 Q 22 114 20 100 Z"
-        fill="#7A3A22" opacity="0.75" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 92 100 Q 94 108 94 118 Q 94 130 92 136 L 82 136 L 80 128 Q 78 114 80 100 Z"
-        fill="#7A3A22" opacity="0.75" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- tendons poignet -->
-  <path d="M 8 128 Q 10 132 12 136" fill="none" stroke="#C89070" stroke-width="0.5" opacity="0.6"/>
-  <path d="M 92 128 Q 90 132 88 136" fill="none" stroke="#C89070" stroke-width="0.5" opacity="0.6"/>
-
-  <!-- ── SERRATUS ANTERIOR ── -->
-  <path d="M 22 64 Q 24 68 28 72 Q 28 76 26 80 Q 24 76 22 72 Z"
-        fill="#8A4030" opacity="0.7" stroke="#5A2A14" stroke-width="0.4"/>
-  <path d="M 78 64 Q 76 68 72 72 Q 72 76 74 80 Q 76 76 78 72 Z"
-        fill="#8A4030" opacity="0.7" stroke="#5A2A14" stroke-width="0.4"/>
-  <line x1="22" y1="70" x2="28" y2="74" stroke="#5A2A14" stroke-width="0.4" opacity="0.5"/>
-  <line x1="78" y1="70" x2="72" y2="74" stroke="#5A2A14" stroke-width="0.4" opacity="0.5"/>
-
-  <!-- ── GRANDS DROITS (abdominaux) ── -->
-  <path d="M 36 70 Q 36 68 44 68 L 44 116 Q 44 118 36 118 Z"
-        fill="${c[MuscleGroup.core]}" opacity="${o[MuscleGroup.core]}"
-        stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 64 70 Q 64 68 56 68 L 56 116 Q 56 118 64 118 Z"
-        fill="${c[MuscleGroup.core]}" opacity="${o[MuscleGroup.core]}"
-        stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- grille abdominale -->
-  <line x1="36" y1="82" x2="64" y2="82" stroke="#5A2A14" stroke-width="0.7" opacity="0.8"/>
-  <line x1="36" y1="94" x2="64" y2="94" stroke="#5A2A14" stroke-width="0.7" opacity="0.8"/>
-  <line x1="36" y1="106" x2="64" y2="106" stroke="#5A2A14" stroke-width="0.7" opacity="0.8"/>
-  <line x1="50" y1="68" x2="50" y2="118" stroke="#5A2A14" stroke-width="0.7" opacity="0.8"/>
-
-  <!-- ── OBLIQUES ── -->
-  <path d="M 22 74 Q 22 80 24 92 Q 26 102 28 112 Q 34 118 36 118 L 36 70 Q 30 70 22 74 Z"
-        fill="${c[MuscleGroup.core]}" opacity="0.5" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 78 74 Q 78 80 76 92 Q 74 102 72 112 Q 66 118 64 118 L 64 70 Q 70 70 78 74 Z"
-        fill="${c[MuscleGroup.core]}" opacity="0.5" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- fibres obliques diagonales -->
-  <path d="M 24 80 L 34 100" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 25 90 L 35 110" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 76 80 L 66 100" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 75 90 L 65 110" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-
-  <!-- ── CONTOUR TORSE ── -->
-  <path d="M 22 38 Q 22 32 26 30 Q 38 26 50 26 Q 62 26 74 30 Q 78 32 78 38
-           L 82 78 Q 80 90 78 100 L 76 118 L 24 118 L 22 100 Q 20 90 18 78 Z"
-        fill="none" stroke="#5A2A14" stroke-width="0.8"/>
-
-  <!-- ── HANCHES / FLÉCHISSEURS ── -->
-  <path d="M 24 118 Q 24 126 26 132 Q 30 138 38 138 L 44 120 Z"
-        fill="${c[MuscleGroup.glutes]}" opacity="0.45" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 76 118 Q 76 126 74 132 Q 70 138 62 138 L 56 120 Z"
-        fill="${c[MuscleGroup.glutes]}" opacity="0.45" stroke="#5A2A14" stroke-width="0.5"/>
-
-  <!-- ── QUADRICEPS ── -->
-  <!-- Rectus femoris (central) gauche -->
-  <path d="M 34 138 Q 30 148 29 168 Q 28 180 30 188 L 38 188 Q 40 178 40 164 Q 40 148 38 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- Vastus lateralis gauche -->
-  <path d="M 25 140 Q 22 152 21 170 Q 20 182 22 190 L 30 190 Q 28 180 29 168 Q 30 150 34 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- Vastus medialis gauche (teardrop) -->
-  <path d="M 38 138 Q 42 152 42 168 Q 42 178 40 188 L 44 188 Q 46 178 46 162 Q 45 148 40 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- Séparations quadri gauche -->
-  <path d="M 34 140 Q 32 160 30 188" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.6"/>
-  <path d="M 38 140 Q 40 162 40 188" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.6"/>
-  <!-- lignes fibres quads -->
-  <path d="M 24 150 Q 32 155 40 150" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 24 162 Q 32 168 40 162" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 24 174 Q 32 180 40 174" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- Quadriceps droit (miroir) -->
-  <path d="M 66 138 Q 70 148 71 168 Q 72 180 70 188 L 62 188 Q 60 178 60 164 Q 60 148 62 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 75 140 Q 78 152 79 170 Q 80 182 78 190 L 70 190 Q 72 180 71 168 Q 70 150 66 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 62 138 Q 58 152 58 168 Q 58 178 60 188 L 56 188 Q 54 178 54 162 Q 55 148 60 138 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 66 140 Q 68 160 70 188" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.6"/>
-  <path d="M 62 140 Q 60 162 60 188" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.6"/>
-  <path d="M 76 150 Q 68 155 60 150" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 76 162 Q 68 168 60 162" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 76 174 Q 68 180 60 174" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── GENOUX ── -->
-  <ellipse cx="31" cy="192" rx="9" ry="5" fill="#A07050" opacity="0.7" stroke="#5A2A14" stroke-width="0.5"/>
-  <ellipse cx="69" cy="192" rx="9" ry="5" fill="#A07050" opacity="0.7" stroke="#5A2A14" stroke-width="0.5"/>
-
-  <!-- ── TIBIALIS ANTERIOR / MOLLETS AVANT ── -->
-  <path d="M 24 196 Q 22 206 22 218 Q 22 226 24 230 L 32 230 Q 34 224 34 214 Q 34 204 32 196 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="0.6" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 76 196 Q 78 206 78 218 Q 78 226 76 230 L 68 230 Q 66 224 66 214 Q 66 204 68 196 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="0.6" stroke="#5A2A14" stroke-width="0.5"/>
-
-  <!-- ── CONTOUR JAMBES ── -->
-  <path d="M 24 138 Q 20 148 20 172 Q 19 184 21 192" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 44 138 Q 46 148 46 162 Q 46 176 44 190" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 76 138 Q 80 148 80 172 Q 81 184 79 192" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 56 138 Q 54 148 54 162 Q 54 176 56 190" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-</svg>
-''';
-
-  // ── SVG ARRIÈRE ────────────────────────────────────────────────────────────
-  String _backSvg(Map<MuscleGroup, String> c, Map<MuscleGroup, String> o) => '''
-<svg viewBox="0 0 100 230" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="headGradB" cx="50%" cy="45%" r="50%">
-      <stop offset="0%" stop-color="#B07050"/>
-      <stop offset="100%" stop-color="#7A3A20"/>
-    </radialGradient>
-  </defs>
-
-  <!-- ── TÊTE (arrière) ── -->
-  <ellipse cx="50" cy="12" rx="11" ry="13" fill="url(#headGradB)" stroke="#5A2A14" stroke-width="0.5"/>
-  <ellipse cx="39" cy="13" rx="2.5" ry="4" fill="#8A4A2E" stroke="#5A2A14" stroke-width="0.4"/>
-  <ellipse cx="61" cy="13" rx="2.5" ry="4" fill="#8A4A2E" stroke="#5A2A14" stroke-width="0.4"/>
-
-  <!-- ── COU ── -->
-  <path d="M 45 23 Q 50 21 55 23 L 56 33 Q 50 31 44 33 Z"
-        fill="#9E5840" stroke="#5A2A14" stroke-width="0.5"/>
-
-  <!-- ── TRAPÈZE ── -->
-  <path d="M 44 26 Q 50 24 56 26 L 72 38 Q 78 50 74 64 L 60 72 L 50 76 L 40 72 L 26 64 Q 22 50 28 38 Z"
-        fill="${c[MuscleGroup.back]}" opacity="${o[MuscleGroup.back]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <!-- fibres trapèze -->
-  <path d="M 50 26 L 50 76" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 44 28 Q 42 48 40 70" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 56 28 Q 58 48 60 70" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 36 36 Q 40 50 42 68" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-  <path d="M 64 36 Q 60 50 58 68" fill="none" stroke="#5A2A14" stroke-width="0.35" opacity="0.35"/>
-  <path d="M 29 44 L 40 68" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-  <path d="M 71 44 L 60 68" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-
-  <!-- ── ÉPAULES (deltoïde postérieur) ── -->
-  <path d="M 22 38 Q 14 36 10 44 Q 8 52 12 60 Q 16 66 22 64 Q 26 60 26 52 Z"
-        fill="${c[MuscleGroup.shoulders]}" opacity="${o[MuscleGroup.shoulders]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 78 38 Q 86 36 90 44 Q 92 52 88 60 Q 84 66 78 64 Q 74 60 74 52 Z"
-        fill="${c[MuscleGroup.shoulders]}" opacity="${o[MuscleGroup.shoulders]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 14 42 Q 18 54 22 60" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 86 42 Q 82 54 78 60" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── GRAND DORSAL gauche ── -->
-  <path d="M 22 52 Q 24 50 36 58 Q 40 66 40 80 Q 40 96 38 112 L 24 108 Q 20 90 20 74 Q 18 62 22 52 Z"
-        fill="${c[MuscleGroup.back]}" opacity="${o[MuscleGroup.back]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <!-- fibres dorsaux gauche -->
-  <path d="M 24 56 Q 36 74 38 108" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 21 64 Q 32 80 36 108" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 20 74 Q 30 88 34 110" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-
-  <!-- ── GRAND DORSAL droit ── -->
-  <path d="M 78 52 Q 76 50 64 58 Q 60 66 60 80 Q 60 96 62 112 L 76 108 Q 80 90 80 74 Q 82 62 78 52 Z"
-        fill="${c[MuscleGroup.back]}" opacity="${o[MuscleGroup.back]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 76 56 Q 64 74 62 108" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 79 64 Q 68 80 64 108" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 80 74 Q 70 88 66 110" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.35"/>
-
-  <!-- ── TRICEPS gauche ── -->
-  <path d="M 10 60 Q 8 66 8 78 Q 8 92 10 100 Q 14 106 18 102 Q 22 96 22 80 Q 22 66 20 60 Z"
-        fill="${c[MuscleGroup.triceps]}" opacity="${o[MuscleGroup.triceps]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- chef long / latéral -->
-  <path d="M 11 68 Q 15 82 11 98" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 14 64 Q 18 82 16 100" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── TRICEPS droit ── -->
-  <path d="M 90 60 Q 92 66 92 78 Q 92 92 90 100 Q 86 106 82 102 Q 78 96 78 80 Q 78 66 80 60 Z"
-        fill="${c[MuscleGroup.triceps]}" opacity="${o[MuscleGroup.triceps]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 89 68 Q 85 82 89 98" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 86 64 Q 82 82 84 100" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── AVANT-BRAS EXTENSEURS ── -->
-  <path d="M 8 102 Q 6 110 6 120 Q 6 132 8 136 L 18 136 L 20 128 Q 22 114 20 102 Z"
-        fill="#7A3A22" opacity="0.75" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 92 102 Q 94 110 94 120 Q 94 132 92 136 L 82 136 L 80 128 Q 78 114 80 102 Z"
-        fill="#7A3A22" opacity="0.75" stroke="#5A2A14" stroke-width="0.5"/>
-
-  <!-- ── ÉRECTEURS / COLONNE ── -->
-  <path d="M 42 76 Q 42 72 45 72 L 46 116 Q 44 118 42 116 Z"
-        fill="${c[MuscleGroup.back]}" opacity="0.65" stroke="#5A2A14" stroke-width="0.5"/>
-  <path d="M 58 76 Q 58 72 55 72 L 54 116 Q 56 118 58 116 Z"
-        fill="${c[MuscleGroup.back]}" opacity="0.65" stroke="#5A2A14" stroke-width="0.5"/>
-  <!-- vertèbres -->
-  <line x1="50" y1="30" x2="50" y2="116" stroke="#C89070" stroke-width="0.7" opacity="0.5"/>
-
-  <!-- ── CONTOUR TORSE ── -->
-  <path d="M 22 38 Q 22 32 26 30 Q 38 26 50 26 Q 62 26 74 30 Q 78 32 78 38
-           L 82 78 Q 80 90 78 100 L 76 118 L 24 118 L 22 100 Q 20 90 18 78 Z"
-        fill="none" stroke="#5A2A14" stroke-width="0.8"/>
-
-  <!-- ── FESSIERS ── -->
-  <path d="M 24 118 Q 22 128 22 140 Q 22 152 26 158 Q 34 164 44 158 Q 48 150 48 138 L 50 120 Z"
-        fill="${c[MuscleGroup.glutes]}" opacity="${o[MuscleGroup.glutes]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 76 118 Q 78 128 78 140 Q 78 152 74 158 Q 66 164 56 158 Q 52 150 52 138 L 50 120 Z"
-        fill="${c[MuscleGroup.glutes]}" opacity="${o[MuscleGroup.glutes]}"
-        stroke="#5A2A14" stroke-width="0.7"/>
-  <!-- sillon fessier -->
-  <path d="M 50 120 Q 50 138 50 158" fill="none" stroke="#5A2A14" stroke-width="0.6" opacity="0.6"/>
-  <!-- fibres fessiers -->
-  <path d="M 25 126 Q 36 134 46 126" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 24 136 Q 36 144 46 138" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 75 126 Q 64 134 54 126" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 76 136 Q 64 144 54 138" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── ISCHIO-JAMBIERS gauche ── -->
-  <path d="M 24 160 Q 22 172 22 186 Q 22 196 24 202 L 32 202 L 36 196 Q 38 182 38 168 Q 38 158 36 154 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- séparation ischio -->
-  <path d="M 29 158 Q 28 178 29 200" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 33 158 Q 34 178 33 200" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <!-- fibres ischio -->
-  <path d="M 23 168 Q 30 172 37 168" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 23 180 Q 30 184 37 180" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── ISCHIO-JAMBIERS droit ── -->
-  <path d="M 76 160 Q 78 172 78 186 Q 78 196 76 202 L 68 202 L 64 196 Q 62 182 62 168 Q 62 158 64 154 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 71 158 Q 72 178 71 200" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 67 158 Q 66 178 67 200" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 77 168 Q 70 172 63 168" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 77 180 Q 70 184 63 180" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── GASTROCNÉMIENS (mollets) ── -->
-  <path d="M 22 202 Q 20 212 20 222 Q 20 232 22 236 L 26 238 L 36 236 Q 38 230 38 220 Q 38 210 36 202 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <!-- séparation chef médial/latéral -->
-  <path d="M 29 204 Q 28 218 28 236" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <!-- fibres mollet -->
-  <path d="M 22 210 Q 28 214 36 210" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 21 220 Q 28 224 37 220" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <path d="M 78 202 Q 80 212 80 222 Q 80 232 78 236 L 74 238 L 64 236 Q 62 230 62 220 Q 62 210 64 202 Z"
-        fill="${c[MuscleGroup.legs]}" opacity="${o[MuscleGroup.legs]}"
-        stroke="#5A2A14" stroke-width="0.6"/>
-  <path d="M 71 204 Q 72 218 72 236" fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5"/>
-  <path d="M 78 210 Q 72 214 64 210" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-  <path d="M 79 220 Q 72 224 63 220" fill="none" stroke="#5A2A14" stroke-width="0.4" opacity="0.4"/>
-
-  <!-- ── CONTOUR JAMBES ── -->
-  <path d="M 24 158 Q 20 172 20 190 Q 20 200 22 202" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 46 152 Q 48 162 48 178 Q 48 192 44 202" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 76 158 Q 80 172 80 190 Q 80 200 78 202" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-  <path d="M 54 152 Q 52 162 52 178 Q 52 192 56 202" fill="none" stroke="#5A2A14" stroke-width="0.7"/>
-</svg>
-''';
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-class _BodyView extends StatelessWidget {
-  final String svg;
-  final String label;
-  const _BodyView({required this.svg, required this.label});
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Text(label,
-                style: const TextStyle(
-                    color: Color(0xFF6B6880),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5)),
+    return Column(
+      children: [
+        // Labels AVANT / ARRIÈRE
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text('AVANT',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Color(0xFF6B6880),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5)),
+              ),
+              Container(width: 1, height: 12, color: const Color(0xFF2A2440)),
+              const Expanded(
+                child: Text('ARRIÈRE',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Color(0xFF6B6880),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5)),
+              ),
+            ],
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(6, 0, 6, 10),
-              child: SvgPicture.string(svg, fit: BoxFit.contain),
+        ),
+
+        // Diagramme SVG
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F0D1C),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFF2A2440)),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: SvgPicture.string(
+              _buildSvg(),
+              fit: BoxFit.contain,
+              width: double.infinity,
             ),
           ),
+        ),
+
+        // Légende
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _LegendDot(color: const Color(0xFFE53935), label: 'Primaire'),
+              const SizedBox(width: 20),
+              if (secondaryMuscles.isNotEmpty)
+                _LegendDot(color: const Color(0xFFFF7043), label: 'Secondaire'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) => Row(
+        children: [
+          Container(
+            width: 10, height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 6),
+          Text(label,
+              style: TextStyle(
+                  color: color, fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SVG source (200×280, front x=50 / back x=150, IDs par groupe musculaire)
+// ─────────────────────────────────────────────────────────────────────────────
+const _kBodySvg = '''
+<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="200" height="280" fill="#0F0D1C"/>
+
+  <!-- séparateur central -->
+  <line x1="100" y1="8" x2="100" y2="272" stroke="#2A2440" stroke-width="0.8"/>
+
+  <!-- ============================ FRONT VIEW (centerline x=50) ============================ -->
+  <g stroke="#5A2A14" stroke-linejoin="round" stroke-linecap="round">
+
+    <!-- ARMS (skin) -->
+    <g fill="#C07858" stroke-width="1">
+      <path d="M71 55 C76 55 79 61 80 68 C81 78 81 88 80 97 C79 110 78 122 77 133 C77 140 77 145 76 149 C74 151 72 151 71 149 C70 145 70 140 70 133 C70 122 70 110 70 97 C70 86 70 74 70 66 C70 61 70 58 71 55 Z"/>
+      <path d="M29 55 C24 55 21 61 20 68 C19 78 19 88 20 97 C21 110 22 122 23 133 C23 140 23 145 24 149 C26 151 28 151 29 149 C30 145 30 140 30 133 C30 122 30 110 30 97 C30 86 30 74 30 66 C30 61 30 58 29 55 Z"/>
+    </g>
+
+    <!-- LEGS (skin) -->
+    <g fill="#C07858" stroke-width="1">
+      <path d="M67 116 C69 132 68 156 65 178 C64 183 63 185 62 190 C61 202 60 216 58 233 C57 238 57 241 57 244 C58 248 60 251 59 256 C58 260 55 261 53 260 C51 259 50 256 50 252 C50 248 51 246 51 243 C51 224 51 206 51 190 C51 170 51 150 51 132 C51 128 51 126 50 126 Z"/>
+      <path d="M33 116 C31 132 32 156 35 178 C36 183 37 185 38 190 C39 202 40 216 42 233 C43 238 43 241 43 244 C42 248 40 251 41 256 C42 260 45 261 47 260 C49 259 50 256 50 252 C50 248 49 246 49 243 C49 224 49 206 49 190 C49 170 49 150 49 132 C49 128 49 126 50 126 Z"/>
+    </g>
+
+    <!-- TORSO + HEAD + NECK (skin) -->
+    <path fill="#C07858" stroke-width="1.1" d="M50 16
+      C56 16 59 21 59 27 C59 33 57 37 55 39 C54 41 54 43 53 45 C53 47 54 48 56 49
+      C62 50 68 52 73 56 C74 58 73 62 71 66
+      C69 78 64 92 62 104 C62 110 64 113 67 116
+      C64 122 57 127 50 127
+      C43 127 36 122 33 116 C36 113 38 110 38 104
+      C36 92 31 78 29 66 C27 62 26 58 27 56
+      C32 52 38 50 44 49 C46 48 47 47 47 45 C47 43 46 41 45 39
+      C43 37 41 33 41 27 C41 21 44 16 50 16 Z"/>
+
+    <!-- face -->
+    <g fill="none" stroke="#5A2A14" stroke-width="0.7" opacity="0.55">
+      <path d="M45 26 C46 25 48 25 49 26"/>
+      <path d="M51 26 C52 25 54 25 55 26"/>
+      <path d="M50 28 L50 33 M48 33 C49 34 51 34 52 33"/>
+      <path d="M47 37 C49 38 51 38 53 37"/>
+    </g>
+
+  </g>
+
+  <!-- ============================ BACK VIEW (centerline x=150) ============================ -->
+  <g stroke="#5A2A14" stroke-linejoin="round" stroke-linecap="round">
+
+    <g fill="#C07858" stroke-width="1">
+      <path d="M171 55 C176 55 179 61 180 68 C181 78 181 88 180 97 C179 110 178 122 177 133 C177 140 177 145 176 149 C174 151 172 151 171 149 C170 145 170 140 170 133 C170 122 170 110 170 97 C170 86 170 74 170 66 C170 61 170 58 171 55 Z"/>
+      <path d="M129 55 C124 55 121 61 120 68 C119 78 119 88 120 97 C121 110 122 122 123 133 C123 140 123 145 124 149 C126 151 128 151 129 149 C130 145 130 140 130 133 C130 122 130 110 130 97 C130 86 130 74 130 66 C130 61 130 58 129 55 Z"/>
+    </g>
+
+    <g fill="#C07858" stroke-width="1">
+      <path d="M167 116 C169 132 168 156 165 178 C164 183 163 185 162 190 C161 202 160 216 158 233 C157 238 157 241 157 244 C158 248 160 251 159 256 C158 260 155 261 153 260 C151 259 150 256 150 252 C150 248 151 246 151 243 C151 224 151 206 151 190 C151 170 151 150 151 132 C151 128 151 126 150 126 Z"/>
+      <path d="M133 116 C131 132 132 156 135 178 C136 183 137 185 138 190 C139 202 140 216 142 233 C143 238 143 241 143 244 C142 248 140 251 141 256 C142 260 145 261 147 260 C149 259 150 256 150 252 C150 248 149 246 149 243 C149 224 149 206 149 190 C149 170 149 150 149 132 C149 128 149 126 150 126 Z"/>
+    </g>
+
+    <path fill="#C07858" stroke-width="1.1" d="M150 16
+      C156 16 159 21 159 27 C159 33 157 37 155 39 C154 41 154 43 153 45 C153 47 154 48 156 49
+      C162 50 168 52 173 56 C174 58 173 62 171 66
+      C169 78 164 92 162 104 C162 110 164 113 167 116
+      C164 122 157 127 150 127
+      C143 127 136 122 133 116 C136 113 138 110 138 104
+      C136 92 131 78 129 66 C127 62 126 58 127 56
+      C132 52 138 50 144 49 C146 48 147 47 147 45 C147 43 146 41 145 39
+      C143 37 141 33 141 27 C141 21 144 16 150 16 Z"/>
+  </g>
+
+  <!-- ================= MUSCLE GROUPS ================= -->
+  <g stroke="#5A2A14" stroke-linejoin="round" stroke-width="0.7">
+
+    <g id="shoulders" fill="#9E5840">
+      <path d="M64 51 C70 51 74 55 74 61 C74 66 72 69 68 69 C65 67 64 60 64 53 Z"/>
+      <path d="M36 51 C30 51 26 55 26 61 C26 66 28 69 32 69 C35 67 36 60 36 53 Z"/>
+      <path d="M164 51 C170 51 174 55 174 61 C174 66 172 69 168 69 C165 67 164 60 164 53 Z"/>
+      <path d="M136 51 C130 51 126 55 126 61 C126 66 128 69 132 69 C135 67 136 60 136 53 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
+        <path d="M66 56 C69 56 71 58 72 62"/><path d="M34 56 C31 56 29 58 28 62"/>
+        <path d="M166 56 C169 56 171 58 172 62"/><path d="M134 56 C131 56 129 58 128 62"/>
+      </g>
+    </g>
+
+    <g id="chest" fill="#9E5840">
+      <path d="M50 51 C58 51 64 53 68 57 C69 64 66 71 60 75 C55 77 51 76 50 73 Z"/>
+      <path d="M50 51 C42 51 36 53 32 57 C31 64 34 71 40 75 C45 77 49 76 50 73 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
+        <path d="M50 54 C56 55 62 57 66 60"/><path d="M50 54 C44 55 38 57 34 60"/>
+      </g>
+    </g>
+
+    <g id="back" fill="#9E5840">
+      <path d="M150 47 C158 48 166 52 173 57 C166 62 158 64 150 65 C142 64 134 62 127 57 C134 52 142 48 150 47 Z"/>
+      <path d="M150 64 L158 86 L150 97 L142 86 Z"/>
+      <path d="M172 60 C173 74 168 92 160 104 C156 101 154 93 154 84 C154 74 162 64 172 60 Z"/>
+      <path d="M128 60 C127 74 132 92 140 104 C144 101 146 93 146 84 C146 74 138 64 128 60 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
+        <path d="M150 49 L150 96"/>
+        <path d="M168 64 C162 74 159 88 157 100"/><path d="M132 64 C138 74 141 88 143 100"/>
+      </g>
+    </g>
+
+    <g id="core" fill="#9E5840">
+      <path d="M58 78 C62 82 63 94 61 104 C59 102 56 96 55 88 C55 84 56 80 58 78 Z"/>
+      <path d="M42 78 C38 82 37 94 39 104 C41 102 44 96 45 88 C45 84 44 80 42 78 Z"/>
+      <path d="M50 77 C54 77 56 79 56 84 C56 96 55 106 50 112 C45 106 44 96 44 84 C44 79 46 77 50 77 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.55">
+        <path d="M50 78 L50 110"/>
+        <path d="M44 85 L56 85"/><path d="M44 93 L56 93"/><path d="M45 101 L55 101"/>
+      </g>
+    </g>
+
+    <g id="biceps" fill="#9E5840">
+      <path d="M72 67 C76 66 79 68 79 74 C80 82 79 90 77 95 C74 96 72 94 72 90 C71 82 71 74 72 67 Z"/>
+      <path d="M28 67 C24 66 21 68 21 74 C20 82 21 90 23 95 C26 96 28 94 28 90 C29 82 29 74 28 67 Z"/>
+    </g>
+
+    <g id="triceps" fill="#9E5840">
+      <path d="M172 67 C176 66 179 68 179 74 C180 82 179 90 177 95 C174 96 172 94 172 90 C171 82 171 74 172 67 Z"/>
+      <path d="M128 67 C124 66 121 68 121 74 C120 82 121 90 123 95 C126 96 128 94 128 90 C129 82 129 74 128 67 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
+        <path d="M176 70 L176 93"/><path d="M124 70 L124 93"/>
+      </g>
+    </g>
+
+    <g id="glutes" fill="#9E5840">
+      <path d="M150 117 C158 117 165 121 166 130 C166 138 160 143 153 142 C150 139 150 128 150 117 Z"/>
+      <path d="M150 117 C142 117 135 121 134 130 C134 138 140 143 147 142 C150 139 150 128 150 117 Z"/>
+    </g>
+
+    <g id="legs" fill="#9E5840">
+      <path d="M56 126 C62 128 64 145 62 165 C61 174 59 179 56 181 C53 179 53 165 53 150 C53 140 53 130 56 126 Z"/>
+      <path d="M44 126 C38 128 36 145 38 165 C39 174 41 179 44 181 C47 179 47 165 47 150 C47 140 47 130 44 126 Z"/>
+      <path d="M156 128 C162 130 164 146 162 166 C161 174 159 179 156 181 C153 179 153 165 153 150 C153 142 153 132 156 128 Z"/>
+      <path d="M144 128 C138 130 136 146 138 166 C139 174 141 179 144 181 C147 179 147 165 147 150 C147 142 147 132 144 128 Z"/>
+      <path d="M159 191 C162 194 163 206 161 220 C160 228 158 232 157 233 C155 232 154 220 154 209 C154 200 156 194 159 191 Z"/>
+      <path d="M141 191 C138 194 137 206 139 220 C140 228 142 232 143 233 C145 232 146 220 146 209 C146 200 144 194 141 191 Z"/>
+      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
+        <path d="M58 130 C60 148 58 166 56 178"/><path d="M42 130 C40 148 42 166 44 178"/>
+        <path d="M156 132 L156 178"/><path d="M144 132 L144 178"/>
+      </g>
+    </g>
+
+  </g>
+</svg>
+''';
