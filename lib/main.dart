@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'data/seed_sessions.dart';
+import 'services/log_service.dart';
 import 'app.dart';
 
 void main() async {
@@ -9,6 +11,9 @@ void main() async {
 
   // Initialise les données de locale pour intl (fr_FR)
   await initializeDateFormatting('fr_FR', null);
+
+  // Injecte les séances historiques une seule fois
+  await LogService().seedHistoryOnce(kSeedSessions);
 
 
   // Force portrait mode

@@ -62,6 +62,24 @@ class LogService {
     await p.setInt(_timerKey, seconds);
   }
 
+  // ── Seed history (one-time) ───────────────────────────────
+  static const _seedKey = 'ff_log_seeded_v1';
+
+  Future<void> seedHistoryOnce(List<LogSession> seeds) async {
+    final p = await SharedPreferences.getInstance();
+    if (p.getBool(_seedKey) == true) return; // déjà fait
+
+    final existing = await loadHistory();
+    final existingIds = existing.map((s) => s.id).toSet();
+    final toAdd = seeds.where((s) => !existingIds.contains(s.id)).toList();
+    if (toAdd.isNotEmpty) {
+      final merged = [...existing, ...toAdd]
+        ..sort((a, b) => a.date.compareTo(b.date));
+      await saveHistory(merged);
+    }
+    await p.setBool(_seedKey, true);
+  }
+
   // ── Custom sessions ───────────────────────────────────────
   Future<Map<int, List<String>>> loadCustomSessions() async {
     final p = await SharedPreferences.getInstance();
