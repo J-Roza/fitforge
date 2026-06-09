@@ -9,7 +9,7 @@ import '../../../data/models/user_profile.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/workout_provider.dart';
-import '../log/log_home_screen.dart';
+import '../../../providers/log_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -18,7 +18,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProfileProvider);
     final templates = ref.watch(workoutTemplatesProvider);
-    final history = ref.watch(sessionHistoryProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -96,7 +95,7 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
 
                   // ── Weekly stats ──────────────────────────────────────────
-                  _WeeklyStats(history: history)
+                  const _WeeklyStats()
                       .animate()
                       .fadeIn(delay: 250.ms)
                       .slideY(begin: 0.1, end: 0),
@@ -201,66 +200,6 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ),
-          // ── Log CTA ───────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: GestureDetector(
-                onTap: () => Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(builder: (_) => const LogHomeScreen()),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF7C5CFC).withOpacity(.15),
-                        const Color(0xFF7C5CFC).withOpacity(.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent.withOpacity(.15),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(Icons.menu_book_rounded,
-                            color: AppColors.accent, size: 26),
-                      ),
-                      const SizedBox(width: 14),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Carnet d\'entraînement',
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary)),
-                            SizedBox(height: 3),
-                            Text('Logguez vos séances · Suivez vos records',
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textSecondary)),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.arrow_forward_ios_rounded,
-                          color: AppColors.accent, size: 16),
-                    ],
-                  ),
-                ),
-              ).animate().fadeIn(delay: 350.ms),
-            ),
-          ),
-
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -268,8 +207,7 @@ class HomeScreen extends ConsumerWidget {
   }
 
   void _startWorkout(BuildContext context, WidgetRef ref, Workout workout) {
-    ref.read(activeSessionProvider.notifier).startSession(workout);
-    context.go('/workout/active');
+    context.go('/workout');
   }
 
   String _greeting(String? name) {
@@ -283,16 +221,22 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _WeeklyStats extends StatelessWidget {
-  final List<WorkoutSession> history;
-  const _WeeklyStats({required this.history});
+class _WeeklyStats extends ConsumerWidget {
+  const _WeeklyStats();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final history = ref.watch(logHistoryProvider).value ?? [];
     final now = DateTime.now();
-    final weekSessions = history.where((s) => s.startTime.isAfter(now.subtract(const Duration(days: 7)))).toList();
-    final totalVolume = weekSessions.fold(0, (sum, s) => sum + s.totalVolume);
-    final totalMinutes = weekSessions.fold(0, (sum, s) => sum + s.duration.inMinutes);
+    final weekSessions = history.where((s) =>
+        now.difference(s.date).inDays < 7).length;
+    final totalVol = history.fold<double>(0, (v, s) => v + s.totalVolume);
+    final volStr = totalVol >= 1000
+        ? '${(totalVol / 1000).toStringAsFixed(1)}t'
+        : '${totalVol.toStringAsFixed(0)}kg';
+    int streak = 0;
+    final weeks = history.map((s) => now.difference(s.date).inDays ~/ 7).toSet();
+    while (weeks.contains(streak)) streak++;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -306,11 +250,11 @@ class _WeeklyStats extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _StatItem(label: 'Séances\ncette semaine', value: '${weekSessions.length}'),
+          _StatItem(label: 'Séances\ncette semaine', value: '$weekSessions'),
           _Divider(),
-          _StatItem(label: 'Volume\ntotal (kg)', value: '${totalVolume ~/ 1000}k'),
+          _StatItem(label: 'Volume\ntotal', value: volStr),
           _Divider(),
-          _StatItem(label: 'Temps\ntotal', value: '${totalMinutes}min'),
+          _StatItem(label: 'Streak\nsemaines', value: '${streak}sem'),
         ],
       ),
     );

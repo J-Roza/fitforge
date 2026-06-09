@@ -11,7 +11,8 @@ import 'history_screen.dart';
 import 'planning_screen.dart';
 
 class LogHomeScreen extends ConsumerWidget {
-  const LogHomeScreen({super.key});
+  final bool showBack;
+  const LogHomeScreen({super.key, this.showBack = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,10 +62,29 @@ class LogHomeScreen extends ConsumerWidget {
         elevation: 0,
         title: const Text('FitForge Log',
             style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: showBack
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            : null,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.bgCard,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          builder: (_) => ProviderScope(
+            parent: ProviderScope.containerOf(context),
+            child: const _AddPastSessionSheet(),
+          ),
         ),
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Séance passée', style: TextStyle(fontWeight: FontWeight.w700)),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -528,4 +548,127 @@ class _NavBtn extends StatelessWidget {
           ),
         ),
       );
+}
+
+// ── Add past session sheet ─────────────────────────────────
+class _AddPastSessionSheet extends ConsumerStatefulWidget {
+  const _AddPastSessionSheet();
+  @override
+  ConsumerState<_AddPastSessionSheet> createState() => _AddPastSessionSheetState();
+}
+
+class _AddPastSessionSheetState extends ConsumerState<_AddPastSessionSheet> {
+  DateTime _date = DateTime.now().subtract(const Duration(days: 1));
+  int _sessionType = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final sessions = ref.watch(sessionsConfigProvider);
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        top: 20, left: 20, right: 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
+          const SizedBox(height: 16),
+          const Text('Ajouter une séance passée',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 20),
+          const Text('DATE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: .5)),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _date,
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now(),
+                builder: (_, child) => Theme(
+                  data: ThemeData.dark().copyWith(
+                    colorScheme: const ColorScheme.dark(primary: AppColors.accent),
+                  ),
+                  child: child!,
+                ),
+              );
+              if (picked != null) setState(() => _date = picked);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColors.bgCardElevated,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.accent),
+                  const SizedBox(width: 10),
+                  Text('${_date.day}/${_date.month}/${_date.year}',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text('TYPE DE SÉANCE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: .5)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8, runSpacing: 8,
+            children: sessions.map((s) => GestureDetector(
+              onTap: () => setState(() => _sessionType = s.type),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: _sessionType == s.type ? s.color.withOpacity(.15) : AppColors.bgCardElevated,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: _sessionType == s.type ? s.color : AppColors.border,
+                      width: _sessionType == s.type ? 1.5 : 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('S${s.type}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: s.color)),
+                    Text(s.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            )).toList(),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _save,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text('Ajouter', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  void _save() async {
+    final session = LogSession(
+      date: _date,
+      sessionType: _sessionType,
+      exercises: [],
+      notes: null,
+      feeling: null,
+    );
+    await ref.read(logHistoryProvider.notifier).addSession(session);
+    if (mounted) Navigator.of(context).pop();
+  }
 }

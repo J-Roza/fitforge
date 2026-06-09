@@ -5,9 +5,7 @@ import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/exercises/exercises_screen.dart';
 import '../presentation/screens/exercises/exercise_detail_screen.dart';
-import '../presentation/screens/workout/workout_screen.dart';
-import '../presentation/screens/workout/active_workout_screen.dart';
-import '../presentation/screens/workout/workout_editor_screen.dart';
+import '../presentation/screens/log/log_home_screen.dart';
 import '../presentation/screens/progress/progress_screen.dart';
 import '../presentation/screens/profile/profile_screen.dart';
 import '../providers/user_provider.dart';
@@ -43,19 +41,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/workout',
-            builder: (_, __) => const WorkoutScreen(),
-            routes: [
-              GoRoute(
-                path: 'active',
-                builder: (_, __) => const ActiveWorkoutScreen(),
-              ),
-              GoRoute(
-                path: 'edit/:id',
-                builder: (_, state) => WorkoutEditorScreen(
-                  workoutId: state.pathParameters['id']!,
-                ),
-              ),
-            ],
+            builder: (_, __) => const LogHomeScreen(showBack: false),
           ),
           GoRoute(
             path: '/progress',
@@ -78,13 +64,10 @@ class _MainScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    final isActiveWorkout = location.contains('/workout/active');
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: isActiveWorkout
-          ? null
-          : _BottomNav(currentLocation: location),
+      bottomNavigationBar: _BottomNav(currentLocation: location),
     );
   }
 }
@@ -126,9 +109,9 @@ class _BottomNav extends StatelessWidget {
             label: 'Exercices',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center_outlined),
-            activeIcon: Icon(Icons.fitness_center_rounded),
-            label: 'Séances',
+            icon: Icon(Icons.menu_book_outlined),
+            activeIcon: Icon(Icons.menu_book_rounded),
+            label: 'Carnet',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart_outlined),
