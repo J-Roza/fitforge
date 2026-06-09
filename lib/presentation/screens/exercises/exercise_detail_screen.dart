@@ -302,10 +302,24 @@ class _MuscleRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: muscle.color.withOpacity(0.15),
+                color: (label == 'Primaire'
+                        ? const Color(0xFFE53935)
+                        : const Color(0xFFFF6D00))
+                    .withOpacity(0.15),
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: (label == 'Primaire'
+                            ? const Color(0xFFE53935)
+                            : const Color(0xFFFF6D00))
+                        .withOpacity(0.4)),
               ),
-              child: Center(child: Text(muscle.emoji, style: const TextStyle(fontSize: 16))),
+              child: Center(
+                child: Icon(Icons.circle,
+                    size: 10,
+                    color: label == 'Primaire'
+                        ? const Color(0xFFE53935)
+                        : const Color(0xFFFF6D00)),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -321,7 +335,12 @@ class _MuscleRow extends StatelessWidget {
                               fontSize: 14)),
                       const Spacer(),
                       Text(label,
-                          style: TextStyle(color: muscle.color, fontSize: 11, fontWeight: FontWeight.w600)),
+                          style: TextStyle(
+                              color: label == 'Primaire'
+                                  ? const Color(0xFFE53935)
+                                  : const Color(0xFFFF6D00),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -329,8 +348,11 @@ class _MuscleRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: percentage,
-                      backgroundColor: AppColors.bgCardElevated,
-                      valueColor: AlwaysStoppedAnimation(muscle.color),
+                      backgroundColor: const Color(0xFF1E1B2E),
+                      valueColor: AlwaysStoppedAnimation(
+                          label == 'Primaire'
+                              ? const Color(0xFFE53935)
+                              : const Color(0xFFFF6D00)),
                       minHeight: 6,
                     ),
                   ),

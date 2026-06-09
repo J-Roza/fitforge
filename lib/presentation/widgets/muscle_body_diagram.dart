@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../data/models/exercise.dart';
-import '../../core/theme/app_colors.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MuscleBodyDiagram
+//  Vue avant + arrière d'un corps humain stylisé.
+//  Muscles primaires  → rouge vif
+//  Muscles secondaires → rouge clair / orange
+// ─────────────────────────────────────────────────────────────────────────────
 
 class MuscleBodyDiagram extends StatelessWidget {
   final MuscleGroup primaryMuscle;
@@ -15,28 +21,30 @@ class MuscleBodyDiagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 240,
+      height: 280,
       decoration: BoxDecoration(
-        color: AppColors.bgCardElevated,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        color: const Color(0xFF0F0E1A),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF2A2640)),
       ),
       child: Row(
         children: [
+          // ── Vue avant ──────────────────────────────────────────────────
           Expanded(
             child: Column(
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 4),
-                  child: Text('Avant',
+                  padding: EdgeInsets.only(top: 12, bottom: 6),
+                  child: Text('AVANT',
                       style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 11,
-                          letterSpacing: 0.5)),
+                          color: Color(0xFF6B6880),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5)),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
                     child: CustomPaint(
                       painter: _BodyPainter(
                         isFront: true,
@@ -50,21 +58,28 @@ class MuscleBodyDiagram extends StatelessWidget {
               ],
             ),
           ),
-          Container(width: 1, color: AppColors.border),
+          // Séparateur
+          Container(
+            width: 1,
+            margin: const EdgeInsets.symmetric(vertical: 16),
+            color: const Color(0xFF2A2640),
+          ),
+          // ── Vue arrière ─────────────────────────────────────────────────
           Expanded(
             child: Column(
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 4),
-                  child: Text('Arrière',
+                  padding: EdgeInsets.only(top: 12, bottom: 6),
+                  child: Text('ARRIÈRE',
                       style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 11,
-                          letterSpacing: 0.5)),
+                          color: Color(0xFF6B6880),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5)),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
                     child: CustomPaint(
                       painter: _BodyPainter(
                         isFront: false,
@@ -84,10 +99,24 @@ class MuscleBodyDiagram extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  Painter
+// ─────────────────────────────────────────────────────────────────────────────
+
 class _BodyPainter extends CustomPainter {
   final bool isFront;
   final MuscleGroup primary;
   final List<MuscleGroup> secondary;
+
+  static const _primaryColor   = Color(0xFFE53935); // rouge vif
+  static const _secondaryColor = Color(0xFFFF6D00); // orange
+  static const _skinBase       = Color(0xFF3A2E2E);  // silhouette sombre
+  static const _skinHighlight  = Color(0xFF4A3A3A);  // relief musculaire
+  static const _skinEdge       = Color(0xFF251A1A);  // contour
+
+  // Canvas virtuel 100 × 240
+  static const _vw = 100.0;
+  static const _vh = 240.0;
 
   const _BodyPainter({
     required this.isFront,
@@ -95,27 +124,435 @@ class _BodyPainter extends CustomPainter {
     required this.secondary,
   });
 
-  // Virtual canvas 100 × 220
-  static const _vw = 100.0;
-  static const _vh = 220.0;
+  bool _isPrimary(MuscleGroup m) => m == primary;
+  bool _isSecondary(MuscleGroup m) => secondary.contains(m);
+  bool _isActive(MuscleGroup m) => _isPrimary(m) || _isSecondary(m);
 
-  Color _colorFor(MuscleGroup m) {
-    if (m == primary) return m.color;
-    if (secondary.contains(m)) return m.color.withOpacity(0.45);
+  Color _muscleColor(MuscleGroup m) {
+    if (_isPrimary(m)) return _primaryColor;
+    if (_isSecondary(m)) return _secondaryColor;
     return Colors.transparent;
   }
 
-  void _paintPath(Canvas canvas, Path path, MuscleGroup m,
-      {double opacity = 0.75}) {
-    final c = _colorFor(m);
-    if (c == Colors.transparent) return;
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = c.withOpacity(opacity)
-        ..style = PaintingStyle.fill,
-    );
+  // ── Rendu d'une région musculaire ─────────────────────────────────────────
+  void _fill(Canvas c, Path p, MuscleGroup m, {double opacity = 1.0}) {
+    final col = _muscleColor(m);
+    if (col == Colors.transparent) return;
+    c.drawPath(p, Paint()
+      ..color = col.withOpacity(opacity * (_isPrimary(m) ? 0.85 : 0.60))
+      ..style = PaintingStyle.fill);
+    // Contour rouge pour le muscle actif
+    c.drawPath(p, Paint()
+      ..color = col.withOpacity(0.9)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8);
   }
+
+  // ── Silhouette de base ────────────────────────────────────────────────────
+  void _silhouette(Canvas c) {
+    final base  = Paint()..color = _skinBase ..style = PaintingStyle.fill;
+    final edge  = Paint()..color = _skinEdge ..style = PaintingStyle.stroke..strokeWidth = 1.0;
+    final light = Paint()..color = _skinHighlight..style = PaintingStyle.fill;
+
+    // ── Tête ──────────────────────────────────────────────────────────────
+    final head = Path()..addOval(const Rect.fromLTWH(38, 2, 24, 26));
+    c.drawPath(head, base);
+    c.drawPath(head, edge);
+
+    // ── Cou ───────────────────────────────────────────────────────────────
+    final neck = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+          const Rect.fromLTWH(44, 26, 12, 12), const Radius.circular(4)));
+    c.drawPath(neck, base);
+
+    // ── Torse ─────────────────────────────────────────────────────────────
+    final torso = Path()
+      ..moveTo(22, 32)
+      ..quadraticBezierTo(16, 36, 14, 48)
+      ..lineTo(18, 82)
+      ..quadraticBezierTo(20, 92, 22, 98)
+      ..lineTo(24, 116)
+      ..lineTo(44, 118)
+      ..lineTo(56, 118)
+      ..lineTo(76, 116)
+      ..lineTo(78, 98)
+      ..quadraticBezierTo(80, 92, 82, 82)
+      ..lineTo(86, 48)
+      ..quadraticBezierTo(84, 36, 78, 32)
+      ..quadraticBezierTo(66, 28, 50, 28)
+      ..quadraticBezierTo(34, 28, 22, 32)
+      ..close();
+    c.drawPath(torso, base);
+
+    // Ligne sternum / colonne (relief)
+    c.drawPath(
+      Path()
+        ..moveTo(50, 30)
+        ..quadraticBezierTo(50, 64, 50, 118),
+      Paint()
+        ..color = _skinEdge.withOpacity(0.4)
+        ..strokeWidth = 0.6
+        ..style = PaintingStyle.stroke,
+    );
+
+    c.drawPath(torso, edge);
+
+    // ── Bras gauche ────────────────────────────────────────────────────────
+    final lArm = Path()
+      ..moveTo(22, 34)
+      ..quadraticBezierTo(10, 38, 8, 52)
+      ..lineTo(7, 92)
+      ..quadraticBezierTo(6, 100, 8, 106)
+      ..lineTo(10, 130)
+      ..quadraticBezierTo(10, 134, 11, 136)
+      ..lineTo(20, 136)
+      ..quadraticBezierTo(21, 134, 21, 130)
+      ..lineTo(20, 106)
+      ..quadraticBezierTo(22, 100, 22, 92)
+      ..lineTo(22, 52)
+      ..close();
+    c.drawPath(lArm, base);
+    c.drawPath(lArm, edge);
+
+    // ── Bras droit ─────────────────────────────────────────────────────────
+    final rArm = Path()
+      ..moveTo(78, 34)
+      ..quadraticBezierTo(90, 38, 92, 52)
+      ..lineTo(93, 92)
+      ..quadraticBezierTo(94, 100, 92, 106)
+      ..lineTo(90, 130)
+      ..quadraticBezierTo(90, 134, 89, 136)
+      ..lineTo(80, 136)
+      ..quadraticBezierTo(79, 134, 79, 130)
+      ..lineTo(80, 106)
+      ..quadraticBezierTo(78, 100, 78, 92)
+      ..lineTo(78, 52)
+      ..close();
+    c.drawPath(rArm, base);
+    c.drawPath(rArm, edge);
+
+    // ── Avant-bras gauche ──────────────────────────────────────────────────
+    final lForearm = Path()
+      ..moveTo(8, 106)
+      ..quadraticBezierTo(6, 112, 5, 128)
+      ..lineTo(5, 152)
+      ..quadraticBezierTo(5, 158, 8, 160)
+      ..lineTo(20, 160)
+      ..quadraticBezierTo(22, 158, 22, 152)
+      ..lineTo(21, 128)
+      ..quadraticBezierTo(21, 112, 20, 106)
+      ..close();
+    c.drawPath(lForearm, base..color = _skinBase.withOpacity(0.85));
+    c.drawPath(lForearm, edge);
+
+    // ── Avant-bras droit ───────────────────────────────────────────────────
+    final rForearm = Path()
+      ..moveTo(92, 106)
+      ..quadraticBezierTo(94, 112, 95, 128)
+      ..lineTo(95, 152)
+      ..quadraticBezierTo(95, 158, 92, 160)
+      ..lineTo(80, 160)
+      ..quadraticBezierTo(78, 158, 78, 152)
+      ..lineTo(79, 128)
+      ..quadraticBezierTo(79, 112, 80, 106)
+      ..close();
+    c.drawPath(rForearm, base..color = _skinBase.withOpacity(0.85));
+    c.drawPath(rForearm, edge);
+
+    base.color = _skinBase; // reset
+
+    // ── Jambe gauche ───────────────────────────────────────────────────────
+    final lThigh = Path()
+      ..moveTo(24, 118)
+      ..quadraticBezierTo(22, 124, 21, 132)
+      ..lineTo(19, 172)
+      ..quadraticBezierTo(18, 178, 20, 184)
+      ..lineTo(21, 192)
+      ..lineTo(38, 192)
+      ..lineTo(38, 184)
+      ..quadraticBezierTo(40, 178, 40, 172)
+      ..lineTo(40, 132)
+      ..quadraticBezierTo(40, 124, 40, 118)
+      ..close();
+    c.drawPath(lThigh, base);
+    c.drawPath(lThigh, edge);
+
+    // ── Jambe droite ────────────────────────────────────────────────────────
+    final rThigh = Path()
+      ..moveTo(76, 118)
+      ..quadraticBezierTo(78, 124, 79, 132)
+      ..lineTo(81, 172)
+      ..quadraticBezierTo(82, 178, 80, 184)
+      ..lineTo(79, 192)
+      ..lineTo(62, 192)
+      ..lineTo(62, 184)
+      ..quadraticBezierTo(60, 178, 60, 172)
+      ..lineTo(60, 132)
+      ..quadraticBezierTo(60, 124, 60, 118)
+      ..close();
+    c.drawPath(rThigh, base);
+    c.drawPath(rThigh, edge);
+
+    // ── Mollet gauche ──────────────────────────────────────────────────────
+    final lCalf = Path()
+      ..moveTo(20, 192)
+      ..quadraticBezierTo(18, 198, 18, 208)
+      ..lineTo(19, 228)
+      ..lineTo(23, 230)
+      ..lineTo(38, 230)
+      ..lineTo(40, 228)
+      ..lineTo(40, 208)
+      ..quadraticBezierTo(40, 198, 38, 192)
+      ..close();
+    c.drawPath(lCalf, base);
+    c.drawPath(lCalf, edge);
+
+    // ── Mollet droit ───────────────────────────────────────────────────────
+    final rCalf = Path()
+      ..moveTo(80, 192)
+      ..quadraticBezierTo(82, 198, 82, 208)
+      ..lineTo(81, 228)
+      ..lineTo(77, 230)
+      ..lineTo(62, 230)
+      ..lineTo(60, 228)
+      ..lineTo(60, 208)
+      ..quadraticBezierTo(60, 198, 62, 192)
+      ..close();
+    c.drawPath(rCalf, base);
+    c.drawPath(rCalf, edge);
+  }
+
+  // ── Muscles — vue avant ───────────────────────────────────────────────────
+  void _frontMuscles(Canvas c) {
+    // Pectoraux gauche
+    _fill(c, Path()
+      ..moveTo(26, 34)
+      ..quadraticBezierTo(26, 30, 48, 30)
+      ..quadraticBezierTo(50, 44, 48, 64)
+      ..lineTo(36, 70)
+      ..quadraticBezierTo(24, 60, 22, 48)
+      ..quadraticBezierTo(22, 36, 26, 34)
+      ..close(), MuscleGroup.chest);
+
+    // Pectoraux droit
+    _fill(c, Path()
+      ..moveTo(74, 34)
+      ..quadraticBezierTo(74, 30, 52, 30)
+      ..quadraticBezierTo(50, 44, 52, 64)
+      ..lineTo(64, 70)
+      ..quadraticBezierTo(76, 60, 78, 48)
+      ..quadraticBezierTo(78, 36, 74, 34)
+      ..close(), MuscleGroup.chest);
+
+    // Épaules ant. gauche
+    _fill(c, Path()..addOval(const Rect.fromLTWH(8, 28, 22, 28)),
+        MuscleGroup.shoulders);
+    // Épaules ant. droit
+    _fill(c, Path()..addOval(const Rect.fromLTWH(70, 28, 22, 28)),
+        MuscleGroup.shoulders);
+
+    // Biceps gauche
+    _fill(c, _rr(const Rect.fromLTWH(8, 56, 15, 34), 7),
+        MuscleGroup.biceps);
+    // Biceps droit
+    _fill(c, _rr(const Rect.fromLTWH(77, 56, 15, 34), 7),
+        MuscleGroup.biceps);
+
+    // Triceps (visible côté) gauche
+    _fill(c, _rr(const Rect.fromLTWH(8, 56, 15, 34), 7),
+        MuscleGroup.triceps, opacity: 0.4);
+    _fill(c, _rr(const Rect.fromLTWH(77, 56, 15, 34), 7),
+        MuscleGroup.triceps, opacity: 0.4);
+
+    // Abdominaux
+    _fill(c, _rr(const Rect.fromLTWH(34, 68, 32, 48), 5),
+        MuscleGroup.core);
+    _absGrid(c);
+
+    // Obliques
+    _fill(c, Path()
+      ..moveTo(22, 72)
+      ..lineTo(35, 70)
+      ..lineTo(34, 112)
+      ..lineTo(22, 108)
+      ..close(), MuscleGroup.core, opacity: 0.55);
+    _fill(c, Path()
+      ..moveTo(78, 72)
+      ..lineTo(65, 70)
+      ..lineTo(66, 112)
+      ..lineTo(78, 108)
+      ..close(), MuscleGroup.core, opacity: 0.55);
+
+    // Quadriceps gauche
+    _fill(c, Path()
+      ..moveTo(21, 119)
+      ..lineTo(40, 119)
+      ..quadraticBezierTo(40, 160, 40, 172)
+      ..lineTo(21, 172)
+      ..quadraticBezierTo(19, 148, 21, 119)
+      ..close(), MuscleGroup.legs);
+
+    // Quadriceps droit
+    _fill(c, Path()
+      ..moveTo(79, 119)
+      ..lineTo(60, 119)
+      ..quadraticBezierTo(60, 160, 60, 172)
+      ..lineTo(79, 172)
+      ..quadraticBezierTo(81, 148, 79, 119)
+      ..close(), MuscleGroup.legs);
+
+    // Tibias / mollets avant
+    _fill(c, _rr(const Rect.fromLTWH(19, 193, 20, 32), 5),
+        MuscleGroup.legs, opacity: 0.55);
+    _fill(c, _rr(const Rect.fromLTWH(61, 193, 20, 32), 5),
+        MuscleGroup.legs, opacity: 0.55);
+
+    // Fessiers (avant visible)
+    _fill(c, Path()
+      ..moveTo(24, 104)
+      ..lineTo(44, 118)
+      ..lineTo(24, 118)
+      ..close(), MuscleGroup.glutes, opacity: 0.5);
+    _fill(c, Path()
+      ..moveTo(76, 104)
+      ..lineTo(56, 118)
+      ..lineTo(76, 118)
+      ..close(), MuscleGroup.glutes, opacity: 0.5);
+  }
+
+  void _absGrid(Canvas c) {
+    if (!_isActive(MuscleGroup.core)) return;
+    final line = Paint()
+      ..color = const Color(0xFF0A0812).withOpacity(0.5)
+      ..strokeWidth = 1.2
+      ..style = PaintingStyle.stroke;
+    // Ligne verticale (sternum)
+    c.drawLine(const Offset(50, 68), const Offset(50, 116), line);
+    // Lignes horizontales (packs)
+    c.drawLine(const Offset(35, 82), const Offset(65, 82), line);
+    c.drawLine(const Offset(35, 96), const Offset(65, 96), line);
+    c.drawLine(const Offset(35, 108), const Offset(65, 108), line);
+  }
+
+  // ── Muscles — vue arrière ─────────────────────────────────────────────────
+  void _backMuscles(Canvas c) {
+    // Trapèze
+    _fill(c, Path()
+      ..moveTo(44, 30)
+      ..lineTo(56, 30)
+      ..quadraticBezierTo(76, 32, 78, 42)
+      ..lineTo(70, 62)
+      ..lineTo(50, 72)
+      ..lineTo(30, 62)
+      ..lineTo(22, 42)
+      ..quadraticBezierTo(24, 32, 44, 30)
+      ..close(), MuscleGroup.back);
+
+    // Grand dorsal gauche
+    _fill(c, Path()
+      ..moveTo(22, 46)
+      ..lineTo(44, 56)
+      ..lineTo(40, 112)
+      ..lineTo(24, 108)
+      ..quadraticBezierTo(20, 88, 20, 72)
+      ..close(), MuscleGroup.back);
+
+    // Grand dorsal droit
+    _fill(c, Path()
+      ..moveTo(78, 46)
+      ..lineTo(56, 56)
+      ..lineTo(60, 112)
+      ..lineTo(76, 108)
+      ..quadraticBezierTo(80, 88, 80, 72)
+      ..close(), MuscleGroup.back);
+
+    // Érecteurs spinaux / lombes
+    _fill(c, _rr(const Rect.fromLTWH(34, 72, 14, 44), 5),
+        MuscleGroup.back, opacity: 0.65);
+    _fill(c, _rr(const Rect.fromLTWH(52, 72, 14, 44), 5),
+        MuscleGroup.back, opacity: 0.65);
+
+    // Colonne (ligne de creux)
+    if (_isActive(MuscleGroup.back)) {
+      c.drawLine(
+        const Offset(50, 30), const Offset(50, 116),
+        Paint()
+          ..color = const Color(0xFF0A0812).withOpacity(0.4)
+          ..strokeWidth = 0.8
+          ..style = PaintingStyle.stroke,
+      );
+    }
+
+    // Épaules post. gauche
+    _fill(c, Path()..addOval(const Rect.fromLTWH(8, 28, 22, 26)),
+        MuscleGroup.shoulders);
+    // Épaules post. droit
+    _fill(c, Path()..addOval(const Rect.fromLTWH(70, 28, 22, 26)),
+        MuscleGroup.shoulders);
+
+    // Triceps gauche
+    _fill(c, _rr(const Rect.fromLTWH(8, 54, 15, 42), 7),
+        MuscleGroup.triceps);
+    // Triceps droit
+    _fill(c, _rr(const Rect.fromLTWH(77, 54, 15, 42), 7),
+        MuscleGroup.triceps);
+
+    // Biceps légèrement visible
+    _fill(c, _rr(const Rect.fromLTWH(8, 54, 15, 34), 7),
+        MuscleGroup.biceps, opacity: 0.3);
+    _fill(c, _rr(const Rect.fromLTWH(77, 54, 15, 34), 7),
+        MuscleGroup.biceps, opacity: 0.3);
+
+    // Fessiers gauche
+    _fill(c, Path()
+      ..moveTo(24, 110)
+      ..lineTo(49, 110)
+      ..lineTo(49, 148)
+      ..quadraticBezierTo(38, 156, 24, 148)
+      ..close(), MuscleGroup.glutes);
+
+    // Fessiers droit
+    _fill(c, Path()
+      ..moveTo(76, 110)
+      ..lineTo(51, 110)
+      ..lineTo(51, 148)
+      ..quadraticBezierTo(62, 156, 76, 148)
+      ..close(), MuscleGroup.glutes);
+
+    // Ischio-jambiers gauche
+    _fill(c, Path()
+      ..moveTo(21, 148)
+      ..lineTo(40, 148)
+      ..quadraticBezierTo(40, 170, 40, 182)
+      ..lineTo(21, 182)
+      ..quadraticBezierTo(19, 166, 21, 148)
+      ..close(), MuscleGroup.legs);
+
+    // Ischio-jambiers droit
+    _fill(c, Path()
+      ..moveTo(79, 148)
+      ..lineTo(60, 148)
+      ..quadraticBezierTo(60, 170, 60, 182)
+      ..lineTo(79, 182)
+      ..quadraticBezierTo(81, 166, 79, 148)
+      ..close(), MuscleGroup.legs);
+
+    // Mollets arrière gauche
+    _fill(c, _rr(const Rect.fromLTWH(19, 193, 21, 34), 6),
+        MuscleGroup.legs);
+    // Mollets arrière droit
+    _fill(c, _rr(const Rect.fromLTWH(60, 193, 21, 34), 6),
+        MuscleGroup.legs);
+
+    // Abdos dos (obliques arrière)
+    _fill(c, _rr(const Rect.fromLTWH(36, 72, 28, 36), 4),
+        MuscleGroup.core, opacity: 0.4);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  Path _rr(Rect r, double radius) =>
+      Path()..addRRect(RRect.fromRectAndRadius(r, Radius.circular(radius)));
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -124,405 +561,15 @@ class _BodyPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    _drawSilhouette(canvas);
+    _silhouette(canvas);
     if (isFront) {
-      _drawFrontMuscles(canvas);
+      _frontMuscles(canvas);
     } else {
-      _drawBackMuscles(canvas);
+      _backMuscles(canvas);
     }
 
     canvas.restore();
   }
-
-  // ── Silhouette ───────────────────────────────────────────────────────────
-
-  void _drawSilhouette(Canvas canvas) {
-    final p = Paint()
-      ..color = const Color(0xFF1C1930)
-      ..style = PaintingStyle.fill;
-
-    // Head
-    canvas.drawCircle(const Offset(50, 12), 10, p);
-
-    // Neck
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          const Rect.fromLTWH(44, 21, 12, 11), const Radius.circular(3)),
-      p,
-    );
-
-    // Torso – hourglass
-    final torso = Path()
-      ..moveTo(24, 30) // left shoulder top
-      ..quadraticBezierTo(20, 33, 20, 42) // left shoulder slope
-      ..lineTo(24, 76) // left waist
-      ..quadraticBezierTo(24, 84, 26, 92) // waist–hip flare left
-      ..lineTo(26, 108) // left hip
-      ..quadraticBezierTo(26, 115, 30, 117)
-      ..lineTo(42, 117) // crotch left
-      ..lineTo(58, 117) // crotch right
-      ..quadraticBezierTo(74, 115, 74, 108)
-      ..lineTo(74, 92)
-      ..quadraticBezierTo(76, 84, 76, 76) // waist–hip flare right
-      ..lineTo(80, 42)
-      ..quadraticBezierTo(80, 33, 76, 30) // right shoulder slope
-      ..close();
-    canvas.drawPath(torso, p);
-
-    // Left arm
-    final lArm = Path()
-      ..moveTo(22, 32) // shoulder
-      ..quadraticBezierTo(13, 36, 11, 46)
-      ..lineTo(10, 80) // upper arm outer
-      ..quadraticBezierTo(9, 86, 10, 92) // elbow
-      ..lineTo(11, 118)
-      ..lineTo(12, 126) // hand
-      ..lineTo(22, 126)
-      ..lineTo(22, 118)
-      ..lineTo(22, 92)
-      ..quadraticBezierTo(22, 86, 22, 80) // elbow inner
-      ..lineTo(22, 46) // inner upper arm
-      ..close();
-    canvas.drawPath(lArm, p);
-
-    // Right arm
-    final rArm = Path()
-      ..moveTo(78, 32)
-      ..quadraticBezierTo(87, 36, 89, 46)
-      ..lineTo(90, 80)
-      ..quadraticBezierTo(91, 86, 90, 92)
-      ..lineTo(89, 118)
-      ..lineTo(88, 126)
-      ..lineTo(78, 126)
-      ..lineTo(78, 118)
-      ..lineTo(78, 92)
-      ..quadraticBezierTo(78, 86, 78, 80)
-      ..lineTo(78, 46)
-      ..close();
-    canvas.drawPath(rArm, p);
-
-    // Left leg
-    final lLeg = Path()
-      ..moveTo(26, 117)
-      ..quadraticBezierTo(24, 122, 23, 128)
-      ..lineTo(21, 162) // outer thigh
-      ..quadraticBezierTo(20, 168, 22, 172) // knee
-      ..lineTo(21, 204)
-      ..lineTo(20, 213) // foot
-      ..lineTo(35, 213)
-      ..lineTo(34, 204)
-      ..lineTo(34, 172)
-      ..quadraticBezierTo(36, 168, 37, 162) // knee inner
-      ..lineTo(38, 128)
-      ..quadraticBezierTo(38, 122, 38, 117)
-      ..close();
-    canvas.drawPath(lLeg, p);
-
-    // Right leg
-    final rLeg = Path()
-      ..moveTo(74, 117)
-      ..quadraticBezierTo(76, 122, 77, 128)
-      ..lineTo(79, 162)
-      ..quadraticBezierTo(80, 168, 78, 172)
-      ..lineTo(79, 204)
-      ..lineTo(80, 213)
-      ..lineTo(65, 213)
-      ..lineTo(66, 204)
-      ..lineTo(66, 172)
-      ..quadraticBezierTo(64, 168, 63, 162)
-      ..lineTo(62, 128)
-      ..quadraticBezierTo(62, 122, 62, 117)
-      ..close();
-    canvas.drawPath(rLeg, p);
-
-    // Subtle outline for definition
-    final outline = Paint()
-      ..color = const Color(0xFF2A2640)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.7;
-    canvas.drawCircle(const Offset(50, 12), 10, outline);
-    canvas.drawPath(torso, outline);
-    canvas.drawPath(lArm, outline);
-    canvas.drawPath(rArm, outline);
-    canvas.drawPath(lLeg, outline);
-    canvas.drawPath(rLeg, outline);
-  }
-
-  // ── Front muscle regions ─────────────────────────────────────────────────
-
-  void _drawFrontMuscles(Canvas canvas) {
-    // Chest – left pec
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(28, 32)
-          ..lineTo(49, 32)
-          ..quadraticBezierTo(50, 46, 48, 62)
-          ..lineTo(34, 67)
-          ..quadraticBezierTo(26, 60, 24, 48)
-          ..quadraticBezierTo(24, 36, 28, 32)
-          ..close(),
-        MuscleGroup.chest);
-    // Chest – right pec
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(72, 32)
-          ..lineTo(51, 32)
-          ..quadraticBezierTo(50, 46, 52, 62)
-          ..lineTo(66, 67)
-          ..quadraticBezierTo(74, 60, 76, 48)
-          ..quadraticBezierTo(76, 36, 72, 32)
-          ..close(),
-        MuscleGroup.chest);
-
-    // Shoulders – anterior deltoids
-    _paintPath(
-        canvas,
-        _ovalPath(const Rect.fromLTWH(10, 30, 20, 26)),
-        MuscleGroup.shoulders);
-    _paintPath(
-        canvas,
-        _ovalPath(const Rect.fromLTWH(70, 30, 20, 26)),
-        MuscleGroup.shoulders);
-
-    // Biceps
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(10, 54, 14, 28), 6),
-        MuscleGroup.biceps);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(76, 54, 14, 28), 6),
-        MuscleGroup.biceps);
-
-    // Triceps (slightly visible front)
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(10, 54, 14, 28), 6),
-        MuscleGroup.triceps,
-        opacity: 0.4);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(76, 54, 14, 28), 6),
-        MuscleGroup.triceps,
-        opacity: 0.4);
-
-    // Abs / Core
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(34, 66, 32, 48), 5),
-        MuscleGroup.core);
-    _drawAbsLines(canvas);
-
-    // Hip flexors / glutes (front)
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(26, 100)
-          ..lineTo(42, 116)
-          ..lineTo(26, 116)
-          ..close(),
-        MuscleGroup.glutes,
-        opacity: 0.55);
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(74, 100)
-          ..lineTo(58, 116)
-          ..lineTo(74, 116)
-          ..close(),
-        MuscleGroup.glutes,
-        opacity: 0.55);
-
-    // Quads (thighs front)
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(23, 117)
-          ..lineTo(38, 117)
-          ..lineTo(37, 162)
-          ..lineTo(22, 162)
-          ..close(),
-        MuscleGroup.legs);
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(77, 117)
-          ..lineTo(62, 117)
-          ..lineTo(63, 162)
-          ..lineTo(78, 162)
-          ..close(),
-        MuscleGroup.legs);
-
-    // Calves front
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(22, 172, 14, 28), 5),
-        MuscleGroup.legs,
-        opacity: 0.55);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(64, 172, 14, 28), 5),
-        MuscleGroup.legs,
-        opacity: 0.55);
-  }
-
-  void _drawAbsLines(Canvas canvas) {
-    final c = _colorFor(MuscleGroup.core);
-    if (c == Colors.transparent) return;
-    final line = Paint()
-      ..color = const Color(0xFF0D0B1A).withOpacity(0.5)
-      ..strokeWidth = 1.2
-      ..style = PaintingStyle.stroke;
-    canvas.drawLine(const Offset(50, 66), const Offset(50, 114), line);
-    canvas.drawLine(const Offset(34, 82), const Offset(66, 82), line);
-    canvas.drawLine(const Offset(34, 98), const Offset(66, 98), line);
-  }
-
-  // ── Back muscle regions ──────────────────────────────────────────────────
-
-  void _drawBackMuscles(Canvas canvas) {
-    // Trapezius
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(44, 29)
-          ..lineTo(56, 29)
-          ..lineTo(68, 56)
-          ..lineTo(50, 66)
-          ..lineTo(32, 56)
-          ..close(),
-        MuscleGroup.back);
-
-    // Lats
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(26, 52)
-          ..lineTo(44, 58)
-          ..lineTo(40, 108)
-          ..lineTo(26, 106)
-          ..close(),
-        MuscleGroup.back);
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(74, 52)
-          ..lineTo(56, 58)
-          ..lineTo(60, 108)
-          ..lineTo(74, 106)
-          ..close(),
-        MuscleGroup.back);
-
-    // Rear deltoids
-    _paintPath(
-        canvas,
-        _ovalPath(const Rect.fromLTWH(10, 30, 20, 22)),
-        MuscleGroup.shoulders);
-    _paintPath(
-        canvas,
-        _ovalPath(const Rect.fromLTWH(70, 30, 20, 22)),
-        MuscleGroup.shoulders);
-
-    // Triceps (back of upper arms)
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(10, 48, 14, 36), 6),
-        MuscleGroup.triceps);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(76, 48, 14, 36), 6),
-        MuscleGroup.triceps);
-
-    // Biceps slightly visible back
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(10, 54, 14, 28), 6),
-        MuscleGroup.biceps,
-        opacity: 0.35);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(76, 54, 14, 28), 6),
-        MuscleGroup.biceps,
-        opacity: 0.35);
-
-    // Erector spinae / lower back
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(34, 68, 14, 40), 5),
-        MuscleGroup.back,
-        opacity: 0.55);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(52, 68, 14, 40), 5),
-        MuscleGroup.back,
-        opacity: 0.55);
-
-    // Core back
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(36, 68, 28, 40), 4),
-        MuscleGroup.core,
-        opacity: 0.45);
-
-    // Glutes
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(26, 108)
-          ..lineTo(49, 108)
-          ..lineTo(49, 145)
-          ..quadraticBezierTo(38, 150, 26, 145)
-          ..close(),
-        MuscleGroup.glutes);
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(74, 108)
-          ..lineTo(51, 108)
-          ..lineTo(51, 145)
-          ..quadraticBezierTo(62, 150, 74, 145)
-          ..close(),
-        MuscleGroup.glutes);
-
-    // Hamstrings
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(23, 130)
-          ..lineTo(37, 130)
-          ..lineTo(36, 165)
-          ..lineTo(22, 165)
-          ..close(),
-        MuscleGroup.legs);
-    _paintPath(
-        canvas,
-        Path()
-          ..moveTo(77, 130)
-          ..lineTo(63, 130)
-          ..lineTo(64, 165)
-          ..lineTo(78, 165)
-          ..close(),
-        MuscleGroup.legs);
-
-    // Calves back
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(21, 172, 14, 30), 5),
-        MuscleGroup.legs);
-    _paintPath(
-        canvas,
-        _roundRect(const Rect.fromLTWH(65, 172, 14, 30), 5),
-        MuscleGroup.legs);
-  }
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  Path _ovalPath(Rect r) => Path()..addOval(r);
-
-  Path _roundRect(Rect r, double radius) =>
-      Path()..addRRect(RRect.fromRectAndRadius(r, Radius.circular(radius)));
 
   @override
   bool shouldRepaint(_BodyPainter old) =>
