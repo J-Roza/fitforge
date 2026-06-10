@@ -3,7 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../data/models/exercise.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  MuscleBodyDiagram  —  SVG anatomique fourni, couleurs substituées par muscle
+//  MuscleBodyDiagram — polygones anatomiques (source: react-body-highlighter,
+//  MIT licence, giavinh79/react-body-highlighter & HichamELBSI)
+//
+//  viewBox "0 0 200 202"  |  front : x 0-100  |  back : x 100-200
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MuscleBodyDiagram extends StatelessWidget {
@@ -16,16 +19,16 @@ class MuscleBodyDiagram extends StatelessWidget {
     required this.secondaryMuscles,
   });
 
-  // Correspondance MuscleGroup → id SVG
-  static const _svgId = {
-    MuscleGroup.chest:     'chest',
-    MuscleGroup.back:      'back',
-    MuscleGroup.shoulders: 'shoulders',
-    MuscleGroup.biceps:    'biceps',
-    MuscleGroup.triceps:   'triceps',
-    MuscleGroup.core:      'core',
-    MuscleGroup.legs:      'legs',
-    MuscleGroup.glutes:    'glutes',
+  // Mapping MuscleGroup → liste d'IDs SVG (avant et/ou arrière)
+  static const _svgIds = {
+    MuscleGroup.chest:     ['chest-f'],
+    MuscleGroup.back:      ['back-b'],
+    MuscleGroup.shoulders: ['shoulders-f', 'shoulders-b'],
+    MuscleGroup.biceps:    ['biceps-f'],
+    MuscleGroup.triceps:   ['triceps-f', 'triceps-b'],
+    MuscleGroup.core:      ['core-f'],
+    MuscleGroup.legs:      ['legs-f', 'legs-b'],
+    MuscleGroup.glutes:    ['glutes-b'],
   };
 
   static const _inactive  = '#9E5840';
@@ -35,27 +38,19 @@ class MuscleBodyDiagram extends StatelessWidget {
   String _buildSvg() {
     var svg = _kBodySvg;
 
-    // Muscle primaire → rouge
-    final pid = _svgId[primaryMuscle];
-    if (pid != null) {
-      svg = svg.replaceAll(
-        'id="$pid" fill="$_inactive"',
-        'id="$pid" fill="$_primary"',
-      );
-    }
-
-    // Muscles secondaires → orange
-    for (final m in secondaryMuscles) {
-      if (m == primaryMuscle) continue;
-      final sid = _svgId[m];
-      if (sid != null) {
+    void paint(MuscleGroup m, String color) {
+      for (final id in _svgIds[m] ?? <String>[]) {
         svg = svg.replaceAll(
-          'id="$sid" fill="$_inactive"',
-          'id="$sid" fill="$_secondary"',
+          'id="$id" fill="$_inactive"',
+          'id="$id" fill="$color"',
         );
       }
     }
 
+    paint(primaryMuscle, _primary);
+    for (final m in secondaryMuscles) {
+      if (m != primaryMuscle) paint(m, _secondary);
+    }
     return svg;
   }
 
@@ -63,7 +58,7 @@ class MuscleBodyDiagram extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Labels AVANT / ARRIÈRE
+        // Labels
         Padding(
           padding: const EdgeInsets.only(bottom: 6),
           child: Row(
@@ -72,26 +67,22 @@ class MuscleBodyDiagram extends StatelessWidget {
                 child: Text('AVANT',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Color(0xFF6B6880),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5)),
+                        color: Color(0xFF6B6880), fontSize: 10,
+                        fontWeight: FontWeight.w700, letterSpacing: 1.5)),
               ),
               Container(width: 1, height: 12, color: const Color(0xFF2A2440)),
               const Expanded(
                 child: Text('ARRIÈRE',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Color(0xFF6B6880),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5)),
+                        color: Color(0xFF6B6880), fontSize: 10,
+                        fontWeight: FontWeight.w700, letterSpacing: 1.5)),
               ),
             ],
           ),
         ),
 
-        // Diagramme SVG — AspectRatio 200:280 pour éviter l'hauteur infinie
+        // SVG
         Container(
           decoration: BoxDecoration(
             color: const Color(0xFF0F0D1C),
@@ -101,11 +92,8 @@ class MuscleBodyDiagram extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: AspectRatio(
-              aspectRatio: 200 / 280,
-              child: SvgPicture.string(
-                _buildSvg(),
-                fit: BoxFit.contain,
-              ),
+              aspectRatio: 200 / 202,
+              child: SvgPicture.string(_buildSvg(), fit: BoxFit.contain),
             ),
           ),
         ),
@@ -116,10 +104,10 @@ class MuscleBodyDiagram extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _LegendDot(color: const Color(0xFFE53935), label: 'Primaire'),
+              _Dot(color: const Color(0xFFE53935), label: 'Primaire'),
               const SizedBox(width: 20),
               if (secondaryMuscles.isNotEmpty)
-                _LegendDot(color: const Color(0xFFFF7043), label: 'Secondaire'),
+                _Dot(color: const Color(0xFFFF7043), label: 'Secondaire'),
             ],
           ),
         ),
@@ -128,170 +116,169 @@ class MuscleBodyDiagram extends StatelessWidget {
   }
 }
 
-class _LegendDot extends StatelessWidget {
+class _Dot extends StatelessWidget {
   final Color color;
   final String label;
-  const _LegendDot({required this.color, required this.label});
+  const _Dot({required this.color, required this.label});
 
   @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          Container(
-            width: 10, height: 10,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 6),
-          Text(label,
-              style: TextStyle(
-                  color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-        ],
-      );
+  Widget build(BuildContext context) => Row(children: [
+        Container(width: 10, height: 10,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(
+            color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+      ]);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SVG source (200×280, front x=50 / back x=150, IDs par groupe musculaire)
+//  SVG — polygones de react-body-highlighter (MIT)
+//  Front view : coordonnées originales (x: 0-100)
+//  Back view  : x + 100 (x: 100-200)
+//  Couleur par défaut : #9E5840 (muscle inactif)
+//  Rouge #E53935 / Orange #FF7043 injectés par substitution de string
 // ─────────────────────────────────────────────────────────────────────────────
 const _kBodySvg = '''
-<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
-  <rect x="0" y="0" width="200" height="280" fill="#0F0D1C"/>
+<svg viewBox="0 0 200 202" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="202" fill="#0F0D1C"/>
+  <line x1="100" y1="2" x2="100" y2="200" stroke="#2A2440" stroke-width="0.6"/>
 
-  <!-- séparateur central -->
-  <line x1="100" y1="8" x2="100" y2="272" stroke="#2A2440" stroke-width="0.8"/>
-
-  <!-- ============================ FRONT VIEW (centerline x=50) ============================ -->
-  <g stroke="#5A2A14" stroke-linejoin="round" stroke-linecap="round">
-
-    <!-- ARMS (skin) -->
-    <g fill="#C07858" stroke-width="1">
-      <path d="M71 55 C76 55 79 61 80 68 C81 78 81 88 80 97 C79 110 78 122 77 133 C77 140 77 145 76 149 C74 151 72 151 71 149 C70 145 70 140 70 133 C70 122 70 110 70 97 C70 86 70 74 70 66 C70 61 70 58 71 55 Z"/>
-      <path d="M29 55 C24 55 21 61 20 68 C19 78 19 88 20 97 C21 110 22 122 23 133 C23 140 23 145 24 149 C26 151 28 151 29 149 C30 145 30 140 30 133 C30 122 30 110 30 97 C30 86 30 74 30 66 C30 61 30 58 29 55 Z"/>
-    </g>
-
-    <!-- LEGS (skin) -->
-    <g fill="#C07858" stroke-width="1">
-      <path d="M67 116 C69 132 68 156 65 178 C64 183 63 185 62 190 C61 202 60 216 58 233 C57 238 57 241 57 244 C58 248 60 251 59 256 C58 260 55 261 53 260 C51 259 50 256 50 252 C50 248 51 246 51 243 C51 224 51 206 51 190 C51 170 51 150 51 132 C51 128 51 126 50 126 Z"/>
-      <path d="M33 116 C31 132 32 156 35 178 C36 183 37 185 38 190 C39 202 40 216 42 233 C43 238 43 241 43 244 C42 248 40 251 41 256 C42 260 45 261 47 260 C49 259 50 256 50 252 C50 248 49 246 49 243 C49 224 49 206 49 190 C49 170 49 150 49 132 C49 128 49 126 50 126 Z"/>
-    </g>
-
-    <!-- TORSO + HEAD + NECK (skin) -->
-    <path fill="#C07858" stroke-width="1.1" d="M50 16
-      C56 16 59 21 59 27 C59 33 57 37 55 39 C54 41 54 43 53 45 C53 47 54 48 56 49
-      C62 50 68 52 73 56 C74 58 73 62 71 66
-      C69 78 64 92 62 104 C62 110 64 113 67 116
-      C64 122 57 127 50 127
-      C43 127 36 122 33 116 C36 113 38 110 38 104
-      C36 92 31 78 29 66 C27 62 26 58 27 56
-      C32 52 38 50 44 49 C46 48 47 47 47 45 C47 43 46 41 45 39
-      C43 37 41 33 41 27 C41 21 44 16 50 16 Z"/>
-
-    <!-- face -->
-    <g fill="none" stroke="#5A2A14" stroke-width="0.7" opacity="0.55">
-      <path d="M45 26 C46 25 48 25 49 26"/>
-      <path d="M51 26 C52 25 54 25 55 26"/>
-      <path d="M50 28 L50 33 M48 33 C49 34 51 34 52 33"/>
-      <path d="M47 37 C49 38 51 38 53 37"/>
-    </g>
-
+  <!-- ═══════════════════ SKIN BASE ═══════════════════ -->
+  <g fill="#C07858" stroke="#8A4A2A" stroke-width="0.3">
+    <!-- HEAD front -->
+    <polygon points="42.45 2.86 40 11.84 42.04 19.59 46.12 23.27 49.80 25.31 54.69 22.45 57.55 19.18 59.18 10.20 57.14 2.45 49.80 0"/>
+    <!-- HEAD back -->
+    <polygon points="150.64 0 145.96 0.85 140.85 5.53 140.43 12.77 145.11 20 155.74 20 159.15 13.62 159.57 4.68 155.74 1.28"/>
+    <!-- NECK front -->
+    <polygon points="55.51 23.67 50.61 33.47 50.61 39.18 61.63 40 70.61 44.90 69.39 36.73 63.27 35.10 58.37 30.61"/>
+    <polygon points="28.98 44.90 30.20 37.14 36.33 35.10 41.22 30.20 44.49 24.49 48.98 33.88 48.57 39.18 37.96 39.59"/>
+    <!-- NECK back -->
+    <polygon points="144.68 24.49 148.98 33.88 152.34 38.30 147.66 21.70 152.34 21.70 155.32 38.30 160.85 24.49"/>
+    <!-- FOREARM front -->
+    <polygon points="6.12 88.57 10.20 75.10 14.69 70.20 16.33 74.29 19.18 73.47 4.49 97.55 0 100" fill="#B06844"/>
+    <polygon points="84.49 69.80 83.27 73.47 80 73.06 95.10 98.37 100 100.41 93.47 89.39 89.80 76.33" fill="#B06844"/>
+    <polygon points="77.55 72.24 77.55 77.55 80.41 84.08 85.31 89.80 92.24 101.22 94.69 99.59" fill="#B06844"/>
+    <polygon points="6.94 101.22 13.47 90.61 18.78 84.08 21.63 77.14 21.22 71.84 4.90 98.78" fill="#B06844"/>
+    <!-- FOREARM back -->
+    <polygon points="186.38 75.74 191.06 83.40 193.19 94.04 200 106.38 196.17 104.26 188.09 89.36 184.26 83.83" fill="#B06844"/>
+    <polygon points="113.62 75.74 108.94 83.83 106.81 93.62 100 106.38 103.83 104.26 112.34 88.51 115.74 82.98" fill="#B06844"/>
+    <polygon points="181.28 79.57 177.45 77.87 179.15 84.68 191.06 103.83 193.19 108.94 194.47 104.68" fill="#B06844"/>
+    <polygon points="118.72 79.57 122.13 77.87 120.85 84.26 109.36 102.98 106.81 108.51 105.11 104.68" fill="#B06844"/>
+    <!-- KNEES front -->
+    <polygon points="33.88 140 34.69 143.27 35.51 147.35 36.33 151.02 35.10 156.73 29.80 156.73 27.35 152.65 27.35 147.35 30.20 144.08" fill="#A06040"/>
+    <polygon points="65.71 140 72.24 147.76 72.24 152.24 69.80 157.14 64.90 156.73 62.86 151.02" fill="#A06040"/>
+    <!-- KNEES back -->
+    <polygon points="134.47 153.19 131.06 159.15 133.62 166.38 137.45 162.55" fill="#A06040"/>
+    <polygon points="166.38 153.62 162.98 162.98 166.81 166.38 169.36 159.15" fill="#A06040"/>
   </g>
 
-  <!-- ============================ BACK VIEW (centerline x=150) ============================ -->
-  <g stroke="#5A2A14" stroke-linejoin="round" stroke-linecap="round">
+  <!-- ═══════════════════ MUSCLES AVANT ═══════════════════ -->
 
-    <g fill="#C07858" stroke-width="1">
-      <path d="M171 55 C176 55 179 61 180 68 C181 78 181 88 180 97 C179 110 178 122 177 133 C177 140 177 145 176 149 C174 151 172 151 171 149 C170 145 170 140 170 133 C170 122 170 110 170 97 C170 86 170 74 170 66 C170 61 170 58 171 55 Z"/>
-      <path d="M129 55 C124 55 121 61 120 68 C119 78 119 88 120 97 C121 110 122 122 123 133 C123 140 123 145 124 149 C126 151 128 151 129 149 C130 145 130 140 130 133 C130 122 130 110 130 97 C130 86 130 74 130 66 C130 61 130 58 129 55 Z"/>
-    </g>
-
-    <g fill="#C07858" stroke-width="1">
-      <path d="M167 116 C169 132 168 156 165 178 C164 183 163 185 162 190 C161 202 160 216 158 233 C157 238 157 241 157 244 C158 248 160 251 159 256 C158 260 155 261 153 260 C151 259 150 256 150 252 C150 248 151 246 151 243 C151 224 151 206 151 190 C151 170 151 150 151 132 C151 128 151 126 150 126 Z"/>
-      <path d="M133 116 C131 132 132 156 135 178 C136 183 137 185 138 190 C139 202 140 216 142 233 C143 238 143 241 143 244 C142 248 140 251 141 256 C142 260 145 261 147 260 C149 259 150 256 150 252 C150 248 149 246 149 243 C149 224 149 206 149 190 C149 170 149 150 149 132 C149 128 149 126 150 126 Z"/>
-    </g>
-
-    <path fill="#C07858" stroke-width="1.1" d="M150 16
-      C156 16 159 21 159 27 C159 33 157 37 155 39 C154 41 154 43 153 45 C153 47 154 48 156 49
-      C162 50 168 52 173 56 C174 58 173 62 171 66
-      C169 78 164 92 162 104 C162 110 164 113 167 116
-      C164 122 157 127 150 127
-      C143 127 136 122 133 116 C136 113 138 110 138 104
-      C136 92 131 78 129 66 C127 62 126 58 127 56
-      C132 52 138 50 144 49 C146 48 147 47 147 45 C147 43 146 41 145 39
-      C143 37 141 33 141 27 C141 21 144 16 150 16 Z"/>
+  <!-- CHEST -->
+  <g id="chest-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="51.84 41.63 51.02 55.10 57.96 57.96 67.76 55.51 70.61 47.35 62.04 41.63"/>
+    <polygon points="29.80 46.53 31.43 55.51 40.82 57.96 48.16 55.10 47.76 42.04 37.55 42.04"/>
   </g>
 
-  <!-- ================= MUSCLE GROUPS ================= -->
-  <g stroke="#5A2A14" stroke-linejoin="round" stroke-width="0.7">
-
-    <g id="shoulders" fill="#9E5840">
-      <path d="M64 51 C70 51 74 55 74 61 C74 66 72 69 68 69 C65 67 64 60 64 53 Z"/>
-      <path d="M36 51 C30 51 26 55 26 61 C26 66 28 69 32 69 C35 67 36 60 36 53 Z"/>
-      <path d="M164 51 C170 51 174 55 174 61 C174 66 172 69 168 69 C165 67 164 60 164 53 Z"/>
-      <path d="M136 51 C130 51 126 55 126 61 C126 66 128 69 132 69 C135 67 136 60 136 53 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
-        <path d="M66 56 C69 56 71 58 72 62"/><path d="M34 56 C31 56 29 58 28 62"/>
-        <path d="M166 56 C169 56 171 58 172 62"/><path d="M134 56 C131 56 129 58 128 62"/>
-      </g>
-    </g>
-
-    <g id="chest" fill="#9E5840">
-      <path d="M50 51 C58 51 64 53 68 57 C69 64 66 71 60 75 C55 77 51 76 50 73 Z"/>
-      <path d="M50 51 C42 51 36 53 32 57 C31 64 34 71 40 75 C45 77 49 76 50 73 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
-        <path d="M50 54 C56 55 62 57 66 60"/><path d="M50 54 C44 55 38 57 34 60"/>
-      </g>
-    </g>
-
-    <g id="back" fill="#9E5840">
-      <path d="M150 47 C158 48 166 52 173 57 C166 62 158 64 150 65 C142 64 134 62 127 57 C134 52 142 48 150 47 Z"/>
-      <path d="M150 64 L158 86 L150 97 L142 86 Z"/>
-      <path d="M172 60 C173 74 168 92 160 104 C156 101 154 93 154 84 C154 74 162 64 172 60 Z"/>
-      <path d="M128 60 C127 74 132 92 140 104 C144 101 146 93 146 84 C146 74 138 64 128 60 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
-        <path d="M150 49 L150 96"/>
-        <path d="M168 64 C162 74 159 88 157 100"/><path d="M132 64 C138 74 141 88 143 100"/>
-      </g>
-    </g>
-
-    <g id="core" fill="#9E5840">
-      <path d="M58 78 C62 82 63 94 61 104 C59 102 56 96 55 88 C55 84 56 80 58 78 Z"/>
-      <path d="M42 78 C38 82 37 94 39 104 C41 102 44 96 45 88 C45 84 44 80 42 78 Z"/>
-      <path d="M50 77 C54 77 56 79 56 84 C56 96 55 106 50 112 C45 106 44 96 44 84 C44 79 46 77 50 77 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.55">
-        <path d="M50 78 L50 110"/>
-        <path d="M44 85 L56 85"/><path d="M44 93 L56 93"/><path d="M45 101 L55 101"/>
-      </g>
-    </g>
-
-    <g id="biceps" fill="#9E5840">
-      <path d="M72 67 C76 66 79 68 79 74 C80 82 79 90 77 95 C74 96 72 94 72 90 C71 82 71 74 72 67 Z"/>
-      <path d="M28 67 C24 66 21 68 21 74 C20 82 21 90 23 95 C26 96 28 94 28 90 C29 82 29 74 28 67 Z"/>
-    </g>
-
-    <g id="triceps" fill="#9E5840">
-      <path d="M172 67 C176 66 179 68 179 74 C180 82 179 90 177 95 C174 96 172 94 172 90 C171 82 171 74 172 67 Z"/>
-      <path d="M128 67 C124 66 121 68 121 74 C120 82 121 90 123 95 C126 96 128 94 128 90 C129 82 129 74 128 67 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
-        <path d="M176 70 L176 93"/><path d="M124 70 L124 93"/>
-      </g>
-    </g>
-
-    <g id="glutes" fill="#9E5840">
-      <path d="M150 117 C158 117 165 121 166 130 C166 138 160 143 153 142 C150 139 150 128 150 117 Z"/>
-      <path d="M150 117 C142 117 135 121 134 130 C134 138 140 143 147 142 C150 139 150 128 150 117 Z"/>
-    </g>
-
-    <g id="legs" fill="#9E5840">
-      <path d="M56 126 C62 128 64 145 62 165 C61 174 59 179 56 181 C53 179 53 165 53 150 C53 140 53 130 56 126 Z"/>
-      <path d="M44 126 C38 128 36 145 38 165 C39 174 41 179 44 181 C47 179 47 165 47 150 C47 140 47 130 44 126 Z"/>
-      <path d="M156 128 C162 130 164 146 162 166 C161 174 159 179 156 181 C153 179 153 165 153 150 C153 142 153 132 156 128 Z"/>
-      <path d="M144 128 C138 130 136 146 138 166 C139 174 141 179 144 181 C147 179 147 165 147 150 C147 142 147 132 144 128 Z"/>
-      <path d="M159 191 C162 194 163 206 161 220 C160 228 158 232 157 233 C155 232 154 220 154 209 C154 200 156 194 159 191 Z"/>
-      <path d="M141 191 C138 194 137 206 139 220 C140 228 142 232 143 233 C145 232 146 220 146 209 C146 200 144 194 141 191 Z"/>
-      <g fill="none" stroke="#5A2A14" stroke-width="0.5" opacity="0.5">
-        <path d="M58 130 C60 148 58 166 56 178"/><path d="M42 130 C40 148 42 166 44 178"/>
-        <path d="M156 132 L156 178"/><path d="M144 132 L144 178"/>
-      </g>
-    </g>
-
+  <!-- OBLIQUES + ABS → core -->
+  <g id="core-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <!-- obliques -->
+    <polygon points="68.57 63.27 67.35 57.14 58.78 59.59 60 64.08 60.41 83.27 65.71 78.78 66.53 69.80"/>
+    <polygon points="33.88 78.37 33.06 71.84 31.02 63.27 32.24 57.14 40.82 59.18 39.18 63.27 39.18 83.67"/>
+    <!-- rectus abdominis -->
+    <polygon points="56.33 59.18 57.96 64.08 58.37 77.96 58.37 92.65 56.33 98.37 55.10 104.08 51.43 107.76 51.02 84.49 50.61 67.35 51.02 57.14"/>
+    <polygon points="43.67 58.78 48.57 57.14 48.98 67.35 48.57 84.49 48.16 107.35 44.49 103.67 40.82 91.43 40.82 78.37 41.22 64.49"/>
   </g>
+
+  <!-- BICEPS -->
+  <g id="biceps-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="16.73 68.16 17.96 71.43 22.86 66.12 28.98 53.88 27.76 49.39 20.41 55.92"/>
+    <polygon points="71.43 49.39 70.20 54.69 76.33 66.12 81.63 71.84 82.86 68.98 78.78 55.51"/>
+  </g>
+
+  <!-- TRICEPS front (small) -->
+  <g id="triceps-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="69.39 55.51 69.39 61.63 75.92 72.65 77.55 70.20 75.51 67.35"/>
+    <polygon points="22.45 69.39 29.80 55.51 29.80 60.82 22.86 73.06"/>
+  </g>
+
+  <!-- SHOULDERS front (front-deltoids) -->
+  <g id="shoulders-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="78.37 53.06 79.59 47.76 79.18 41.22 75.92 37.96 71.02 36.33 72.24 42.86 71.43 47.35"/>
+    <polygon points="28.16 47.35 21.22 53.06 20 47.76 20.41 40.82 24.49 37.14 28.57 37.14 26.94 43.27"/>
+  </g>
+
+  <!-- QUADRICEPS + ABDUCTORS → legs front -->
+  <g id="legs-f" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <!-- abductors -->
+    <polygon points="52.65 110.20 54.29 124.90 60 110.20 62.04 100 64.90 94.29 60 92.65 56.73 104.49"/>
+    <polygon points="47.76 110.61 44.90 125.31 42.04 115.92 40.41 113.06 39.59 107.35 37.96 102.45 34.69 93.88 39.59 92.24 41.63 99.18 43.67 105.31"/>
+    <!-- quadriceps - 6 polygons -->
+    <polygon points="34.69 98.78 37.14 108.16 37.14 127.76 34.29 137.14 31.02 132.65 29.39 120 28.16 111.43 29.39 100.82 32.24 94.69"/>
+    <polygon points="63.27 105.71 64.49 100 66.94 94.69 70.20 101.22 71.02 111.84 68.16 133.06 65.31 137.55 62.45 128.57 62.04 111.43"/>
+    <polygon points="38.78 129.39 38.37 112.24 41.22 118.37 44.49 129.39 42.86 135.10 40 146.12 36.33 146.53 35.51 140"/>
+    <polygon points="59.59 145.71 55.51 128.98 60.82 113.88 61.22 130.20 64.08 139.59 62.86 146.53"/>
+    <polygon points="32.65 138.37 26.53 145.71 25.71 136.73 25.71 127.35 26.94 114.29 29.39 133.47"/>
+    <polygon points="71.84 113.06 73.88 124.08 73.88 140.41 72.65 145.71 66.53 138.37 70.20 133.47"/>
+    <!-- calves front (visible) -->
+    <polygon points="71.43 160.41 73.47 153.47 76.73 161.22 79.59 167.76 78.37 187.76 79.59 195.51 74.69 195.51"/>
+    <polygon points="24.90 194.69 27.76 164.90 28.16 160.41 26.12 154.29 24.90 157.55 22.45 161.63 20.82 167.76 22.04 188.16 20.82 195.51"/>
+    <polygon points="72.65 195.10 69.80 159.18 65.31 158.37 64.08 162.45 64.08 165.31 65.71 177.14"/>
+    <polygon points="35.51 158.37 35.92 162.45 35.92 166.94 35.10 172.24 35.10 176.73 32.24 182.04 30.61 187.35 26.94 194.69 27.35 187.76 28.16 180.41 28.57 175.51 28.98 169.80 29.80 164.08 30.20 158.78"/>
+  </g>
+
+  <!-- ═══════════════════ MUSCLES ARRIÈRE ═══════════════════ -->
+
+  <!-- TRAPEZIUS + UPPER-BACK + LOWER-BACK → back -->
+  <g id="back-b" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <!-- trapezius -->
+    <polygon points="144.68 21.70 147.66 21.70 147.23 38.30 147.66 64.68 138.30 53.19 135.32 40.85 131.06 36.60 139.15 33.19 143.83 27.23"/>
+    <polygon points="152.34 21.70 155.74 21.70 156.60 27.23 160.85 32.77 168.94 36.60 164.68 40.43 161.70 53.19 152.34 64.68 153.19 38.30"/>
+    <!-- upper-back -->
+    <polygon points="131.06 38.72 128.09 48.94 128.51 55.32 134.04 75.32 147.23 71.06 147.23 66.38 136.60 54.04 133.62 41.28"/>
+    <polygon points="168.94 38.72 171.91 49.36 171.49 56.17 165.96 75.32 152.77 71.06 152.77 66.38 163.40 54.47 166.38 41.70"/>
+    <!-- lower-back -->
+    <polygon points="147.66 72.77 134.47 77.02 135.32 83.40 149.36 102.13 146.81 82.98"/>
+    <polygon points="152.34 72.77 165.53 77.02 164.68 83.40 150.64 102.13 153.19 83.83"/>
+  </g>
+
+  <!-- SHOULDERS back (back-deltoids) -->
+  <g id="shoulders-b" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="129.36 37.02 122.98 39.15 117.45 44.26 118.30 53.62 124.26 49.36 127.23 46.38"/>
+    <polygon points="171.06 37.02 178.30 39.57 182.55 44.68 181.70 53.62 174.89 48.94 172.34 45.11"/>
+  </g>
+
+  <!-- TRICEPS back (main) -->
+  <g id="triceps-b" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <polygon points="126.81 49.79 117.87 55.74 114.47 72.34 116.60 81.70 121.70 63.83 126.81 55.74"/>
+    <polygon points="173.62 50.21 182.13 55.74 185.96 73.19 183.40 82.13 177.87 62.98 173.19 55.74"/>
+    <polygon points="126.81 58.30 126.81 68.51 122.98 75.32 119.15 77.45 122.55 65.53"/>
+    <polygon points="172.77 58.30 177.02 64.68 180.43 77.45 176.60 75.32 172.77 68.94"/>
+  </g>
+
+  <!-- GLUTEAL + ABDUCTOR back -->
+  <g id="glutes-b" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <!-- gluteal -->
+    <polygon points="144.68 99.57 130.21 108.51 129.79 118.72 131.49 125.96 147.23 121.28 149.36 114.89"/>
+    <polygon points="155.32 99.15 151.06 114.47 152.34 120.85 168.09 125.96 169.79 119.15 169.36 108.51"/>
+    <!-- abductor -->
+    <polygon points="148.09 122.98 144.68 122.98 141.28 125.53 145.11 144.26 148.51 135.74 148.94 129.36"/>
+    <polygon points="151.91 122.55 155.74 123.40 159.15 125.96 154.89 144.26 151.91 136.17 151.06 129.36"/>
+  </g>
+
+  <!-- HAMSTRING + CALVES → legs back -->
+  <g id="legs-b" fill="#9E5840" stroke="#5A2A14" stroke-width="0.3">
+    <!-- hamstring -->
+    <polygon points="128.94 122.13 131.06 129.36 136.60 125.96 135.32 135.32 134.47 150.21 129.36 158.30 128.94 146.81 127.66 141.28 127.23 131.49"/>
+    <polygon points="171.49 121.70 169.36 128.94 163.83 125.96 165.53 136.60 166.38 150.21 171.06 158.30 171.49 147.66 172.77 142.13 173.62 131.91"/>
+    <polygon points="138.72 125.53 144.26 145.96 140.43 166.81 136.17 152.77 137.02 135.32"/>
+    <polygon points="161.70 125.53 163.40 136.17 164.26 153.19 160 166.81 156.17 146.38"/>
+    <!-- calves back -->
+    <polygon points="129.36 160.43 128.51 167.23 124.68 179.57 123.83 192.77 125.53 197.02 128.51 193.19 129.79 180 131.91 171.06 131.91 166.81"/>
+    <polygon points="137.45 165.11 135.32 167.66 133.19 171.91 131.06 180.43 130.21 191.91 134.04 200 138.72 190.64 139.15 168.94"/>
+    <polygon points="162.98 165.11 161.28 168.51 161.70 190.64 166.38 199.57 170.64 191.91 168.94 179.57 166.81 170.21"/>
+    <polygon points="170.64 160.43 172.34 168.51 175.74 179.15 176.60 192.77 174.47 196.60 172.34 193.62 170.64 179.57 168.09 168.09"/>
+  </g>
+
 </svg>
 ''';
