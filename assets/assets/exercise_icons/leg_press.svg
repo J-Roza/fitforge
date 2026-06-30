@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- seat / backrest bottom-left -->
+  <rect fill="#fff" x="12" y="58" width="30" height="9" rx="4" transform="rotate(-16 27 62)"/>
+  <circle fill="#fff" cx="18" cy="52" r="7"/>
+  <!-- legs pushing up-right -->
+  <rect fill="#fff" x="38" y="46" width="9" height="20" rx="4" transform="rotate(40 42 56)"/>
+  <rect fill="#fff" x="50" y="34" width="9" height="22" rx="4" transform="rotate(30 54 45)"/>
+  <!-- sled platform + weight -->
+  <rect fill="#fff" x="62" y="18" width="9" height="34" rx="3"/>
+  <rect fill="#fff" x="73" y="16" width="15" height="38" rx="4"/>
+</svg>

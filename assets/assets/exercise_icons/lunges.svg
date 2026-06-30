@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle fill="#fff" cx="48" cy="20" r="7.5"/>
+  <rect fill="#fff" x="41" y="26" width="14" height="24" rx="6"/>
+  <rect fill="#fff" x="52" y="48" width="8" height="18" rx="4" transform="rotate(30 56 57)"/>
+  <rect fill="#fff" x="58" y="64" width="8" height="18" rx="4"/>
+  <rect fill="#fff" x="36" y="48" width="8" height="20" rx="4" transform="rotate(-26 40 58)"/>
+  <rect fill="#fff" x="25" y="66" width="8" height="16" rx="4" transform="rotate(-32 29 74)"/>
+</svg>

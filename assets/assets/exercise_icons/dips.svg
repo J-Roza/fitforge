@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- parallel bars -->
+  <rect fill="#fff" x="14" y="40" width="24" height="5" rx="2.5"/>
+  <rect fill="#fff" x="62" y="40" width="24" height="5" rx="2.5"/>
+  <!-- head -->
+  <circle fill="#fff" cx="50" cy="26" r="7.5"/>
+  <!-- torso upright, leaning -->
+  <rect fill="#fff" x="42" y="32" width="16" height="26" rx="7"/>
+  <!-- arms supporting on bars -->
+  <rect fill="#fff" x="34" y="34" width="6.5" height="22" rx="3.2"/>
+  <rect fill="#fff" x="60" y="34" width="6.5" height="22" rx="3.2"/>
+  <!-- legs bent under -->
+  <rect fill="#fff" x="44" y="58" width="6.5" height="16" rx="3.2" transform="rotate(20 47 66)"/>
+  <rect fill="#fff" x="52" y="58" width="6.5" height="16" rx="3.2" transform="rotate(20 55 66)"/>
+</svg>

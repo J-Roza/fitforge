@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- head -->
+  <circle fill="#fff" cx="22" cy="44" r="8"/>
+  <!-- body plank line -->
+  <rect fill="#fff" x="28" y="46" width="50" height="11" rx="5.5" transform="rotate(-6 53 51)"/>
+  <!-- arms down to floor -->
+  <rect fill="#fff" x="26" y="52" width="6.5" height="22" rx="3.2"/>
+  <!-- legs back -->
+  <rect fill="#fff" x="72" y="52" width="6.5" height="22" rx="3.2" transform="rotate(-12 75 63)"/>
+  <!-- floor -->
+  <rect fill="#fff" x="14" y="78" width="74" height="5" rx="2.5"/>
+</svg>

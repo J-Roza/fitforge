@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- barbell -->
+  <rect fill="#fff" x="18" y="24" width="60" height="5" rx="2.5"/>
+  <rect fill="#fff" x="12" y="17" width="7" height="19" rx="2.5"/>
+  <rect fill="#fff" x="77" y="17" width="7" height="19" rx="2.5"/>
+  <!-- arms pressing up -->
+  <rect fill="#fff" x="42" y="32" width="6.5" height="21" rx="3.2" transform="rotate(7 45 42)"/>
+  <rect fill="#fff" x="50" y="32" width="6.5" height="21" rx="3.2" transform="rotate(-7 53 42)"/>
+  <!-- head -->
+  <circle fill="#fff" cx="23" cy="55" r="7"/>
+  <!-- torso lying -->
+  <rect fill="#fff" x="28" y="51" width="35" height="10" rx="5"/>
+  <!-- hips + legs -->
+  <rect fill="#fff" x="60" y="52" width="15" height="8" rx="4"/>
+  <rect fill="#fff" x="71" y="57" width="6.5" height="16" rx="3"/>
+  <!-- bench -->
+  <rect fill="#fff" x="15" y="64" width="53" height="7" rx="3"/>
+  <rect fill="#fff" x="19" y="71" width="5" height="13" rx="2"/>
+  <rect fill="#fff" x="59" y="71" width="5" height="13" rx="2"/>
+</svg>
