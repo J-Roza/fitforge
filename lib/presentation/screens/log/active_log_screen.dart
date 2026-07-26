@@ -804,6 +804,57 @@ class _FeelingButton extends StatelessWidget {
       );
 }
 
+// ── Note field (affiche la note restaurée d'une séance reprise) ──
+class _NoteField extends StatefulWidget {
+  final String note;
+  final ValueChanged<String> onChanged;
+  const _NoteField({required this.note, required this.onChanged});
+
+  @override
+  State<_NoteField> createState() => _NoteFieldState();
+}
+
+class _NoteFieldState extends State<_NoteField> {
+  late final TextEditingController _ctrl = TextEditingController(text: widget.note);
+
+  @override
+  void didUpdateWidget(_NoteField old) {
+    super.didUpdateWidget(old);
+    // Met à jour le texte affiché quand la note change côté données
+    // (ex : reprise d'une séance), sans perturber la saisie en cours.
+    if (widget.note != old.note && widget.note != _ctrl.text) {
+      _ctrl.text = widget.note;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => TextField(
+        controller: _ctrl,
+        decoration: InputDecoration(
+          hintText: 'Note...',
+          hintStyle:
+              const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          filled: true,
+          fillColor: AppColors.bgCardElevated,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          isDense: true,
+        ),
+        style:
+            const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        onChanged: widget.onChanged,
+      );
+}
+
 // ── Session Summary Sheet ─────────────────────────────────────
 class _SessionSummarySheet extends StatelessWidget {
   final LogSession session;
@@ -1404,24 +1455,7 @@ class _ExerciseCard extends ConsumerWidget {
           // Note
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Note...',
-                hintStyle: const TextStyle(
-                    color: AppColors.textMuted, fontSize: 12),
-                filled: true,
-                fillColor: AppColors.bgCardElevated,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
-                isDense: true,
-              ),
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary),
-              onChanged: onNoteChanged,
-            ),
+            child: _NoteField(note: note, onChanged: onNoteChanged),
           ),
         ],
       ),
