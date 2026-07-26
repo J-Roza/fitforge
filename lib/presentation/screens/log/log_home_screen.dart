@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/log_models.dart';
+import '../../../data/models/exercise.dart';
 import '../../../providers/log_provider.dart';
-import '../../../providers/exercise_provider.dart';
 import '../../../data/datasources/exercises_data.dart';
 import 'active_log_screen.dart';
 import 'history_screen.dart';
@@ -69,23 +69,6 @@ class LogHomeScreen extends ConsumerWidget {
               )
             : null,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: AppColors.bgCard,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-          builder: (_) => ProviderScope(
-            parent: ProviderScope.containerOf(context),
-            child: const _AddPastSessionSheet(),
-          ),
-        ),
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Séance passée', style: TextStyle(fontWeight: FontWeight.w700)),
-      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
@@ -102,6 +85,10 @@ class LogHomeScreen extends ConsumerWidget {
             ],
           ).animate().fadeIn(delay: 50.ms),
           const SizedBox(height: 16),
+          _WeeklyGoal(weekCount: weekCount)
+              .animate()
+              .fadeIn(delay: 70.ms),
+          const SizedBox(height: 12),
 
           // Today banner
           if (todayConfig != null) ...[
@@ -109,7 +96,7 @@ class LogHomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
           ],
 
-          // Session grid 2x2
+          // Session grid 2x2 + tuile "Ajouter"
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -117,16 +104,22 @@ class LogHomeScreen extends ConsumerWidget {
             crossAxisSpacing: 14,
             mainAxisSpacing: 14,
             childAspectRatio: 1.0,
-            children: List.generate(sessions.length, (i) {
-              final s = sessions[i];
-              final exIds = getSessionExerciseIds(s.type, custom, sessions);
-              final last = _lastSessionOfType(history, s.type);
-              return _SessionCard(
-                config: s,
-                exCount: exIds.length,
-                lastDate: last?.date,
-              ).animate().fadeIn(delay: Duration(milliseconds: 120 + i * 50));
-            }),
+            children: [
+              ...List.generate(sessions.length, (i) {
+                final s = sessions[i];
+                final exIds = getSessionExerciseIds(s.type, custom, sessions);
+                final last = _lastSessionOfType(history, s.type);
+                return _SessionCard(
+                  config: s,
+                  exCount: exIds.length,
+                  lastDate: last?.date,
+                  lastSession: last,
+                ).animate().fadeIn(delay: Duration(milliseconds: 120 + i * 50));
+              }),
+              const _AddSessionCard()
+                  .animate()
+                  .fadeIn(delay: Duration(milliseconds: 120 + sessions.length * 50)),
+            ],
           ),
           const SizedBox(height: 16),
 
@@ -230,7 +223,7 @@ class _TodayBanner extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) =>
                       ActiveLogScreen(sessionType: config.type))),
               style: TextButton.styleFrom(
-                backgroundColor: config.color.withOpacity(.15),
+                backgroundColor: config.color.withValues(alpha: .15),
                 foregroundColor: config.color,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 shape: RoundedRectangleBorder(
@@ -249,7 +242,8 @@ class _SessionCard extends ConsumerWidget {
   final SessionConfig config;
   final int exCount;
   final DateTime? lastDate;
-  const _SessionCard({required this.config, required this.exCount, this.lastDate});
+  final LogSession? lastSession;
+  const _SessionCard({required this.config, required this.exCount, this.lastDate, this.lastSession});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -278,6 +272,26 @@ class _SessionCard extends ConsumerWidget {
                           fontSize: 10, fontWeight: FontWeight.w700,
                           letterSpacing: 1.2, color: config.color)),
                 ),
+                if (lastSession != null)
+                  GestureDetector(
+                    onTap: () => Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute(
+                            builder: (_) => ActiveLogScreen(
+                                sessionType: config.type,
+                                previousSession: lastSession))),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      margin: const EdgeInsets.only(right: 6),
+                      decoration: BoxDecoration(
+                        color: config.color.withValues(alpha: .12),
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: config.color.withValues(alpha: .25)),
+                      ),
+                      child:
+                          Icon(Icons.replay_rounded, size: 13, color: config.color),
+                    ),
+                  ),
                 GestureDetector(
                   onTap: () => _openEditor(context, ref),
                   child: Container(
@@ -330,6 +344,211 @@ class _SessionCard extends ConsumerWidget {
   }
 }
 
+// ── Add session card ─────────────────────────────────────────
+class _AddSessionCard extends StatelessWidget {
+  const _AddSessionCard();
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: AppColors.bgCard,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          builder: (_) => ProviderScope(
+            parent: ProviderScope.containerOf(context),
+            child: const _CreateSessionSheet(),
+          ),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: AppColors.border, style: BorderStyle.solid),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_circle_outline_rounded,
+                    size: 28, color: AppColors.textMuted),
+                SizedBox(height: 8),
+                Text('Nouvelle séance',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMuted)),
+              ],
+            ),
+          ),
+        ),
+      );
+}
+
+// ── Create session sheet ─────────────────────────────────────
+class _CreateSessionSheet extends ConsumerStatefulWidget {
+  const _CreateSessionSheet();
+
+  @override
+  ConsumerState<_CreateSessionSheet> createState() => _CreateSessionSheetState();
+}
+
+class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
+  final _name = TextEditingController();
+  final _subtitle = TextEditingController();
+  Color _color = _sessionColorPalette[4];
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _subtitle.dispose();
+    super.dispose();
+  }
+
+  void _create() {
+    final name = _name.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Donne un nom à la séance.')));
+      return;
+    }
+    final type = ref.read(sessionsConfigProvider.notifier).addSession(
+          name: name.toUpperCase(),
+          subtitle: _subtitle.text.trim().isEmpty
+              ? 'Séance personnalisée'
+              : _subtitle.text.trim(),
+          color: _color,
+        );
+    Navigator.of(context).pop();
+
+    final config = ref.read(sessionsConfigProvider).firstWhere((s) => s.type == type);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.bgCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => ProviderScope(
+        parent: ProviderScope.containerOf(context),
+        child: _SessionEditorSheet(config: config, initialIds: const []),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20, right: 20, top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2))),
+          ),
+          const SizedBox(height: 18),
+          const Text('Nouvelle séance',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          const Text(
+            'Tu pourras ajouter les exercices juste après.',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          ),
+          const SizedBox(height: 20),
+          const Text('NOM', style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700,
+              color: AppColors.textMuted, letterSpacing: .5)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _name,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            decoration: InputDecoration(
+              hintText: 'Ex : FULL BODY',
+              hintStyle: const TextStyle(color: AppColors.textMuted),
+              filled: true,
+              fillColor: AppColors.bgCardElevated,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('SOUS-TITRE (optionnel)', style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700,
+              color: AppColors.textMuted, letterSpacing: .5)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _subtitle,
+            decoration: InputDecoration(
+              hintText: 'Ex : Corps entier',
+              hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              filled: true,
+              fillColor: AppColors.bgCardElevated,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Text('COULEUR', style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700,
+              color: AppColors.textMuted, letterSpacing: .5)),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 10, runSpacing: 10,
+            children: _sessionColorPalette.map((c) {
+              final selected = c.toARGB32() == _color.toARGB32();
+              return GestureDetector(
+                onTap: () => setState(() => _color = c),
+                child: Container(
+                  width: 32, height: 32,
+                  decoration: BoxDecoration(
+                    color: c,
+                    shape: BoxShape.circle,
+                    border: selected
+                        ? Border.all(color: Colors.white, width: 2.5)
+                        : null,
+                  ),
+                  child: selected
+                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                      : null,
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 22),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _create,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              child: const Text('Créer la séance',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Session editor bottom sheet ───────────────────────────────
 class _SessionEditorSheet extends ConsumerStatefulWidget {
   final SessionConfig config;
@@ -340,24 +559,61 @@ class _SessionEditorSheet extends ConsumerStatefulWidget {
   ConsumerState<_SessionEditorSheet> createState() => _SessionEditorSheetState();
 }
 
+// Palette de couleurs proposées pour les séances (perso ou par défaut)
+const _sessionColorPalette = [
+  Color(0xFFE8484F), Color(0xFF4F9EE8), Color(0xFF30D158), Color(0xFFFF9F0A),
+  Color(0xFFAF52DE), Color(0xFF5AC8FA), Color(0xFFFFD60A), Color(0xFFFF375F),
+  Color(0xFFBF5AF2), Color(0xFFA2845E),
+];
+
 class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
   late List<String> _draft;
+  late TextEditingController _name;
+  late TextEditingController _subtitle;
+  late Color _color;
 
   // All exercises grouped by muscle
-  static const _groups = {
-    'Pectoraux': ['bench_press', 'incline_bench_press', 'dumbbell_bench_press', 'machine_chest_press_flat', 'dips_chest', 'push_up', 'dumbbell_flyes', 'cable_crossover'],
-    'Dos':       ['pull_up', 'barbell_row', 'dumbbell_row', 'lat_pulldown', 'seated_row', 'face_pull'],
-    'Epaules':   ['ohp', 'arnold_press', 'lateral_raise', 'front_raise'],
-    'Biceps':    ['barbell_curl', 'preacher_curl', 'concentration_curl', 'hammer_curl'],
-    'Triceps':   ['skull_crusher', 'tricep_pushdown', 'overhead_tricep_extension', 'close_grip_bench', 'dips_chest'],
-    'Jambes':    ['squat', 'deadlift', 'romanian_deadlift', 'leg_press', 'lunges', 'leg_extension', 'leg_curl', 'calf_raise', 'hip_thrust'],
-    'Abdos':     ['plank', 'crunch', 'leg_raise', 'ab_wheel', 'russian_twist'],
-  };
+  // Tous les exercices regroupés par muscle (poulie exclue : pas d'équipement).
+  Map<String, List<String>> get _groups {
+    const order = [
+      MuscleGroup.chest,
+      MuscleGroup.back,
+      MuscleGroup.shoulders,
+      MuscleGroup.biceps,
+      MuscleGroup.triceps,
+      MuscleGroup.legs,
+      MuscleGroup.glutes,
+      MuscleGroup.core,
+      MuscleGroup.cardio,
+      MuscleGroup.fullBody,
+    ];
+    final byMuscle = <MuscleGroup, List<String>>{};
+    for (final e in allExercises) {
+      if (e.equipment.contains(Equipment.cable)) continue; // pas de poulie
+      byMuscle.putIfAbsent(e.primaryMuscle, () => []).add(e.id);
+    }
+    final result = <String, List<String>>{};
+    for (final m in order) {
+      final ids = byMuscle[m];
+      if (ids != null && ids.isNotEmpty) result[m.label] = ids;
+    }
+    return result;
+  }
 
   @override
   void initState() {
     super.initState();
     _draft = List.from(widget.initialIds);
+    _name = TextEditingController(text: widget.config.name);
+    _subtitle = TextEditingController(text: widget.config.subtitle);
+    _color = widget.config.color;
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _subtitle.dispose();
+    super.dispose();
   }
 
   String _exName(String id) {
@@ -368,7 +624,8 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
 
   void _save() {
     final sessions = ref.read(sessionsConfigProvider);
-    final defaults = sessions.firstWhere((s) => s.type == widget.config.type).defaultExerciseIds;
+    final match = sessions.where((s) => s.type == widget.config.type);
+    final defaults = match.isEmpty ? const <String>[] : match.first.defaultExerciseIds;
     final isSameAsDefault = _draft.length == defaults.length &&
         _draft.asMap().entries.every((e) => e.value == defaults[e.key]);
     if (isSameAsDefault) {
@@ -376,7 +633,51 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
     } else {
       ref.read(customSessionsProvider.notifier).setSession(widget.config.type, _draft);
     }
+
+    final nameChanged = _name.text.trim() != widget.config.name;
+    final subtitleChanged = _subtitle.text.trim() != widget.config.subtitle;
+    final colorChanged = _color != widget.config.color;
+    if (nameChanged || subtitleChanged || colorChanged) {
+      ref.read(sessionsConfigProvider.notifier).updateSession(
+            widget.config.type,
+            name: _name.text.trim().isEmpty ? null : _name.text.trim(),
+            subtitle: _subtitle.text.trim().isEmpty ? null : _subtitle.text.trim(),
+            color: _color,
+          );
+    }
+
     Navigator.of(context).pop();
+  }
+
+  Future<void> _confirmDelete() async {
+    final sessions = ref.read(sessionsConfigProvider);
+    if (sessions.length <= 1) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Tu dois garder au moins une séance.')));
+      return;
+    }
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Supprimer cette séance ?'),
+        content: Text(
+            '« ${widget.config.name} » sera supprimée. L\'historique des séances déjà réalisées est conservé.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Supprimer',
+                  style: TextStyle(color: AppColors.error))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref.read(sessionsConfigProvider.notifier).removeSession(widget.config.type);
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -396,8 +697,9 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text('S${widget.config.type} · ${widget.config.name}',
-                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: widget.config.color)),
+                  child: Text('S${widget.config.type} · ${_name.text}',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: _color)),
                 ),
                 TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Annuler')),
                 const SizedBox(width: 8),
@@ -419,31 +721,125 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
               controller: sc,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               children: [
-                // Current exercises
-                const Text('EXERCICES ACTUELS', style: TextStyle(
+                // Nom + sous-titre + couleur
+                const Text('NOM DE LA SÉANCE', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 8),
-                ..._draft.map((id) => Container(
-                  margin: const EdgeInsets.only(bottom: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgCardElevated,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.border),
+                TextField(
+                  controller: _name,
+                  onChanged: (_) => setState(() {}),
+                  textCapitalization: TextCapitalization.characters,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.bgCardElevated,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(_exName(id),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
-                      if (_draft.length > 1)
-                        GestureDetector(
-                          onTap: () => setState(() => _draft.remove(id)),
-                          child: const Icon(Icons.close_rounded, size: 18, color: AppColors.error),
+                ),
+                const SizedBox(height: 14),
+                const Text('SOUS-TITRE', style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted, letterSpacing: .5)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _subtitle,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: 'Ex : Pecs · Épaules · Triceps',
+                    hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                    filled: true,
+                    fillColor: AppColors.bgCardElevated,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text('COULEUR', style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted, letterSpacing: .5)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 10, runSpacing: 10,
+                  children: _sessionColorPalette.map((c) {
+                    final selected = c.toARGB32() == _color.toARGB32();
+                    return GestureDetector(
+                      onTap: () => setState(() => _color = c),
+                      child: Container(
+                        width: 32, height: 32,
+                        decoration: BoxDecoration(
+                          color: c,
+                          shape: BoxShape.circle,
+                          border: selected
+                              ? Border.all(color: Colors.white, width: 2.5)
+                              : null,
                         ),
-                    ],
-                  ),
-                )),
+                        child: selected
+                            ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 22),
+
+                // Current exercises (réordonnables par glisser-déposer)
+                const Text('EXERCICES ACTUELS · glisse pour réordonner', style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w700,
+                    color: AppColors.textMuted, letterSpacing: .5)),
+                const SizedBox(height: 8),
+                ReorderableListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  buildDefaultDragHandles: false,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex -= 1;
+                      final item = _draft.removeAt(oldIndex);
+                      _draft.insert(newIndex, item);
+                    });
+                  },
+                  children: _draft.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final id = entry.value;
+                    return Container(
+                      key: ValueKey(id),
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.bgCardElevated,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          ReorderableDragStartListener(
+                            index: i,
+                            child: const Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Icon(Icons.drag_handle_rounded,
+                                  size: 20, color: AppColors.textMuted),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(_exName(id),
+                                style: const TextStyle(
+                                    fontSize: 13, fontWeight: FontWeight.w600)),
+                          ),
+                          if (_draft.length > 1)
+                            GestureDetector(
+                              onTap: () => setState(() => _draft.remove(id)),
+                              child: const Icon(Icons.close_rounded,
+                                  size: 18, color: AppColors.error),
+                            ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
 
                 const SizedBox(height: 20),
                 const Text('AJOUTER UN EXERCICE', style: TextStyle(
@@ -494,19 +890,35 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
-                    final defaults = ref.read(sessionsConfigProvider)
-                        .firstWhere((s) => s.type == widget.config.type).defaultExerciseIds;
+                    final match = ref.read(sessionsConfigProvider)
+                        .where((s) => s.type == widget.config.type);
+                    final defaults = match.isEmpty ? const <String>[] : match.first.defaultExerciseIds;
                     setState(() => _draft = List.from(defaults));
                   },
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(.08),
+                      color: AppColors.bgCardElevated,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.error.withOpacity(.2)),
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: const Center(child: Text('Remettre les exercices par defaut',
+                        style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600))),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: _confirmDelete,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: .08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.error.withValues(alpha: .2)),
+                    ),
+                    child: const Center(child: Text('🗑 Supprimer cette séance',
                         style: TextStyle(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w600))),
                   ),
                 ),
@@ -551,124 +963,61 @@ class _NavBtn extends StatelessWidget {
 }
 
 // ── Add past session sheet ─────────────────────────────────
-class _AddPastSessionSheet extends ConsumerStatefulWidget {
-  const _AddPastSessionSheet();
-  @override
-  ConsumerState<_AddPastSessionSheet> createState() => _AddPastSessionSheetState();
-}
-
-class _AddPastSessionSheetState extends ConsumerState<_AddPastSessionSheet> {
-  DateTime _date = DateTime.now().subtract(const Duration(days: 1));
-  int _sessionType = 1;
+// ── Weekly goal ───────────────────────────────────────────────
+class _WeeklyGoal extends StatelessWidget {
+  final int weekCount;
+  static const int _goal = 3;
+  const _WeeklyGoal({required this.weekCount});
 
   @override
   Widget build(BuildContext context) {
-    final sessions = ref.watch(sessionsConfigProvider);
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        top: 20, left: 20, right: 20,
+    final done = weekCount >= _goal;
+    final progress = (weekCount / _goal).clamp(0.0, 1.0);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+            color: done
+                ? AppColors.accent.withValues(alpha: .4)
+                : AppColors.border),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2)))),
-          const SizedBox(height: 16),
-          const Text('Ajouter une séance passée',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 20),
-          const Text('DATE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: .5)),
+          Row(
+            children: [
+              Text(done ? '✅' : '🎯',
+                  style: const TextStyle(fontSize: 14)),
+              const SizedBox(width: 8),
+              Text(
+                '$weekCount/$_goal séances cette semaine',
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w700),
+              ),
+              const Spacer(),
+              if (done)
+                Text('OBJECTIF !',
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w800)),
+            ],
+          ),
           const SizedBox(height: 8),
-          GestureDetector(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _date,
-                firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
-                builder: (_, child) => Theme(
-                  data: ThemeData.dark().copyWith(
-                    colorScheme: const ColorScheme.dark(primary: AppColors.accent),
-                  ),
-                  child: child!,
-                ),
-              );
-              if (picked != null) setState(() => _date = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.bgCardElevated,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.accent),
-                  const SizedBox(width: 10),
-                  Text('${_date.day}/${_date.month}/${_date.year}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                ],
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: AppColors.bgCardElevated,
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(AppColors.accent),
+              minHeight: 5,
             ),
           ),
-          const SizedBox(height: 16),
-          const Text('TYPE DE SÉANCE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: .5)),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 8, runSpacing: 8,
-            children: sessions.map((s) => GestureDetector(
-              onTap: () => setState(() => _sessionType = s.type),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: _sessionType == s.type ? s.color.withOpacity(.15) : AppColors.bgCardElevated,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: _sessionType == s.type ? s.color : AppColors.border,
-                      width: _sessionType == s.type ? 1.5 : 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('S${s.type}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: s.color)),
-                    Text(s.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            )).toList(),
-          ),
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _save,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: const Text('Ajouter', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-            ),
-          ),
-          const SizedBox(height: 8),
         ],
       ),
     );
-  }
-
-  void _save() async {
-    final session = LogSession(
-      date: _date,
-      sessionType: _sessionType,
-      exercises: [],
-      notes: null,
-      feeling: null,
-    );
-    await ref.read(logHistoryProvider.notifier).addSession(session);
-    if (mounted) Navigator.of(context).pop();
   }
 }

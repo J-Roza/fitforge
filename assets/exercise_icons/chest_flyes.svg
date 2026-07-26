@@ -1,14 +1,15 @@
-
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect fill="white" x="16" y="54" width="68" height="7" rx="3"/>
-  <rect fill="white" x="16" y="60" width="5"  height="14" rx="2"/>
-  <rect fill="white" x="79" y="60" width="5"  height="14" rx="2"/>
-  <circle fill="white" cx="78" cy="48" r="7"/>
-  <rect fill="white" x="28" y="42" width="46" height="9" rx="4"/>
-  <rect fill="white" x="8"  y="42" width="22" height="6" rx="3"/>
-  <rect fill="white" x="70" y="42" width="22" height="6" rx="3"/>
-  <circle fill="white" cx="8"  cy="45" r="5"/>
-  <circle fill="white" cx="92" cy="45" r="5"/>
-  <rect fill="white" x="6"  y="40" width="6" height="10" rx="2"/>
-  <rect fill="white" x="88" y="40" width="6" height="10" rx="2"/>
+  <!-- dumbbells held wide above -->
+  <rect fill="#fff" x="16" y="22" width="13" height="9" rx="3"/>
+  <rect fill="#fff" x="71" y="22" width="13" height="9" rx="3"/>
+  <!-- arms open arc -->
+  <rect fill="#fff" x="26" y="30" width="6.5" height="22" rx="3.2" transform="rotate(28 29 41)"/>
+  <rect fill="#fff" x="68" y="30" width="6.5" height="22" rx="3.2" transform="rotate(-28 71 41)"/>
+  <!-- head -->
+  <circle fill="#fff" cx="50" cy="50" r="7.5"/>
+  <!-- torso lying (vertical, head up) -->
+  <rect fill="#fff" x="42" y="56" width="16" height="22" rx="7"/>
+  <!-- legs -->
+  <rect fill="#fff" x="43" y="78" width="6" height="10" rx="3"/>
+  <rect fill="#fff" x="51" y="78" width="6" height="10" rx="3"/>
 </svg>

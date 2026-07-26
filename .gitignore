@@ -51,3 +51,11 @@ desktop.ini
 .env
 *.env
 secrets.dart
+
+# Firebase (config client — non publié sur dépôt public)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Kotlin build logs
+android/.kotlin/

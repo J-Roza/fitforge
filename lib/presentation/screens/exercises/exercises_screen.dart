@@ -162,7 +162,7 @@ class _FilterChip extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: selected ? color.withOpacity(0.2) : AppColors.bgCard,
+            color: selected ? color.withValues(alpha: 0.2) : AppColors.bgCard,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: selected ? color : AppColors.border,
@@ -240,7 +240,7 @@ class _FiltersSheet extends ConsumerWidget {
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: selectedDifficulty == d ? d.color.withOpacity(0.2) : AppColors.bgCardElevated,
+                    color: selectedDifficulty == d ? d.color.withValues(alpha: 0.2) : AppColors.bgCardElevated,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: selectedDifficulty == d ? d.color : AppColors.border,

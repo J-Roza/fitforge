@@ -226,7 +226,7 @@ class _ExerciseEditorCard extends StatelessWidget {
                 Container(
                   width: 40, height: 40,
                   decoration: BoxDecoration(
-                    color: ex.primaryMuscle.color.withOpacity(0.15),
+                    color: ex.primaryMuscle.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(child: Text(ex.primaryMuscle.emoji, style: const TextStyle(fontSize: 18))),
@@ -490,7 +490,7 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
                   leading: Container(
                     width: 40, height: 40,
                     decoration: BoxDecoration(
-                      color: ex.primaryMuscle.color.withOpacity(0.15),
+                      color: ex.primaryMuscle.color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(child: Text(ex.primaryMuscle.emoji, style: const TextStyle(fontSize: 18))),
@@ -531,7 +531,7 @@ class _FilterChip extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? (color ?? AppColors.accent).withOpacity(0.2) : AppColors.bgCardElevated,
+            color: selected ? (color ?? AppColors.accent).withValues(alpha: 0.2) : AppColors.bgCardElevated,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: selected ? (color ?? AppColors.accent) : AppColors.border,

@@ -6,8 +6,10 @@ class LogService {
   static const _histKey   = 'ff_log_hist';
   static const _planKey   = 'ff_log_plan';
   static const _lwKey     = 'ff_log_lw';
+  static const _lrKey     = 'ff_log_lr';
   static const _timerKey  = 'ff_log_timer';
   static const _customKey = 'ff_log_custom';
+  static const _sessionsConfigKey = 'ff_log_sessions_config';
 
   // ── History ───────────────────────────────────────────────
   Future<List<LogSession>> loadHistory() async {
@@ -51,6 +53,20 @@ class LogService {
     await p.setString(_lwKey, jsonEncode(lw));
   }
 
+  // ── Last reps ──────────────────────────────────────────────
+  Future<Map<String, int>> loadLastReps() async {
+    final p = await SharedPreferences.getInstance();
+    final raw = p.getString(_lrKey);
+    if (raw == null) return {};
+    final map = jsonDecode(raw) as Map<String, dynamic>;
+    return map.map((k, v) => MapEntry(k, v as int));
+  }
+
+  Future<void> saveLastReps(Map<String, int> lr) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_lrKey, jsonEncode(lr));
+  }
+
   // ── Timer duration ────────────────────────────────────────
   Future<int> loadTimerDuration() async {
     final p = await SharedPreferences.getInstance();
@@ -62,22 +78,76 @@ class LogService {
     await p.setInt(_timerKey, seconds);
   }
 
-  // ── Seed history (one-time) ───────────────────────────────
-  static const _seedKey = 'ff_log_seeded_v1';
+  // ── Timer sound ────────────────────────────────────────────
+  static const _timerSoundKey = 'ff_timer_sound';
 
-  Future<void> seedHistoryOnce(List<LogSession> seeds) async {
+  /// 'alarme' (défaut, fort) ou 'beep'.
+  Future<String> loadTimerSound() async {
     final p = await SharedPreferences.getInstance();
-    if (p.getBool(_seedKey) == true) return; // déjà fait
+    return p.getString(_timerSoundKey) ?? 'alarme';
+  }
+
+  Future<void> saveTimerSound(String sound) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_timerSoundKey, sound);
+  }
+
+  // ── Brouillon de séance en cours (reprise après retour arrière) ──
+  // Permet de retrouver une séance commencée si on quitte l'écran sans
+  // l'avoir terminée. Un brouillon par type de séance. Local uniquement.
+  static const _draftKey = 'ff_log_draft';
+
+  Future<Map<int, Map<String, dynamic>>> _loadAllDrafts() async {
+    final p = await SharedPreferences.getInstance();
+    final raw = p.getString(_draftKey);
+    if (raw == null) return {};
+    final map = jsonDecode(raw) as Map<String, dynamic>;
+    return map.map(
+        (k, v) => MapEntry(int.parse(k), Map<String, dynamic>.from(v as Map)));
+  }
+
+  Future<void> _saveAllDrafts(Map<int, Map<String, dynamic>> all) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(
+        _draftKey, jsonEncode(all.map((k, v) => MapEntry(k.toString(), v))));
+  }
+
+  /// Brouillon pour un type de séance, ou `null` si aucun.
+  Future<Map<String, dynamic>?> loadDraft(int type) async {
+    final all = await _loadAllDrafts();
+    return all[type];
+  }
+
+  Future<void> saveDraft(int type, Map<String, dynamic> draft) async {
+    final all = await _loadAllDrafts();
+    all[type] = draft;
+    await _saveAllDrafts(all);
+  }
+
+  Future<void> clearDraft(int type) async {
+    final all = await _loadAllDrafts();
+    if (all.remove(type) != null) await _saveAllDrafts(all);
+  }
+
+  // ── Purge des anciennes séances de démo (one-time) ────────
+  // L'app injectait autrefois des séances "seed_*" factices au premier
+  // lancement. On les retire définitivement des installations existantes.
+  static const _seedPurgedKey = 'ff_log_seed_purged_v1';
+
+  /// Retire les séances de démo héritées. Retourne `true` si l'historique
+  /// a changé (pour déclencher une synchro cloud).
+  Future<bool> purgeSeedSessionsOnce() async {
+    final p = await SharedPreferences.getInstance();
+    if (p.getBool(_seedPurgedKey) == true) return false; // déjà fait
 
     final existing = await loadHistory();
-    final existingIds = existing.map((s) => s.id).toSet();
-    final toAdd = seeds.where((s) => !existingIds.contains(s.id)).toList();
-    if (toAdd.isNotEmpty) {
-      final merged = [...existing, ...toAdd]
-        ..sort((a, b) => a.date.compareTo(b.date));
-      await saveHistory(merged);
+    final cleaned = existing.where((s) => !s.id.startsWith('seed_')).toList();
+    final changed = cleaned.length != existing.length;
+    if (changed) {
+      await saveHistory(cleaned);
     }
-    await p.setBool(_seedKey, true);
+    await p.setBool(_seedPurgedKey, true);
+    return changed;
   }
 
   // ── Custom sessions ───────────────────────────────────────
@@ -92,5 +162,20 @@ class LogService {
   Future<void> saveCustomSessions(Map<int, List<String>> custom) async {
     final p = await SharedPreferences.getInstance();
     await p.setString(_customKey, jsonEncode(custom.map((k, v) => MapEntry(k.toString(), v))));
+  }
+
+  // ── Sessions config (séances créées/éditées par l'utilisateur) ────
+  /// Retourne `null` si rien n'a encore été persisté (utiliser les défauts).
+  Future<List<SessionConfig>?> loadSessionsConfig() async {
+    final p = await SharedPreferences.getInstance();
+    final raw = p.getString(_sessionsConfigKey);
+    if (raw == null) return null;
+    final list = jsonDecode(raw) as List;
+    return list.map((e) => SessionConfig.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> saveSessionsConfig(List<SessionConfig> sessions) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_sessionsConfigKey, jsonEncode(sessions.map((s) => s.toJson()).toList()));
   }
 }

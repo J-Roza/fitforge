@@ -45,7 +45,7 @@ class WorkoutScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: AppColors.accentGlow,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.accent.withOpacity(0.4)),
+                            border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -144,7 +144,7 @@ class _AIProgramBanner extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -157,7 +157,7 @@ class _AIProgramBanner extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: AppColors.accent.withOpacity(0.2),
+                          color: AppColors.accent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text('IA',
@@ -252,9 +252,9 @@ class _WorkoutTemplateCard extends StatelessWidget {
                           children: muscles.take(4).map((m) => Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: m.color.withOpacity(0.12),
+                              color: m.color.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: m.color.withOpacity(0.3)),
+                              border: Border.all(color: m.color.withValues(alpha: 0.3)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

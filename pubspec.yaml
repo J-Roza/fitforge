@@ -31,9 +31,18 @@ dependencies:
   # Screen & health
   wakelock_plus: ^1.3.4
 
+  # Sound
+  audioplayers: ^6.1.0
+
   # Export / share
   share_plus: ^10.1.4
   path_provider: ^2.1.4
+  file_picker: ^8.1.6
+
+  # Cloud sync (Firebase)
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
 
   # Utils
   uuid: ^4.4.0
@@ -64,3 +73,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/exercise_icons/
+    - assets/exercise_photos/
+    - assets/body/
+    - assets/sounds/

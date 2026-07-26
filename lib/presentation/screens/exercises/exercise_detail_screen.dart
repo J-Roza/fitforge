@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/exercise.dart';
 import '../../../providers/exercise_provider.dart';
+import '../../../providers/log_provider.dart';
 import '../../widgets/muscle_body_diagram.dart';
 
 class ExerciseDetailScreen extends ConsumerWidget {
@@ -60,7 +62,13 @@ class ExerciseDetailScreen extends ConsumerWidget {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: exercise.imageUrl != null
+              background: exercise.photoAsset != null
+                  ? Image.asset(
+                      exercise.photoAsset!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _heroPlaceholder(exercise),
+                    )
+                  : exercise.imageUrl != null
                   ? Image.network(
                       exercise.imageUrl!,
                       fit: BoxFit.cover,
@@ -119,9 +127,9 @@ class ExerciseDetailScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF0000).withOpacity(0.1),
+                        color: const Color(0xFFFF0000).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFFF0000).withOpacity(0.3)),
+                        border: Border.all(color: const Color(0xFFFF0000).withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -182,6 +190,106 @@ class ExerciseDetailScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                   ],
+
+                  // ── Évolution ─────────────────────────────────────────────
+                  Builder(builder: (context) {
+                    final hist =
+                        ref.watch(exerciseHistoryProvider(exercise.id));
+                    if (hist.length < 2) return const SizedBox.shrink();
+                    final entries = hist.reversed.take(10).toList();
+                    final scores = entries.map((e) {
+                      if (e.sets.isEmpty) return 0.0;
+                      return e.sets
+                          .map((s) => s.score)
+                          .reduce((a, b) => a > b ? a : b);
+                    }).toList();
+                    final maxScore =
+                        scores.reduce((a, b) => a > b ? a : b);
+                    if (maxScore == 0) return const SizedBox.shrink();
+                    final spots = scores
+                        .asMap()
+                        .entries
+                        .map((e) =>
+                            FlSpot(e.key.toDouble(), e.value))
+                        .toList();
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Évolution',
+                            style: theme.textTheme.headlineMedium),
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 140,
+                          padding: const EdgeInsets.fromLTRB(
+                              4, 12, 16, 8),
+                          decoration: BoxDecoration(
+                            color: AppColors.bgCard,
+                            borderRadius: BorderRadius.circular(16),
+                            border:
+                                Border.all(color: AppColors.border),
+                          ),
+                          child: LineChart(
+                            LineChartData(
+                              gridData: FlGridData(
+                                show: true,
+                                drawVerticalLine: false,
+                                horizontalInterval: maxScore / 3,
+                                getDrawingHorizontalLine: (_) => FlLine(
+                                    color: AppColors.border,
+                                    strokeWidth: 1),
+                              ),
+                              titlesData: FlTitlesData(
+                                leftTitles: const AxisTitles(
+                                    sideTitles:
+                                        SideTitles(showTitles: false)),
+                                rightTitles: const AxisTitles(
+                                    sideTitles:
+                                        SideTitles(showTitles: false)),
+                                topTitles: const AxisTitles(
+                                    sideTitles:
+                                        SideTitles(showTitles: false)),
+                                bottomTitles: const AxisTitles(
+                                    sideTitles:
+                                        SideTitles(showTitles: false)),
+                              ),
+                              borderData: FlBorderData(show: false),
+                              minY: 0,
+                              lineBarsData: [
+                                LineChartBarData(
+                                  spots: spots,
+                                  isCurved: true,
+                                  color: exercise.primaryMuscle.color,
+                                  barWidth: 2.5,
+                                  dotData: FlDotData(
+                                    show: true,
+                                    getDotPainter: (_, __, ___, ____) =>
+                                        FlDotCirclePainter(
+                                      radius: 3,
+                                      color: exercise.primaryMuscle.color,
+                                      strokeWidth: 0,
+                                    ),
+                                  ),
+                                  belowBarData: BarAreaData(
+                                    show: true,
+                                    color: exercise.primaryMuscle.color
+                                        .withValues(alpha: .08),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ).animate().fadeIn(delay: 300.ms),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${entries.length} dernières séances · meilleur set (kg×reps)',
+                          style: const TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 10),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+                    );
+                  }),
 
                   // ── Suggested sets ────────────────────────────────────
                   if (exercise.defaultSets != null) ...[
@@ -245,9 +353,9 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Text(
           label,
@@ -305,13 +413,13 @@ class _MuscleRow extends StatelessWidget {
                 color: (label == 'Primaire'
                         ? const Color(0xFFE53935)
                         : const Color(0xFFFF6D00))
-                    .withOpacity(0.15),
+                    .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                     color: (label == 'Primaire'
                             ? const Color(0xFFE53935)
                             : const Color(0xFFFF6D00))
-                        .withOpacity(0.4)),
+                        .withValues(alpha: 0.4)),
               ),
               child: Center(
                 child: Icon(Icons.circle,
@@ -379,7 +487,7 @@ class _InstructionStep extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.15),
+                color: AppColors.accent.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -444,7 +552,7 @@ class _RecommendationCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.accentGlow,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [

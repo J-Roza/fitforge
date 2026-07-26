@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle fill="#fff" cx="50" cy="20" r="7.5"/>
+  <!-- épaules haussées -->
+  <rect fill="#fff" x="34" y="28" width="32" height="9" rx="4.5"/>
+  <rect fill="#fff" x="43" y="35" width="14" height="22" rx="6"/>
+  <!-- bras tendus le long du corps -->
+  <rect fill="#fff" x="32" y="34" width="6.5" height="30" rx="3.2"/>
+  <rect fill="#fff" x="61" y="34" width="6.5" height="30" rx="3.2"/>
+  <!-- haltères -->
+  <rect fill="#fff" x="28" y="64" width="14" height="8" rx="3"/>
+  <rect fill="#fff" x="58" y="64" width="14" height="8" rx="3"/>
+  <!-- jambes -->
+  <rect fill="#fff" x="44" y="57" width="6.5" height="20" rx="3.2"/>
+  <rect fill="#fff" x="50" y="57" width="6.5" height="20" rx="3.2"/>
+</svg>

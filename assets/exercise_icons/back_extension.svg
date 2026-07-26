@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- coussin/banc incliné -->
+  <rect fill="#fff" x="40" y="58" width="20" height="9" rx="4"/>
+  <rect fill="#fff" x="46" y="67" width="6" height="16" rx="3"/>
+  <!-- jambes ancrées en haut à droite -->
+  <rect fill="#fff" x="56" y="50" width="22" height="8" rx="4" transform="rotate(-12 67 54)"/>
+  <!-- buste penché vers le bas-gauche -->
+  <rect fill="#fff" x="18" y="40" width="30" height="10" rx="5" transform="rotate(34 33 45)"/>
+  <!-- tête en bas -->
+  <circle fill="#fff" cx="22" cy="52" r="7"/>
+</svg>

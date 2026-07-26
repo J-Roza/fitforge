@@ -1,13 +1,16 @@
-
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect fill="white" x="8"  y="10" width="8" height="80" rx="3"/>
-  <rect fill="white" x="84" y="10" width="8" height="80" rx="3"/>
-  <rect fill="white" x="8"  y="8"  width="84" height="7" rx="3"/>
-  <rect fill="white" x="38" y="55" width="24" height="30" rx="4"/>
-  <circle fill="white" cx="50" cy="42" r="8"/>
-  <rect fill="white" x="38" y="50" width="24" height="8"  rx="3"/>
-  <rect fill="white" x="16" y="40" width="22" height="7"  rx="3"/>
-  <rect fill="white" x="62" y="40" width="22" height="7"  rx="3"/>
-  <circle fill="white" cx="16" cy="44" r="5"/>
-  <circle fill="white" cx="84" cy="44" r="5"/>
+  <!-- seat back -->
+  <rect fill="#fff" x="22" y="30" width="9" height="42" rx="4"/>
+  <rect fill="#fff" x="22" y="68" width="26" height="8" rx="4"/>
+  <!-- head -->
+  <circle fill="#fff" cx="36" cy="30" r="7"/>
+  <!-- torso seated upright -->
+  <rect fill="#fff" x="31" y="36" width="13" height="26" rx="6"/>
+  <!-- arms pushing forward -->
+  <rect fill="#fff" x="43" y="38" width="20" height="6.5" rx="3.2"/>
+  <rect fill="#fff" x="43" y="50" width="20" height="6.5" rx="3.2"/>
+  <!-- machine handles -->
+  <rect fill="#fff" x="66" y="32" width="7" height="30" rx="3.5"/>
+  <!-- weight stack -->
+  <rect fill="#fff" x="78" y="34" width="12" height="38" rx="3"/>
 </svg>

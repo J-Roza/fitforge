@@ -1,19 +1,23 @@
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import '../data/models/log_models.dart';
 import '../data/datasources/exercises_data.dart';
 
 class TcxService {
-  /// Génère un fichier TCX et ouvre le sélecteur de partage Android
+  /// Génère un fichier TCX en mémoire et ouvre le sélecteur de partage
+  /// (fonctionne sur mobile comme sur web, pas de système de fichiers requis).
   static Future<void> exportSession(LogSession session, String sessionName) async {
     final tcx = _buildTcx(session, sessionName);
-    final dir = await getTemporaryDirectory();
     final dateStr = '${session.date.year}${session.date.month.toString().padLeft(2,'0')}${session.date.day.toString().padLeft(2,'0')}';
-    final file = File('${dir.path}/FitForge_S${session.sessionType}_$dateStr.tcx');
-    await file.writeAsString(tcx);
+    final bytes = utf8.encode(tcx);
     await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'application/xml')],
+      [
+        XFile.fromData(
+          bytes,
+          name: 'FitForge_S${session.sessionType}_$dateStr.tcx',
+          mimeType: 'application/xml',
+        ),
+      ],
       subject: 'FitForge - $sessionName - $dateStr',
       text: 'Séance FitForge du $dateStr\nImporte ce fichier .tcx dans Strava, Garmin Connect ou Zepp.',
     );

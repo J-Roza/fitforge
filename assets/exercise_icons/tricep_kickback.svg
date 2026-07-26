@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- buste penché, tête à gauche -->
+  <circle fill="#fff" cx="22" cy="34" r="7"/>
+  <rect fill="#fff" x="27" y="32" width="32" height="10" rx="5" transform="rotate(6 43 37)"/>
+  <!-- bras supérieur le long du buste -->
+  <rect fill="#fff" x="48" y="40" width="14" height="6" rx="3"/>
+  <!-- avant-bras tendu vers l'arrière (kickback) -->
+  <rect fill="#fff" x="60" y="42" width="16" height="6" rx="3" transform="rotate(18 68 45)"/>
+  <!-- haltère -->
+  <rect fill="#fff" x="74" y="48" width="7" height="13" rx="3"/>
+  <!-- jambes -->
+  <rect fill="#fff" x="40" y="46" width="6.5" height="28" rx="3.2"/>
+  <rect fill="#fff" x="50" y="46" width="6.5" height="28" rx="3.2"/>
+</svg>

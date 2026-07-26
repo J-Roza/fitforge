@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- tête à gauche -->
+  <circle fill="#fff" cx="22" cy="40" r="7.5"/>
+  <!-- buste en planche -->
+  <rect fill="#fff" x="28" y="42" width="40" height="10" rx="5" transform="rotate(-8 48 47)"/>
+  <!-- bras d'appui -->
+  <rect fill="#fff" x="24" y="48" width="6.5" height="22" rx="3.2"/>
+  <!-- une jambe tendue arrière -->
+  <rect fill="#fff" x="62" y="48" width="6.5" height="24" rx="3.2" transform="rotate(-18 65 60)"/>
+  <!-- un genou ramené sous le corps -->
+  <rect fill="#fff" x="48" y="52" width="6.5" height="16" rx="3.2" transform="rotate(38 51 60)"/>
+  <!-- sol -->
+  <rect fill="#fff" x="14" y="76" width="74" height="5" rx="2.5"/>
+</svg>

@@ -103,6 +103,35 @@ class Exercise {
     return 'https://www.youtube.com/results?search_query=$query';
   }
 
+  /// Photo réelle de démonstration (free-exercise-db, domaine public).
+  /// Retourne null si aucune photo n'a été trouvée pour cet exercice —
+  /// dans ce cas l'UI doit retomber sur [iconAsset].
+  static const _withPhoto = {
+    'machine_converging_press_seated', 'dumbbell_bench_press', 'bench_press',
+    'machine_converging_press_flat', 'dumbbell_decline_press', 'decline_bench_press',
+    'dumbbell_incline_press', 'incline_bench_press', 'incline_machine_converging_press',
+    'dips_chest', 'pullover_barbell', 'pullover_across_bench', 'dumbbell_flyes',
+    'decline_dumbbell_flyes', 'incline_dumbbell_flyes', 'machine_flyes', 'push_up',
+    'cable_crossover_low', 'cable_crossover', 'machine_chest_press_flat',
+    'pull_up', 'deadlift', 'barbell_row', 'lat_pulldown', 'seated_row', 'dumbbell_row',
+    't_bar_row', 'shrugs', 'chin_up', 'back_extension',
+    'ohp', 'lateral_raise', 'arnold_press', 'front_raise', 'rear_delt_fly',
+    'seated_dumbbell_press', 'upright_row',
+    'barbell_curl', 'hammer_curl', 'preacher_curl', 'concentration_curl',
+    'dumbbell_curl', 'incline_dumbbell_curl',
+    'skull_crusher', 'tricep_pushdown', 'close_grip_bench', 'overhead_tricep_extension',
+    'tricep_kickback', 'bench_dips',
+    'squat', 'leg_press', 'romanian_deadlift', 'lunges', 'leg_extension', 'leg_curl',
+    'hip_thrust', 'calf_raise', 'goblet_squat', 'bulgarian_split_squat', 'front_squat',
+    'step_up',
+    'plank', 'crunch', 'russian_twist', 'leg_raise', 'ab_wheel', 'mountain_climber',
+    'side_plank',
+    'kettlebell_swing',
+  };
+
+  String? get photoAsset =>
+      _withPhoto.contains(id) ? 'assets/exercise_photos/$id.jpg' : null;
+
   String get iconAsset {
     const base = 'assets/exercise_icons/';
     switch (id) {
@@ -161,6 +190,26 @@ class Exercise {
       case 'ab_wheel': return '${base}ab_wheel.svg';
       case 'kettlebell_swing': return '${base}kettlebell_swing.svg';
       case 'burpee': return '${base}burpee.svg';
+      // ─── Ajouts ───
+      case 't_bar_row': return '${base}bent_row.svg';
+      case 'shrugs': return '${base}shrugs.svg';
+      case 'chin_up': return '${base}pull_up.svg';
+      case 'back_extension': return '${base}back_extension.svg';
+      case 'rear_delt_fly': return '${base}rear_delt_fly.svg';
+      case 'seated_dumbbell_press': return '${base}overhead_press.svg';
+      case 'upright_row': return '${base}upright_row.svg';
+      case 'dumbbell_curl': return '${base}bicep_curl.svg';
+      case 'incline_dumbbell_curl': return '${base}bicep_curl.svg';
+      case 'tricep_kickback': return '${base}tricep_kickback.svg';
+      case 'bench_dips': return '${base}bench_dips.svg';
+      case 'goblet_squat': return '${base}squat.svg';
+      case 'bulgarian_split_squat': return '${base}lunges.svg';
+      case 'front_squat': return '${base}squat.svg';
+      case 'step_up': return '${base}step_up.svg';
+      case 'bicycle_crunch': return '${base}crunch.svg';
+      case 'mountain_climber': return '${base}mountain_climber.svg';
+      case 'side_plank': return '${base}side_plank.svg';
+      case 'jumping_jack': return '${base}jumping_jack.svg';
       default: return '${base}bench_press.svg';
     }
   }

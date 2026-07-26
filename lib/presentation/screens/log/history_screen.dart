@@ -8,6 +8,7 @@ import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../../../services/tcx_service.dart';
+import 'active_log_screen.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
@@ -144,7 +145,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 3),
                         decoration: BoxDecoration(
-                            color: c.color.withOpacity(.15),
+                            color: c.color.withValues(alpha: .15),
                             borderRadius: BorderRadius.circular(20)),
                         child: Text(
                             '${s.exercises.length} exo · ${s.totalSets} séries',
@@ -205,7 +206,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                               decoration: BoxDecoration(
                                 color: isBest
                                     ? const Color(0xFFFF9F0A)
-                                        .withOpacity(.1)
+                                        .withValues(alpha: .1)
                                     : AppColors.bgCardElevated,
                                 borderRadius:
                                     BorderRadius.circular(8),
@@ -243,6 +244,39 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
               child: GestureDetector(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(
+                        builder: (_) => ActiveLogScreen(
+                            sessionType: s.sessionType, editSession: s))),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: c.color.withValues(alpha: .1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: c.color.withValues(alpha: .25)),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.edit_rounded, size: 15, color: c.color),
+                        const SizedBox(width: 6),
+                        Text('Modifier cette séance',
+                            style: TextStyle(
+                                color: c.color,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: GestureDetector(
                 onTap: () async {
                   final configs = ref.read(sessionsConfigProvider);
                   final config = configs.firstWhere((c) => c.type == s.sessionType, orElse: () => configs.first);
@@ -253,9 +287,9 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(.08),
+                    color: AppColors.accent.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.accent.withOpacity(.2)),
+                    border: Border.all(color: AppColors.accent.withValues(alpha: .2)),
                   ),
                   child: const Center(
                     child: Row(
@@ -305,10 +339,10 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(.08),
+                    color: AppColors.error.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                        color: AppColors.error.withOpacity(.2)),
+                        color: AppColors.error.withValues(alpha: .2)),
                   ),
                   child: const Center(
                       child: Text('🗑 Supprimer cette séance',
@@ -427,7 +461,7 @@ class _RecordsTab extends ConsumerWidget {
                             dotData: const FlDotData(show: true),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: ex.primaryMuscle.color.withOpacity(.08),
+                              color: ex.primaryMuscle.color.withValues(alpha: .08),
                             ),
                           ),
                         ],

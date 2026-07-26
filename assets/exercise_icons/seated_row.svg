@@ -1,12 +1,9 @@
-
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <circle fill="white" cx="30" cy="28" r="7"/>
-  <rect fill="white" x="24" y="35" width="12" height="28" rx="5"/>
-  <rect fill="white" x="22" y="60" width="30" height="9"  rx="4"/>
-  <rect fill="white" x="22" y="69" width="30" height="6"  rx="2"/>
-  <rect fill="white" x="18" y="44" width="40" height="7"  rx="3"/>
-  <line stroke="white" stroke-width="3.5" stroke-linecap="round" x1="58" y1="47" x2="88" y2="47"/>
-  <circle fill="white" cx="90" cy="47" r="5"/>
-  <rect fill="white" x="87" y="38" width="8" height="18" rx="2"/>
-  <rect fill="white" x="54" y="42" width="8"  height="10" rx="3"/>
+  <circle fill="#fff" cx="26" cy="28" r="7.5"/>
+  <rect fill="#fff" x="20" y="34" width="14" height="24" rx="6"/>
+  <rect fill="#fff" x="32" y="56" width="28" height="7" rx="3.5"/>
+  <rect fill="#fff" x="58" y="52" width="7" height="12" rx="3"/>
+  <rect fill="#fff" x="32" y="40" width="22" height="6" rx="3"/>
+  <rect fill="#fff" x="56" y="42" width="22" height="4" rx="2"/>
+  <rect fill="#fff" x="80" y="28" width="6" height="36" rx="3"/>
 </svg>

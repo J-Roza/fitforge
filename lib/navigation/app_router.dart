@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
-import '../presentation/screens/home/home_screen.dart';
 import '../presentation/screens/exercises/exercises_screen.dart';
 import '../presentation/screens/exercises/exercise_detail_screen.dart';
 import '../presentation/screens/log/log_home_screen.dart';
@@ -25,7 +24,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (_, __) => const HomeScreen(),
+            builder: (_, __) => const LogHomeScreen(showBack: false),
           ),
           GoRoute(
             path: '/exercises',
@@ -78,10 +77,10 @@ class _BottomNav extends StatelessWidget {
 
   int get _currentIndex {
     if (currentLocation.startsWith('/home')) return 0;
+    if (currentLocation.startsWith('/workout')) return 0;
     if (currentLocation.startsWith('/exercises')) return 1;
-    if (currentLocation.startsWith('/workout')) return 2;
-    if (currentLocation.startsWith('/progress')) return 3;
-    if (currentLocation.startsWith('/profile')) return 4;
+    if (currentLocation.startsWith('/progress')) return 2;
+    if (currentLocation.startsWith('/profile')) return 3;
     return 0;
   }
 
@@ -94,7 +93,7 @@ class _BottomNav extends StatelessWidget {
       child: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) {
-          const routes = ['/home', '/exercises', '/workout', '/progress', '/profile'];
+          const routes = ['/home', '/exercises', '/progress', '/profile'];
           context.go(routes[i]);
         },
         items: const [
@@ -107,11 +106,6 @@ class _BottomNav extends StatelessWidget {
             icon: Icon(Icons.search_outlined),
             activeIcon: Icon(Icons.search_rounded),
             label: 'Exercices',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_outlined),
-            activeIcon: Icon(Icons.menu_book_rounded),
-            label: 'Carnet',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart_outlined),

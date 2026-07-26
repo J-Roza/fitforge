@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- banc derrière -->
+  <rect fill="#fff" x="14" y="40" width="22" height="8" rx="4"/>
+  <rect fill="#fff" x="16" y="48" width="5" height="16" rx="2"/>
+  <rect fill="#fff" x="30" y="48" width="5" height="16" rx="2"/>
+  <!-- tête -->
+  <circle fill="#fff" cx="42" cy="32" r="7"/>
+  <!-- buste vertical -->
+  <rect fill="#fff" x="38" y="38" width="12" height="22" rx="6"/>
+  <!-- bras en appui derrière sur le banc -->
+  <rect fill="#fff" x="30" y="40" width="6.5" height="22" rx="3.2"/>
+  <!-- jambes tendues devant -->
+  <rect fill="#fff" x="48" y="60" width="28" height="7" rx="3.5"/>
+  <rect fill="#fff" x="72" y="60" width="7" height="14" rx="3"/>
+</svg>

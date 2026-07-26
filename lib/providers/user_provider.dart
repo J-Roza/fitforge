@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../data/models/user_profile.dart';
-import '../data/models/exercise.dart';
 import '../data/models/workout.dart';
 import '../data/datasources/exercises_data.dart';
+import '../services/cloud_sync_service.dart';
 
 const _uuid = Uuid();
 
@@ -38,6 +38,7 @@ class UserProfileNotifier extends StateNotifier<UserProfile?> {
     } else {
       await prefs.remove(_key);
     }
+    CloudSyncService.pushIfSignedIn();
   }
 
   void createProfile({

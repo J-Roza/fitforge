@@ -1,14 +1,11 @@
-
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect fill="white" x="14" y="26" width="72" height="5" rx="2"/>
-  <rect fill="white" x="6"  y="18" width="12" height="22" rx="2"/>
-  <rect fill="white" x="82" y="18" width="12" height="22" rx="2"/>
-  <circle fill="white" cx="50" cy="22" r="7"/>
-  <rect fill="white" x="34" y="28" width="5"  height="16" rx="2"/>
-  <rect fill="white" x="61" y="28" width="5"  height="16" rx="2"/>
-  <rect fill="white" x="40" y="34" width="20" height="16" rx="6"/>
-  <rect fill="white" x="28" y="50" width="9"  height="20" rx="4" transform="rotate(-20,32,60)"/>
-  <rect fill="white" x="62" y="50" width="9"  height="20" rx="4" transform="rotate(20,67,60)"/>
-  <rect fill="white" x="22" y="68" width="9"  height="20" rx="4" transform="rotate(25,26,78)"/>
-  <rect fill="white" x="68" y="68" width="9"  height="20" rx="4" transform="rotate(-25,73,78)"/>
+  <rect fill="#fff" x="18" y="27" width="64" height="5" rx="2.5"/>
+  <rect fill="#fff" x="13" y="21" width="7" height="17" rx="2.5"/>
+  <rect fill="#fff" x="80" y="21" width="7" height="17" rx="2.5"/>
+  <circle fill="#fff" cx="50" cy="16" r="7"/>
+  <rect fill="#fff" x="42" y="32" width="16" height="20" rx="7"/>
+  <rect fill="#fff" x="34" y="50" width="9" height="19" rx="4" transform="rotate(-18 38 59)"/>
+  <rect fill="#fff" x="57" y="50" width="9" height="19" rx="4" transform="rotate(18 62 59)"/>
+  <rect fill="#fff" x="33" y="67" width="8" height="17" rx="4"/>
+  <rect fill="#fff" x="59" y="67" width="8" height="17" rx="4"/>
 </svg>

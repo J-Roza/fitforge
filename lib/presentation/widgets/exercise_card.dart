@@ -43,7 +43,15 @@ class ExerciseCard extends ConsumerWidget {
         // Image / placeholder
         ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          child: exercise.imageUrl != null
+          child: exercise.photoAsset != null
+              ? Image.asset(
+                  exercise.photoAsset!,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                )
+              : exercise.imageUrl != null
               ? Image.network(
                   exercise.imageUrl!,
                   height: 160,
@@ -100,20 +108,17 @@ class ExerciseCard extends ConsumerWidget {
       padding: const EdgeInsets.all(14),
       child: Row(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: exercise.primaryMuscle.color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                exercise.iconAsset,
-                width: 28, height: 28,
-                colorFilter: ColorFilter.mode(exercise.primaryMuscle.color, BlendMode.srcIn),
-              ),
-            ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: exercise.photoAsset != null
+                ? Image.asset(
+                    exercise.photoAsset!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => _compactIconBox(),
+                  )
+                : _compactIconBox(),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -146,6 +151,22 @@ class ExerciseCard extends ConsumerWidget {
       ),
     );
   }
+
+  Widget _compactIconBox() => Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: exercise.primaryMuscle.color.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Center(
+          child: SvgPicture.asset(
+            exercise.iconAsset,
+            width: 28, height: 28,
+            colorFilter: ColorFilter.mode(exercise.primaryMuscle.color, BlendMode.srcIn),
+          ),
+        ),
+      );
 
   Widget _imagePlaceholder() => Container(
         height: 160,
@@ -183,7 +204,7 @@ class _MuscleChip extends StatelessWidget {
         vertical: small ? 3 : 4,
       ),
       decoration: BoxDecoration(
-        color: muscle.color.withOpacity(0.15),
+        color: muscle.color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -198,34 +219,6 @@ class _MuscleChip extends StatelessWidget {
   }
 }
 
-class _DifficultyDot extends StatelessWidget {
-  final Difficulty difficulty;
-  const _DifficultyDot({required this.difficulty});
-
-  @override
-  Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(
-              color: difficulty.color,
-              shape: BoxShape.circle,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            difficulty.label,
-            style: TextStyle(
-              color: difficulty.color,
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      );
-}
 
 class _RoleBadge extends StatelessWidget {
   final ExerciseRole role;
@@ -239,7 +232,7 @@ class _RoleBadge extends StatelessWidget {
           vertical: small ? 2 : 3,
         ),
         decoration: BoxDecoration(
-          color: role.color.withOpacity(0.12),
+          color: role.color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(

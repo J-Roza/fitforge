@@ -64,8 +64,6 @@ class _ActiveWorkoutScreenState extends ConsumerState<ActiveWorkoutScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: Column(
         children: [
@@ -193,12 +191,12 @@ class _FinishDialogState extends State<_FinishDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: _uploadStrava
-                      ? const Color(0xFFFC4C02).withOpacity(0.12)
+                      ? const Color(0xFFFC4C02).withValues(alpha: 0.12)
                       : AppColors.bgCardElevated,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _uploadStrava
-                        ? const Color(0xFFFC4C02).withOpacity(0.5)
+                        ? const Color(0xFFFC4C02).withValues(alpha: 0.5)
                         : AppColors.border,
                   ),
                 ),
@@ -327,7 +325,7 @@ class _WorkoutHeader extends StatelessWidget {
                     onPressed: onCancel,
                     icon: const Icon(Icons.close_rounded, color: AppColors.error, size: 22),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.error.withOpacity(0.1),
+                      backgroundColor: AppColors.error.withValues(alpha: 0.1),
                       minimumSize: const Size(36, 36),
                       padding: EdgeInsets.zero,
                     ),
@@ -363,9 +361,9 @@ class _WorkoutHeader extends StatelessWidget {
               duration: const Duration(milliseconds: 300),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.secondary.withOpacity(0.1),
+                color: AppColors.secondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+                border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -413,7 +411,7 @@ class _ExerciseBlock extends StatelessWidget {
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: allCompleted ? AppColors.success.withOpacity(0.4) : AppColors.border,
+          color: allCompleted ? AppColors.success.withValues(alpha: 0.4) : AppColors.border,
         ),
       ),
       child: Column(
@@ -428,7 +426,7 @@ class _ExerciseBlock extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: exercise.primaryMuscle.color.withOpacity(0.15),
+                    color: exercise.primaryMuscle.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(child: Text(exercise.primaryMuscle.emoji, style: const TextStyle(fontSize: 18))),
@@ -505,7 +503,7 @@ class _SetRow extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(12, 2, 12, 2),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: set.completed ? AppColors.success.withOpacity(0.08) : AppColors.bgCardElevated,
+        color: set.completed ? AppColors.success.withValues(alpha: 0.08) : AppColors.bgCardElevated,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

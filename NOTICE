@@ -1,0 +1,11 @@
+FitForge utilise des données tierces sous licence Apache License 2.0 :
+
+Body Muscles
+Copyright 2024 Ivan Vulović
+This product includes software developed by Ivan Vulović.
+https://github.com/vulovix/body-muscles
+
+Les tracés anatomiques de ce projet sont utilisés dans
+lib/presentation/widgets/muscle_body_diagram.dart pour le diagramme
+musculaire (vues avant/arrière). Une copie de la licence Apache 2.0
+est disponible sur https://www.apache.org/licenses/LICENSE-2.0.

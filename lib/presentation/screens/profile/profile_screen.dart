@@ -1,10 +1,31 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/log_provider.dart';
+import '../../../services/backup_service.dart';
+import '../../../services/cloud_sync_service.dart';
+import '../../widgets/rest_duration_picker.dart';
+
+/// État de connexion Firebase (null = déconnecté).
+final authStateProvider =
+    StreamProvider<User?>((ref) => CloudSyncService.authState());
+
+void _invalidateDataProviders(WidgetRef ref) {
+  ref.invalidate(logHistoryProvider);
+  ref.invalidate(planningProvider);
+  ref.invalidate(customSessionsProvider);
+  ref.invalidate(sessionsConfigProvider);
+  ref.invalidate(lastWeightsProvider);
+  ref.invalidate(lastRepsProvider);
+  ref.invalidate(timerDurationProvider);
+  ref.invalidate(timerSoundProvider);
+  ref.invalidate(userProfileProvider);
+}
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -69,6 +90,18 @@ class ProfileScreen extends ConsumerWidget {
                         _SettingsSection(user: user, ref: ref)
                             .animate()
                             .fadeIn(delay: 400.ms),
+                        const SizedBox(height: 16),
+
+                        // ── Synchro cloud ─────────────────────────────────
+                        const _CloudSyncSection()
+                            .animate()
+                            .fadeIn(delay: 430.ms),
+                        const SizedBox(height: 16),
+
+                        // ── Sauvegarde fichier ────────────────────────────
+                        const _BackupSection()
+                            .animate()
+                            .fadeIn(delay: 460.ms),
                         const SizedBox(height: 80),
                       ],
                     ),
@@ -109,7 +142,7 @@ class _Avatar extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColors.accent.withOpacity(0.4),
+              color: AppColors.accent.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -270,12 +303,12 @@ class _SomatotypeCard extends StatelessWidget {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.accentDark.withOpacity(0.5), AppColors.bg],
+            colors: [AppColors.accentDark.withValues(alpha: 0.5), AppColors.bg],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,7 +338,14 @@ class _SettingsSection extends StatelessWidget {
   const _SettingsSection({required this.user, required this.ref});
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final soundId = ref.watch(timerSoundProvider).value ?? 'beep';
+    // Libellé court pour la tile (avant le « — » éventuel)
+    final soundLabel =
+        (kTimerSounds[soundId]?.$1 ?? 'Bip').split(' —').first;
+    final restDuration = ref.watch(timerDurationProvider).value ?? 90;
+
+    return Container(
         decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.circular(20),
@@ -335,6 +375,35 @@ class _SettingsSection extends StatelessWidget {
             ),
             _Separator(),
             _SettingsTile(
+              icon: Icons.timer_outlined,
+              label: 'Temps de repos',
+              value: formatRestDuration(restDuration),
+              onTap: () => showRestDurationPicker(context, ref),
+            ),
+            _Separator(),
+            _SettingsTile(
+              icon: Icons.notifications_active_outlined,
+              label: 'Son du minuteur',
+              value: soundLabel,
+              onTap: () async {
+                await ref.read(timerSoundProvider.notifier).cycle();
+                // Aperçu du son fraîchement sélectionné
+                final newId = ref.read(timerSoundProvider).value ?? 'beep';
+                final asset = kTimerSounds[newId]?.$2;
+                if (asset != null) {
+                  final p = AudioPlayer();
+                  p.onPlayerComplete.listen((_) => p.dispose());
+                  try {
+                    await p.setVolume(1.0);
+                    await p.play(AssetSource(asset));
+                  } catch (_) {
+                    p.dispose();
+                  }
+                }
+              },
+            ),
+            _Separator(),
+            _SettingsTile(
               icon: Icons.delete_outline_rounded,
               label: 'Réinitialiser le profil',
               value: '',
@@ -347,6 +416,524 @@ class _SettingsSection extends StatelessWidget {
           ],
         ),
       );
+  }
+}
+
+// ── Synchronisation cloud (Firebase) ──────────────────────────
+class _CloudSyncSection extends ConsumerWidget {
+  const _CloudSyncSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authStateProvider).valueOrNull;
+    final signedIn = user != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 8),
+          child: Text('SYNCHRONISATION CLOUD',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMuted,
+                  letterSpacing: .5)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: signedIn
+                    ? const Color(0xFF30D158).withValues(alpha: .4)
+                    : AppColors.border),
+          ),
+          child: signedIn
+              ? Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.cloud_done_rounded,
+                          color: Color(0xFF30D158), size: 22),
+                      title: const Text('Synchro activée',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600)),
+                      subtitle: Text(user.email ?? '',
+                          style: const TextStyle(
+                              color: AppColors.textMuted, fontSize: 12)),
+                    ),
+                    _Separator(),
+                    _SettingsTile(
+                      icon: Icons.cloud_upload_rounded,
+                      label: 'Synchroniser maintenant',
+                      value: '',
+                      onTap: () => _syncNow(context),
+                    ),
+                    _Separator(),
+                    _SettingsTile(
+                      icon: Icons.cloud_download_rounded,
+                      label: 'Récupérer depuis le cloud',
+                      value: '',
+                      onTap: () => _pull(context, ref),
+                    ),
+                    _Separator(),
+                    _SettingsTile(
+                      icon: Icons.logout_rounded,
+                      label: 'Se déconnecter',
+                      value: '',
+                      iconColor: AppColors.error,
+                      labelColor: AppColors.error,
+                      onTap: () => CloudSyncService.signOut(),
+                    ),
+                  ],
+                )
+              : _SettingsTile(
+                  icon: Icons.cloud_outlined,
+                  label: 'Activer la synchro cloud',
+                  value: '',
+                  onTap: () => _openLogin(context, ref),
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, top: 8),
+          child: Text(
+            signedIn
+                ? 'Tes séances sont sauvegardées automatiquement dans le cloud à chaque entraînement.'
+                : 'Crée un compte pour sauvegarder tes séances en ligne et les retrouver sur n\'importe quel téléphone.',
+            style: const TextStyle(
+                color: AppColors.textMuted, fontSize: 11, height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _syncNow(BuildContext context) async {
+    try {
+      await CloudSyncService.pushAll();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Color(0xFF30D158),
+          content: Text('Synchronisé ✓',
+              style: TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.w700)),
+        ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Échec : $e')));
+      }
+    }
+  }
+
+  Future<void> _pull(BuildContext context, WidgetRef ref) async {
+    final cloudCount = await CloudSyncService.cloudSessionCount();
+    if (!context.mounted) return;
+    if (cloudCount == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Aucune donnée dans le cloud pour l\'instant.')));
+      return;
+    }
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Récupérer depuis le cloud'),
+        content: Text(
+            'Cela remplacera tes données locales par celles du cloud '
+            '($cloudCount séance${cloudCount > 1 ? "s" : ""}). Continuer ?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: Colors.white),
+            child: const Text('Récupérer'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    final n = await CloudSyncService.pullAll();
+    _invalidateDataProviders(ref);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: const Color(0xFF30D158),
+        content: Text('${n ?? 0} séance(s) récupérée(s) ✓',
+            style:
+                const TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
+      ));
+    }
+  }
+
+  void _openLogin(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.bgCard,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => const _CloudLoginSheet(),
+    );
+  }
+}
+
+class _CloudLoginSheet extends ConsumerStatefulWidget {
+  const _CloudLoginSheet();
+  @override
+  ConsumerState<_CloudLoginSheet> createState() => _CloudLoginSheetState();
+}
+
+class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
+  final _email = TextEditingController();
+  final _pwd = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _pwd.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit({required bool signUp}) async {
+    final email = _email.text.trim();
+    final pwd = _pwd.text;
+    if (email.isEmpty || !email.contains('@')) {
+      setState(() => _error = 'Adresse e-mail invalide');
+      return;
+    }
+    if (pwd.length < 6) {
+      setState(() => _error = 'Mot de passe : 6 caractères minimum');
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      if (signUp) {
+        await CloudSyncService.signUp(email, pwd);
+      } else {
+        await CloudSyncService.signIn(email, pwd);
+      }
+      await _reconcile();
+      if (mounted) Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _loading = false;
+        _error = _msg(e.code);
+      });
+    } catch (e) {
+      setState(() {
+        _loading = false;
+        _error = 'Erreur : $e';
+      });
+    }
+  }
+
+  /// Après connexion : si le cloud est vide, on y envoie le local ;
+  /// sinon on propose de récupérer le cloud.
+  Future<void> _reconcile() async {
+    final cloudCount = await CloudSyncService.cloudSessionCount();
+    if (cloudCount == null) {
+      await CloudSyncService.pushAll();
+      return;
+    }
+    if (!mounted) return;
+    final localCount = await BackupService.currentSessionCount();
+    if (!mounted) return;
+    final pull = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Données existantes'),
+        content: Text(
+            'Le cloud contient $cloudCount séance(s) et ce téléphone $localCount. '
+            'Que veux-tu garder ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Mon téléphone'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: Colors.white),
+            child: const Text('Le cloud'),
+          ),
+        ],
+      ),
+    );
+    if (pull == true) {
+      await CloudSyncService.pullAll();
+      _invalidateDataProviders(ref);
+    } else {
+      await CloudSyncService.pushAll();
+    }
+  }
+
+  String _msg(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return 'Cet e-mail a déjà un compte. Utilise « Se connecter ».';
+      case 'invalid-credential':
+      case 'wrong-password':
+      case 'user-not-found':
+        return 'E-mail ou mot de passe incorrect.';
+      case 'weak-password':
+        return 'Mot de passe trop faible (6 caractères min).';
+      case 'network-request-failed':
+        return 'Pas de connexion internet.';
+      default:
+        return 'Erreur ($code)';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2))),
+          ),
+          const SizedBox(height: 18),
+          const Text('Synchronisation cloud',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 4),
+          const Text(
+            'Connecte-toi pour sauvegarder tes séances en ligne. '
+            'Première fois ? Choisis « Créer un compte ».',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            autocorrect: false,
+            enabled: !_loading,
+            style: const TextStyle(color: AppColors.textPrimary),
+            decoration: _dec('E-mail', Icons.mail_outline_rounded),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _pwd,
+            obscureText: true,
+            enabled: !_loading,
+            style: const TextStyle(color: AppColors.textPrimary),
+            decoration: _dec('Mot de passe', Icons.lock_outline_rounded),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(_error!,
+                style: const TextStyle(color: AppColors.error, fontSize: 13)),
+          ],
+          const SizedBox(height: 20),
+          if (_loading)
+            const Center(
+                child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: CircularProgressIndicator(color: AppColors.accent),
+            ))
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _submit(signUp: true),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      side: BorderSide(
+                          color: AppColors.accent.withValues(alpha: .4)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: const Text('Créer un compte'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _submit(signUp: false),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: const Text('Se connecter',
+                        style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _dec(String hint, IconData icon) => InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+        prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
+        filled: true,
+        fillColor: AppColors.bgCardElevated,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      );
+}
+
+// ── Sauvegarde / restauration ─────────────────────────────────
+class _BackupSection extends ConsumerWidget {
+  const _BackupSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 8),
+          child: Text('SAUVEGARDE',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMuted,
+                  letterSpacing: .5)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            children: [
+              _SettingsTile(
+                icon: Icons.ios_share_rounded,
+                label: 'Sauvegarder mes données',
+                value: '',
+                onTap: () => _export(context),
+              ),
+              _Separator(),
+              _SettingsTile(
+                icon: Icons.download_rounded,
+                label: 'Restaurer une sauvegarde',
+                value: '',
+                onTap: () => _import(context, ref),
+              ),
+            ],
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(left: 4, top: 8),
+          child: Text(
+            'Exporte un fichier .json (à garder sur Drive ou ton téléphone). '
+            'La restauration remplace les données actuelles.',
+            style: TextStyle(
+                color: AppColors.textMuted, fontSize: 11, height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _export(BuildContext context) async {
+    try {
+      await BackupService.exportBackup();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Échec de l\'export : $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _import(BuildContext context, WidgetRef ref) async {
+    final count = await BackupService.currentSessionCount();
+    if (!context.mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Restaurer une sauvegarde'),
+        content: Text(
+            'Tes données actuelles ($count séance${count > 1 ? "s" : ""}) seront '
+            'remplacées par le contenu du fichier. Continuer ?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Annuler')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Restaurer'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final restored = await BackupService.importBackup();
+      if (restored == null) return; // annulé par l'utilisateur
+      // Recharge tous les providers depuis les données restaurées
+      ref.invalidate(logHistoryProvider);
+      ref.invalidate(planningProvider);
+      ref.invalidate(customSessionsProvider);
+      ref.invalidate(sessionsConfigProvider);
+      ref.invalidate(lastWeightsProvider);
+      ref.invalidate(lastRepsProvider);
+      ref.invalidate(timerDurationProvider);
+      ref.invalidate(userProfileProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFF30D158),
+            content: Text('$restored séance${restored > 1 ? "s" : ""} restaurée'
+                '${restored > 1 ? "s" : ""} ✓',
+                style: const TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.w700)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Fichier invalide : $e')),
+        );
+      }
+    }
+  }
 }
 
 class _SettingsTile extends StatelessWidget {

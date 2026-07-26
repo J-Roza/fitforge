@@ -240,7 +240,7 @@ class _GoalPage extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: level == e.value ? e.value.color.withOpacity(0.15) : AppColors.bgCard,
+                        color: level == e.value ? e.value.color.withValues(alpha: 0.15) : AppColors.bgCard,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: level == e.value ? e.value.color : AppColors.border),
                       ),

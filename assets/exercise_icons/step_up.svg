@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- banc/marche à droite -->
+  <rect fill="#fff" x="58" y="58" width="30" height="9" rx="3"/>
+  <rect fill="#fff" x="62" y="67" width="6" height="16" rx="2"/>
+  <rect fill="#fff" x="80" y="67" width="6" height="16" rx="2"/>
+  <!-- tête -->
+  <circle fill="#fff" cx="42" cy="20" r="7.5"/>
+  <rect fill="#fff" x="35" y="26" width="14" height="24" rx="6"/>
+  <!-- jambe avant montée sur le banc -->
+  <rect fill="#fff" x="46" y="48" width="8" height="14" rx="4" transform="rotate(34 50 55)"/>
+  <rect fill="#fff" x="58" y="48" width="8" height="14" rx="4"/>
+  <!-- jambe arrière au sol -->
+  <rect fill="#fff" x="34" y="50" width="7" height="28" rx="3.5"/>
+</svg>

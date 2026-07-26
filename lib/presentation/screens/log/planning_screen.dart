@@ -48,21 +48,23 @@ class PlanningScreen extends ConsumerWidget {
 
                 return GestureDetector(
                   onTap: () async {
+                    final types = configs.map((c) => c.type).toList();
                     final cur = plan[dayIdx];
-                    final next = cur == null
-                        ? 1
-                        : cur >= 4
-                            ? null
-                            : cur + 1;
+                    final idx = cur == null ? -1 : types.indexOf(cur);
+                    final next =
+                        (idx == -1 || idx == types.length - 1) ? null : types[idx + 1];
+                    final newType = cur == null
+                        ? (types.isEmpty ? null : types.first)
+                        : next;
                     await ref
                         .read(planningProvider.notifier)
-                        .setDay(dayIdx, next);
+                        .setDay(dayIdx, newType);
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
                       color: config != null
-                          ? config.color.withOpacity(.1)
+                          ? config.color.withValues(alpha: .1)
                           : AppColors.bgCard,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
@@ -97,7 +99,7 @@ class PlanningScreen extends ConsumerWidget {
                               style: TextStyle(
                                   fontSize: 22,
                                   color: AppColors.textMuted
-                                      .withOpacity(.3))),
+                                      .withValues(alpha: .3))),
                         if (isToday) ...[
                           const SizedBox(height: 4),
                           Container(

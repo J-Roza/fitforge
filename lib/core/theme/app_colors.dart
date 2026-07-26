@@ -9,11 +9,12 @@ class AppColors {
   static const Color bgCardElevated = Color(0xFF1C1C26);
   static const Color bgSurface = Color(0xFF1E1E2A);
 
-  // Accent — violet électrique
-  static const Color accent = Color(0xFF7C5CFC);
-  static const Color accentLight = Color(0xFF9B7FFD);
-  static const Color accentDark = Color(0xFF5A3DD4);
-  static const Color accentGlow = Color(0x337C5CFC);
+  // Accent — violet électrique (éclairci : l'ancien 0xFF7C5CFC n'avait
+  // qu'un contraste ~4.2:1 sur fond carte, illisible en petit texte)
+  static const Color accent = Color(0xFF9B7FFD);
+  static const Color accentLight = Color(0xFFB79DFF);
+  static const Color accentDark = Color(0xFF7C5CFC);
+  static const Color accentGlow = Color(0x339B7FFD);
 
   // Secondary accent — cyan
   static const Color secondary = Color(0xFF00D4FF);
@@ -22,7 +23,8 @@ class AppColors {
   // Text
   static const Color textPrimary = Color(0xFFFFFFFF);
   static const Color textSecondary = Color(0xFFB0B0C8);
-  static const Color textMuted = Color(0xFF6B6B8A);
+  // Éclairci (l'ancien 0xFF6B6B8A tombait sous 4.5:1 sur fond carte)
+  static const Color textMuted = Color(0xFF8A8AAE);
 
   // Borders
   static const Color border = Color(0xFF2A2A3A);
@@ -32,7 +34,7 @@ class AppColors {
   static const Color chest = Color(0xFFFF6B6B);
   static const Color back = Color(0xFF4ECDC4);
   static const Color shoulders = Color(0xFFFFE66D);
-  static const Color arms = Color(0xFF7C5CFC);
+  static const Color arms = Color(0xFF9B7FFD);
   static const Color legs = Color(0xFF56CFE1);
   static const Color core = Color(0xFFFF9A3C);
   static const Color cardio = Color(0xFFFF6584);

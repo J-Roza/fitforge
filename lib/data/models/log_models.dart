@@ -80,7 +80,7 @@ class LogSession {
   int get totalSets => exercises.fold(0, (v, e) => v + e.sets.length);
 }
 
-// Config d'une des 4 séances
+// Config d'une séance (4 par défaut, l'utilisateur peut en ajouter/éditer)
 class SessionConfig {
   final int type;
   final String name;
@@ -95,4 +95,29 @@ class SessionConfig {
     required this.color,
     required this.defaultExerciseIds,
   });
+
+  SessionConfig copyWith({String? name, String? subtitle, Color? color}) =>
+      SessionConfig(
+        type: type,
+        name: name ?? this.name,
+        subtitle: subtitle ?? this.subtitle,
+        color: color ?? this.color,
+        defaultExerciseIds: defaultExerciseIds,
+      );
+
+  factory SessionConfig.fromJson(Map<String, dynamic> j) => SessionConfig(
+        type: j['type'] as int,
+        name: j['name'] as String,
+        subtitle: j['subtitle'] as String,
+        color: Color(j['color'] as int),
+        defaultExerciseIds: List<String>.from(j['defaultExerciseIds'] as List),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'type': type,
+        'name': name,
+        'subtitle': subtitle,
+        'color': color.toARGB32(),
+        'defaultExerciseIds': defaultExerciseIds,
+      };
 }
