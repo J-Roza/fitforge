@@ -394,6 +394,22 @@ class _SettingsSection extends StatelessWidget {
                   final p = AudioPlayer();
                   p.onPlayerComplete.listen((_) => p.dispose());
                   try {
+                    await p.setAudioContext(AudioContext(
+                      android: const AudioContextAndroid(
+                        isSpeakerphoneOn: false,
+                        stayAwake: false,
+                        contentType: AndroidContentType.sonification,
+                        usageType: AndroidUsageType.assistanceSonification,
+                        audioFocus: AndroidAudioFocus.gainTransientMayDuck,
+                      ),
+                      iOS: AudioContextIOS(
+                        category: AVAudioSessionCategory.playback,
+                        options: const {
+                          AVAudioSessionOptions.duckOthers,
+                          AVAudioSessionOptions.mixWithOthers,
+                        },
+                      ),
+                    ));
                     await p.setVolume(1.0);
                     await p.play(AssetSource(asset));
                   } catch (_) {
@@ -458,7 +474,8 @@ class _CloudSyncSection extends ConsumerWidget {
                       title: const Text('Synchro activée',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w600)),
-                      subtitle: Text(user.email ?? '',
+                      subtitle: Text(
+                          'Compte : ${user.email ?? "—"}',
                           style: const TextStyle(
                               color: AppColors.textMuted, fontSize: 12)),
                     ),
@@ -511,11 +528,12 @@ class _CloudSyncSection extends ConsumerWidget {
   Future<void> _syncNow(BuildContext context) async {
     try {
       await CloudSyncService.pushAll();
+      final target = CloudSyncService.email ?? 'le cloud';
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Color(0xFF30D158),
-          content: Text('Synchronisé ✓',
-              style: TextStyle(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: const Color(0xFF30D158),
+          content: Text('Synchronisé avec $target ✓',
+              style: const TextStyle(
                   color: Colors.black, fontWeight: FontWeight.w700)),
         ));
       }

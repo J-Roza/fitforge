@@ -61,6 +61,24 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     super.initState();
     _startTime = DateTime.now();
     WakelockPlus.enable();
+    // Atténue (duck) la musique en cours au lieu de la couper : le son du
+    // minuteur passe par-dessus, puis la musique reprend son volume normal.
+    _beepPlayer.setAudioContext(AudioContext(
+      android: const AudioContextAndroid(
+        isSpeakerphoneOn: false,
+        stayAwake: false,
+        contentType: AndroidContentType.sonification,
+        usageType: AndroidUsageType.assistanceSonification,
+        audioFocus: AndroidAudioFocus.gainTransientMayDuck,
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.playback,
+        options: const {
+          AVAudioSessionOptions.duckOthers,
+          AVAudioSessionOptions.mixWithOthers,
+        },
+      ),
+    ));
     WidgetsBinding.instance.addPostFrameCallback((_) => _initDefaults());
   }
 
