@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'firebase_options.dart';
 import 'services/log_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'app.dart';
@@ -11,8 +13,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Firebase (sync cloud). Sur Android, lit android/app/google-services.json.
+  // Sur le web, il faut fournir la config explicitement (pas de fichier natif).
   try {
-    await Firebase.initializeApp();
+    if (kIsWeb) {
+      await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
+    } else {
+      await Firebase.initializeApp();
+    }
   } catch (_) {
     // Si Firebase n'est pas configuré, l'app continue en mode local seul.
   }

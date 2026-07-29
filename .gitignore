@@ -52,10 +52,11 @@ desktop.ini
 *.env
 secrets.dart
 
-# Firebase (config client — non publié sur dépôt public)
+# Firebase (config client). google-services.json reste hors dépôt ; la config
+# web (firebase_options.dart) est committée car requise pour builder le web et
+# de toute façon publique dans le bundle web servi en ligne.
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
-lib/firebase_options.dart
 
 # Kotlin build logs
 android/.kotlin/
