@@ -10,10 +10,26 @@ import '../presentation/screens/profile/profile_screen.dart';
 import '../providers/user_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final user = ref.watch(userProfileProvider);
+  // Le routeur est créé UNE SEULE FOIS. On n'utilise pas ref.watch ici :
+  // sinon un changement de profil (ex : restauration cloud qui invalide
+  // userProfileProvider) recréerait tout le GoRouter et réinitialiserait la
+  // navigation → écran noir. À la place, un ValueNotifier notifie le routeur
+  // pour qu'il réévalue sa redirection, sans être recréé.
+  final refresh = ValueNotifier<int>(0);
+  ref.listen(userProfileProvider, (_, __) => refresh.value++);
+  ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    initialLocation: user == null ? '/onboarding' : '/home',
+    initialLocation:
+        ref.read(userProfileProvider) == null ? '/onboarding' : '/home',
+    refreshListenable: refresh,
+    redirect: (context, state) {
+      final hasProfile = ref.read(userProfileProvider) != null;
+      final onOnboarding = state.matchedLocation == '/onboarding';
+      if (!hasProfile && !onOnboarding) return '/onboarding';
+      if (hasProfile && onOnboarding) return '/home';
+      return null;
+    },
     routes: [
       GoRoute(
         path: '/onboarding',

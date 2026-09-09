@@ -24,7 +24,9 @@ void _invalidateDataProviders(WidgetRef ref) {
   ref.invalidate(lastRepsProvider);
   ref.invalidate(timerDurationProvider);
   ref.invalidate(timerSoundProvider);
-  ref.invalidate(userProfileProvider);
+  // Recharge le profil en place plutôt que d'invalider le provider : invalider
+  // le ferait passer par null → recréation du routeur → écran noir.
+  ref.read(userProfileProvider.notifier).reloadFromPrefs();
 }
 
 class ProfileScreen extends ConsumerWidget {
@@ -555,7 +557,7 @@ class _CloudSyncSection extends ConsumerWidget {
     }
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         title: const Text('Récupérer depuis le cloud'),
         content: Text(
@@ -563,10 +565,10 @@ class _CloudSyncSection extends ConsumerWidget {
             '($cloudCount séance${cloudCount > 1 ? "s" : ""}). Continuer ?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(dialogCtx, false),
               child: const Text('Annuler')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogCtx, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: Colors.white),
@@ -668,7 +670,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
     if (!mounted) return;
     final pull = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         title: const Text('Données existantes'),
         content: Text(
@@ -676,11 +678,11 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
             'Que veux-tu garder ?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogCtx, false),
             child: const Text('Mon téléphone'),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogCtx, true),
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: Colors.white),
@@ -898,7 +900,7 @@ class _BackupSection extends ConsumerWidget {
     if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         title: const Text('Restaurer une sauvegarde'),
         content: Text(
@@ -906,10 +908,10 @@ class _BackupSection extends ConsumerWidget {
             'remplacées par le contenu du fichier. Continuer ?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(dialogCtx, false),
               child: const Text('Annuler')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogCtx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accent,
               foregroundColor: Colors.white,

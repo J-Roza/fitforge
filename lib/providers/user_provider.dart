@@ -31,6 +31,18 @@ class UserProfileNotifier extends StateNotifier<UserProfile?> {
     }
   }
 
+  /// Recharge le profil depuis les prefs SANS recréer le notifier (utilisé
+  /// après une restauration cloud : évite de passer par null, ce qui ferait
+  /// clignoter l'onboarding / réinitialiser la navigation).
+  Future<void> reloadFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_key);
+    if (raw == null) return;
+    try {
+      state = UserProfile.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {}
+  }
+
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     if (state != null) {
