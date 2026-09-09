@@ -129,6 +129,18 @@ class LogService {
     if (all.remove(type) != null) await _saveAllDrafts(all);
   }
 
+  /// Types de séances ayant un brouillon en cours contenant au moins une série.
+  Future<Set<int>> loadDraftTypes() async {
+    final all = await _loadAllDrafts();
+    final result = <int>{};
+    all.forEach((type, draft) {
+      final sets = (draft['sets'] as Map?) ?? const {};
+      final hasSets = sets.values.any((v) => (v as List).isNotEmpty);
+      if (hasSets) result.add(type);
+    });
+    return result;
+  }
+
   // ── Purge des anciennes séances de démo (one-time) ────────
   // L'app injectait autrefois des séances "seed_*" factices au premier
   // lancement. On les retire définitivement des installations existantes.

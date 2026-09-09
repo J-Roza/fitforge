@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/rendering.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +19,7 @@ import '../../../providers/exercise_provider.dart';
 import '../../../services/health_service.dart';
 import '../../../services/tcx_service.dart';
 import '../../widgets/rest_duration_picker.dart';
+import '../../widgets/plate_calculator.dart';
 
 // Weight options: null = PDC, then 1..200 by 0.5
 final _weights = <double?>[null, ...List.generate(399, (i) => 1 + i * 0.5)];
@@ -214,7 +218,45 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       'selectedWeight': _selectedWeight,
       'selectedReps': _selectedReps,
     };
-    ref.read(logServiceProvider).saveDraft(widget.sessionType, draft);
+    ref.read(logServiceProvider).saveDraft(widget.sessionType, draft).then((_) {
+      if (mounted) ref.invalidate(draftSessionsProvider);
+    });
+  }
+
+  /// Efface la séance en cours (brouillon) pour repartir d'une séance vierge.
+  Future<void> _restartSession() async {
+    final hasContent = _sets.values.any((s) => s.isNotEmpty);
+    if (hasContent) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (dialogCtx) => AlertDialog(
+          backgroundColor: AppColors.bgCard,
+          title: const Text('Repartir de zéro ?'),
+          content: const Text(
+              'Les séries et notes de cette séance en cours seront effacées.'),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(dialogCtx, false),
+                child: const Text('Annuler')),
+            TextButton(
+                onPressed: () => Navigator.pop(dialogCtx, true),
+                child: const Text('Effacer',
+                    style: TextStyle(color: AppColors.error))),
+          ],
+        ),
+      );
+      if (ok != true) return;
+    }
+    await ref.read(logServiceProvider).clearDraft(widget.sessionType);
+    ref.invalidate(draftSessionsProvider);
+    if (!mounted) return;
+    setState(() {
+      for (final id in _exIds) {
+        _sets[id] = [];
+        _notes[id] = '';
+      }
+      _stopRestTimer();
+    });
   }
 
   double get _totalVolume => _sets.values.fold(
@@ -545,6 +587,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     await ref.read(logHistoryProvider.notifier).addSession(session);
     // Séance terminée : plus de brouillon à reprendre.
     await ref.read(logServiceProvider).clearDraft(widget.sessionType);
+    ref.invalidate(draftSessionsProvider);
 
     // Check PRs
     final oldPrs = ref.read(personalRecordsProvider);
@@ -646,6 +689,19 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                   icon: Icon(Icons.arrow_back_rounded, color: config.color),
                   onPressed: () => Navigator.pop(context),
                 ),
+                actions: [
+                  IconButton(
+                    tooltip: 'Calculateur de disques',
+                    icon: Icon(Icons.calculate_outlined, color: config.color),
+                    onPressed: () => showPlateCalculator(context),
+                  ),
+                  if (!widget.isEditing)
+                    IconButton(
+                      tooltip: 'Repartir de zéro',
+                      icon: Icon(Icons.restart_alt_rounded, color: config.color),
+                      onPressed: _restartSession,
+                    ),
+                ],
               ),
 
               SliverPadding(
@@ -881,13 +937,37 @@ class _SessionSummarySheet extends StatelessWidget {
   final List<String> newPrs;
   final List<Exercise> exercises;
 
-  const _SessionSummarySheet({
+  _SessionSummarySheet({
     required this.session,
     required this.config,
     required this.duration,
     required this.newPrs,
     required this.exercises,
   });
+
+  final GlobalKey _shareKey = GlobalKey();
+
+  /// Capture la carte récap en image PNG et la partage.
+  Future<void> _shareImage() async {
+    try {
+      final boundary = _shareKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 3);
+      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (bytes == null) return;
+      final volStr = session.totalVolume >= 1000
+          ? '${(session.totalVolume / 1000).toStringAsFixed(1)}t'
+          : '${session.totalVolume.toStringAsFixed(0)} kg';
+      await Share.shareXFiles(
+        [
+          XFile.fromData(bytes.buffer.asUint8List(),
+              mimeType: 'image/png', name: 'seance_fitforge.png')
+        ],
+        text: 'Ma séance FitForge 💪 — $volStr, ${session.totalSets} séries',
+      );
+    } catch (_) {}
+  }
 
   String _durationStr() {
     final m = duration.inMinutes;
@@ -941,6 +1021,14 @@ class _SessionSummarySheet extends StatelessWidget {
                   24, 12, 24, 24 + MediaQuery.of(context).padding.bottom),
               child: Column(
                 children: [
+                  RepaintBoundary(
+                    key: _shareKey,
+                    child: Container(
+                      color: AppColors.bgCard,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 10),
+                      child: Column(
+                        children: [
                   Text(feelingEmoji, style: const TextStyle(fontSize: 60)),
                   const SizedBox(height: 8),
                   Text(feelingLabel,
@@ -1057,14 +1145,34 @@ class _SessionSummarySheet extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                   ],
+                        ],
+                      ),
+                    ),
+                  ),
 
                   // Boutons
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: const Icon(Icons.share_rounded, size: 16),
-                          label: const Text('Export TCX'),
+                          icon: const Icon(Icons.ios_share_rounded, size: 16),
+                          label: const Text('Partager'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.accent,
+                            side: BorderSide(
+                                color: AppColors.accent.withValues(alpha: .4)),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
+                          ),
+                          onPressed: _shareImage,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.description_outlined, size: 16),
+                          label: const Text('TCX'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.accent,
                             side: BorderSide(
@@ -1283,6 +1391,17 @@ class _ExerciseCard extends ConsumerWidget {
                             style: const TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFFFF9F0A))),
+                      ],
+                      if (pr != null &&
+                          !pr.isBodyweight &&
+                          pr.weight != null &&
+                          pr.reps > 1) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                            '📈 1RM estimé : ${(pr.weight! * (1 + pr.reps / 30)).round()} kg',
+                            style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary)),
                       ],
                       if (suggestedWeight != null) ...[
                         const SizedBox(height: 2),

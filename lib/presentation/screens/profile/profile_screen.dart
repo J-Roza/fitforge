@@ -15,6 +15,22 @@ import '../../widgets/rest_duration_picker.dart';
 final authStateProvider =
     StreamProvider<User?>((ref) => CloudSyncService.authState());
 
+/// Date de la dernière synchro montante réussie.
+final lastSyncProvider =
+    FutureProvider<DateTime?>((ref) => CloudSyncService.lastSyncTime());
+
+/// « il y a 3 min », « il y a 2 h », « le 12/09 à 14:30 »…
+String _formatLastSync(DateTime? d) {
+  if (d == null) return 'jamais';
+  final diff = DateTime.now().difference(d);
+  if (diff.inMinutes < 1) return "à l'instant";
+  if (diff.inMinutes < 60) return 'il y a ${diff.inMinutes} min';
+  if (diff.inHours < 24) return 'il y a ${diff.inHours} h';
+  final hh = d.hour.toString().padLeft(2, '0');
+  final mm = d.minute.toString().padLeft(2, '0');
+  return 'le ${d.day}/${d.month} à $hh:$mm';
+}
+
 void _invalidateDataProviders(WidgetRef ref) {
   ref.invalidate(logHistoryProvider);
   ref.invalidate(planningProvider);
@@ -445,6 +461,7 @@ class _CloudSyncSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateProvider).valueOrNull;
     final signedIn = user != null;
+    final lastSync = ref.watch(lastSyncProvider).valueOrNull;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,17 +493,27 @@ class _CloudSyncSection extends ConsumerWidget {
                       title: const Text('Synchro activée',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w600)),
-                      subtitle: Text(
-                          'Compte : ${user.email ?? "—"}',
-                          style: const TextStyle(
-                              color: AppColors.textMuted, fontSize: 12)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Compte : ${user.email ?? "—"}',
+                              style: const TextStyle(
+                                  color: AppColors.textMuted, fontSize: 12)),
+                          const Text('Stockage : Google Firebase (cloud)',
+                              style: TextStyle(
+                                  color: AppColors.textMuted, fontSize: 11)),
+                          Text('Dernière synchro : ${_formatLastSync(lastSync)}',
+                              style: const TextStyle(
+                                  color: AppColors.textMuted, fontSize: 11)),
+                        ],
+                      ),
                     ),
                     _Separator(),
                     _SettingsTile(
                       icon: Icons.cloud_upload_rounded,
                       label: 'Synchroniser maintenant',
                       value: '',
-                      onTap: () => _syncNow(context),
+                      onTap: () => _syncNow(context, ref),
                     ),
                     _Separator(),
                     _SettingsTile(
@@ -517,7 +544,7 @@ class _CloudSyncSection extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 4, top: 8),
           child: Text(
             signedIn
-                ? 'Tes séances sont sauvegardées automatiquement dans le cloud à chaque entraînement.'
+                ? 'Tes séances sont sauvegardées automatiquement sur Google Firebase (cloud) à chaque entraînement.'
                 : 'Crée un compte pour sauvegarder tes séances en ligne et les retrouver sur n\'importe quel téléphone.',
             style: const TextStyle(
                 color: AppColors.textMuted, fontSize: 11, height: 1.4),
@@ -527,9 +554,10 @@ class _CloudSyncSection extends ConsumerWidget {
     );
   }
 
-  Future<void> _syncNow(BuildContext context) async {
+  Future<void> _syncNow(BuildContext context, WidgetRef ref) async {
     try {
       await CloudSyncService.pushAll();
+      ref.invalidate(lastSyncProvider);
       final target = CloudSyncService.email ?? 'le cloud';
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -578,15 +606,24 @@ class _CloudSyncSection extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
-    final n = await CloudSyncService.pullAll();
-    _invalidateDataProviders(ref);
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: const Color(0xFF30D158),
-        content: Text('${n ?? 0} séance(s) récupérée(s) ✓',
-            style:
-                const TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
-      ));
+    try {
+      final n = await CloudSyncService.pullAll();
+      _invalidateDataProviders(ref);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: const Color(0xFF30D158),
+          content: Text('${n ?? 0} séance(s) récupérée(s) ✓',
+              style: const TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.w700)),
+        ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: AppColors.error,
+          content: Text('Échec de la récupération : $e'),
+        ));
+      }
     }
   }
 

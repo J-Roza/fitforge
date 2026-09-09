@@ -93,6 +93,10 @@ final sessionsConfigProvider =
 // ── Log service ───────────────────────────────────────────────
 final logServiceProvider = Provider<LogService>((ref) => LogService());
 
+// ── Brouillons de séance en cours (types ayant une reprise dispo) ──
+final draftSessionsProvider = FutureProvider<Set<int>>(
+    (ref) => ref.read(logServiceProvider).loadDraftTypes());
+
 // ── History notifier ──────────────────────────────────────────
 class LogHistoryNotifier extends AsyncNotifier<List<LogSession>> {
   @override

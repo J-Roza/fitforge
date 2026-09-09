@@ -250,6 +250,9 @@ class _SessionCard extends ConsumerWidget {
     final lastStr = lastDate != null
         ? '${lastDate!.day}/${lastDate!.month}'
         : 'Jamais';
+    final hasDraft =
+        ref.watch(draftSessionsProvider).valueOrNull?.contains(config.type) ??
+            false;
     return GestureDetector(
       onTap: () => Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(builder: (_) =>
@@ -315,10 +318,34 @@ class _SessionCard extends ConsumerWidget {
                     fontSize: 10, color: AppColors.textSecondary),
                 maxLines: 2),
             const SizedBox(height: 8),
-            Text('Derniere : $lastStr',
-                style: const TextStyle(
-                    fontSize: 10, color: AppColors.textMuted,
-                    fontWeight: FontWeight.w600)),
+            if (hasDraft)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: config.color.withValues(alpha: .18),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_circle_fill_rounded,
+                        size: 11, color: config.color),
+                    const SizedBox(width: 4),
+                    Text('En cours',
+                        style: TextStyle(
+                            color: config.color,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800)),
+                  ],
+                ),
+              )
+            else
+              Text('Derniere : $lastStr',
+                  style: const TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textMuted,
+                      fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -658,17 +685,17 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
     }
     final ok = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         title: const Text('Supprimer cette séance ?'),
         content: Text(
             '« ${widget.config.name} » sera supprimée. L\'historique des séances déjà réalisées est conservé.'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
+              onPressed: () => Navigator.pop(dialogCtx, false),
               child: const Text('Annuler')),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
+              onPressed: () => Navigator.pop(dialogCtx, true),
               child: const Text('Supprimer',
                   style: TextStyle(color: AppColors.error))),
         ],

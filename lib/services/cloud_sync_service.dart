@@ -68,6 +68,16 @@ class CloudSyncService {
     }
     data['updatedAt'] = FieldValue.serverTimestamp();
     await _docRef.set(data, SetOptions(merge: true));
+    await p.setString(_lastSyncKey, DateTime.now().toIso8601String());
+  }
+
+  static const _lastSyncKey = 'ff_last_sync';
+
+  /// Date de la dernière synchro montante réussie (ou null).
+  static Future<DateTime?> lastSyncTime() async {
+    final p = await SharedPreferences.getInstance();
+    final s = p.getString(_lastSyncKey);
+    return s == null ? null : DateTime.tryParse(s);
   }
 
   /// Push silencieux (ne lève pas d'exception) — pour la sync auto.
