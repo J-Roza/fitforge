@@ -43,10 +43,15 @@ class _FitForgeAppState extends ConsumerState<FitForgeApp> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(themeLightProvider); // reconstruit l'app au changement de thème
+    final light = ref.watch(themeLightProvider);
     final router = ref.watch(routerProvider);
 
+    // La clé change avec le thème : force un remontage complet de l'arbre
+    // (les widgets `const` mis en cache par Flutter re-exécutent alors leur
+    // build et relisent la nouvelle palette). Le routeur étant le même
+    // instance, la navigation en cours est conservée.
     return MaterialApp.router(
+      key: ValueKey(light ? 'light' : 'dark'),
       title: 'FitForge',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
