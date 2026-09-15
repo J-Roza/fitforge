@@ -125,7 +125,7 @@ class _WorkoutEditorScreenState extends ConsumerState<WorkoutEditorScreen> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Enregistrer',
+            child: Text('Enregistrer',
                 style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w700)),
           ),
         ],
@@ -237,24 +237,24 @@ class _ExerciseEditorCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(ex.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
                       Text(ex.primaryMuscle.label,
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                     ],
                   ),
                 ),
                 // Set count controls
                 IconButton(
-                  icon: const Icon(Icons.remove_circle_outline, color: AppColors.textMuted, size: 20),
+                  icon: Icon(Icons.remove_circle_outline, color: AppColors.textMuted, size: 20),
                   onPressed: onRemoveSet,
                   constraints: const BoxConstraints(),
                   padding: const EdgeInsets.all(4),
                 ),
                 Text('${workoutExercise.sets.length} séries',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                 IconButton(
-                  icon: const Icon(Icons.add_circle_outline, color: AppColors.accent, size: 20),
+                  icon: Icon(Icons.add_circle_outline, color: AppColors.accent, size: 20),
                   onPressed: onAddSet,
                   constraints: const BoxConstraints(),
                   padding: const EdgeInsets.all(4),
@@ -265,7 +265,7 @@ class _ExerciseEditorCard extends StatelessWidget {
                   constraints: const BoxConstraints(),
                   padding: const EdgeInsets.all(8),
                 ),
-                const Icon(Icons.drag_handle_rounded, color: AppColors.textMuted, size: 20),
+                Icon(Icons.drag_handle_rounded, color: AppColors.textMuted, size: 20),
               ],
             ),
           ),
@@ -273,7 +273,7 @@ class _ExerciseEditorCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
-              children: const [
+              children: [
                 SizedBox(width: 28),
                 Expanded(child: Center(child: Text('Poids (kg)', style: TextStyle(color: AppColors.textMuted, fontSize: 11)))),
                 SizedBox(width: 8),
@@ -322,7 +322,7 @@ class _SetEditorRow extends StatelessWidget {
               ),
               child: Center(
                 child: Text('$setNumber',
-                    style: const TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.w700)),
+                    style: TextStyle(color: AppColors.accent, fontSize: 11, fontWeight: FontWeight.w700)),
               ),
             ),
             const SizedBox(width: 8),
@@ -359,10 +359,10 @@ class _NumberInput extends StatelessWidget {
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
         textAlign: TextAlign.center,
         onChanged: onChanged,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: AppColors.textMuted),
+          hintStyle: TextStyle(color: AppColors.textMuted),
           filled: true,
           fillColor: AppColors.bgCardElevated,
           border: OutlineInputBorder(
@@ -419,12 +419,12 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Text('Ajouter un exercice',
                       style: TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700)),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.textMuted),
+                  icon: Icon(Icons.close, color: AppColors.textMuted),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -501,10 +501,10 @@ class _ExercisePickerSheetState extends ConsumerState<_ExercisePickerSheet> {
                           fontSize: 14,
                           fontWeight: FontWeight.w500)),
                   subtitle: Text(ex.primaryMuscle.label,
-                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                      style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                   trailing: alreadyIn
-                      ? const Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20)
-                      : const Icon(Icons.add_circle_outline_rounded, color: AppColors.accent, size: 22),
+                      ? Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20)
+                      : Icon(Icons.add_circle_outline_rounded, color: AppColors.accent, size: 22),
                   onTap: alreadyIn ? null : () => Navigator.of(context).pop(ex),
                 );
               },
@@ -557,10 +557,10 @@ class _EmptyExercises extends StatelessWidget {
           children: [
             const Text('💪', style: TextStyle(fontSize: 52)),
             const SizedBox(height: 16),
-            const Text('Aucun exercice',
+            Text('Aucun exercice',
                 style: TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
-            const Text('Ajoute des exercices pour construire ta séance',
+            Text('Ajoute des exercices pour construire ta séance',
                 style: TextStyle(color: AppColors.textMuted), textAlign: TextAlign.center),
             const SizedBox(height: 24),
             ElevatedButton.icon(

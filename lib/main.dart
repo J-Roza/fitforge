@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'firebase_options.dart';
+import 'core/theme/app_colors.dart';
+import 'providers/theme_provider.dart';
 import 'services/log_service.dart';
 import 'services/cloud_sync_service.dart';
 import 'app.dart';
@@ -31,6 +33,9 @@ void main() async {
   final purged = await LogService().purgeSeedSessionsOnce();
   if (purged) CloudSyncService.pushIfSignedIn();
 
+  // Thème (clair / sombre) — appliqué avant le premier rendu.
+  final light = await LogService().loadThemeLight();
+  AppColors.setMode(light);
 
   // Force portrait mode
   await SystemChrome.setPreferredOrientations([
@@ -38,13 +43,8 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Status bar style
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0A0A0F),
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
+  // Barre système selon le thème
+  applySystemChrome();
 
   runApp(const ProviderScope(child: FitForgeApp()));
 }

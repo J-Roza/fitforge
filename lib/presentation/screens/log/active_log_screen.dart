@@ -680,7 +680,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                             fontWeight: FontWeight.w800,
                             color: config.color)),
                     Text('${_totalVolume.toStringAsFixed(0)} kg total',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary)),
                   ],
@@ -913,7 +913,7 @@ class _NoteFieldState extends State<_NoteField> {
         decoration: InputDecoration(
           hintText: 'Note...',
           hintStyle:
-              const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              TextStyle(color: AppColors.textMuted, fontSize: 12),
           filled: true,
           fillColor: AppColors.bgCardElevated,
           border: OutlineInputBorder(
@@ -924,7 +924,7 @@ class _NoteFieldState extends State<_NoteField> {
           isDense: true,
         ),
         style:
-            const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            TextStyle(fontSize: 12, color: AppColors.textSecondary),
         onChanged: widget.onChanged,
       );
 }
@@ -999,7 +999,7 @@ class _SessionSummarySheet extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 60),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
@@ -1101,7 +1101,7 @@ class _SessionSummarySheet extends StatelessWidget {
 
                   // Muscles travaillés
                   if (muscles.isNotEmpty) ...[
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Text('MUSCLES TRAVAILLÉS',
                           style: TextStyle(
@@ -1229,12 +1229,12 @@ class _SumStat extends StatelessWidget {
             Icon(icon, color: AppColors.accent, size: 18),
             const SizedBox(height: 6),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary)),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 11, color: AppColors.textMuted)),
           ],
         ),
@@ -1381,7 +1381,7 @@ class _ExerciseCard extends ConsumerWidget {
                         const SizedBox(height: 5),
                         Text(
                             '📋 Dernière fois : ${lastEntry.sets.isNotEmpty ? lastEntry.sets.reduce((a, b) => a.score >= b.score ? a : b).display : "—"}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textSecondary)),
                       ],
@@ -1399,7 +1399,7 @@ class _ExerciseCard extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Text(
                             '📈 1RM estimé : ${(pr.weight! * (1 + pr.reps / 30)).round()} kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textSecondary)),
                       ],
@@ -1470,7 +1470,7 @@ class _ExerciseCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(Icons.close_rounded,
+                      child: Icon(Icons.close_rounded,
                           size: 16, color: AppColors.textMuted),
                     ),
                   ),
@@ -1527,7 +1527,7 @@ class _ExerciseCard extends ConsumerWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('POIDS',
+                      Text('POIDS',
                           style: TextStyle(
                               fontSize: 9,
                               color: AppColors.textMuted,
@@ -1551,7 +1551,7 @@ class _ExerciseCard extends ConsumerWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      const Text('REPS',
+                      Text('REPS',
                           style: TextStyle(
                               fontSize: 9,
                               color: AppColors.textMuted,
@@ -1696,7 +1696,7 @@ class _WheelPickerState<T> extends State<_WheelPicker<T>> {
                 children: widget.items
                     .map((item) => Center(
                           child: Text(widget.display(item),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: AppColors.textPrimary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600)),
@@ -1762,7 +1762,7 @@ class _RestTimerBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor: AppColors.bgCardElevated,
-                valueColor: const AlwaysStoppedAnimation(
+                valueColor: AlwaysStoppedAnimation(
                     AppColors.accent),
                 minHeight: 6,
               ),
@@ -1783,7 +1783,7 @@ class _RestTimerBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppColors.border)),
               child: Text(timerLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textSecondary)),
@@ -1792,7 +1792,7 @@ class _RestTimerBar extends StatelessWidget {
           const SizedBox(width: 6),
           GestureDetector(
             onTap: onStop,
-            child: const Icon(Icons.close_rounded,
+            child: Icon(Icons.close_rounded,
                 color: AppColors.textMuted, size: 20),
           ),
         ],

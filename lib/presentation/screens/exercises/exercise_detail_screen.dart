@@ -282,7 +282,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 6),
                         Text(
                           '${entries.length} dernières séances · meilleur set (kg×reps)',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 10),
                         ),
@@ -323,7 +323,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
               Text(
                 exercise.name,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -437,7 +437,7 @@ class _MuscleRow extends StatelessWidget {
                   Row(
                     children: [
                       Text(muscle.label,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textPrimary,
                               fontWeight: FontWeight.w500,
                               fontSize: 14)),
@@ -493,7 +493,7 @@ class _InstructionStep extends StatelessWidget {
               child: Center(
                 child: Text(
                   '$step',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -507,7 +507,7 @@ class _InstructionStep extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   text,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
                 ),
               ),
             ),
@@ -534,7 +534,7 @@ class _MistakeItem extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               ),
             ),
           ],
@@ -578,9 +578,9 @@ class _RecItem extends StatelessWidget {
           Icon(icon, color: AppColors.accent, size: 20),
           const SizedBox(height: 4),
           Text(value,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textPrimary, fontWeight: FontWeight.w700, fontSize: 16)),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
         ],
       );
 }

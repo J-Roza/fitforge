@@ -145,7 +145,7 @@ class _WelcomePage extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [AppColors.accent, AppColors.secondary],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -159,7 +159,7 @@ class _WelcomePage extends StatelessWidget {
                 'FitForge',
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       foreground: Paint()
-                        ..shader = const LinearGradient(
+                        ..shader = LinearGradient(
                           colors: [AppColors.accent, AppColors.secondary],
                         ).createShader(const Rect.fromLTWH(0, 0, 200, 50)),
                     ),
@@ -307,7 +307,7 @@ class _GoalCard extends StatelessWidget {
                       fontSize: 15)),
               const Spacer(),
               if (selected)
-                const Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20),
+                Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20),
             ],
           ),
         ),
@@ -370,7 +370,7 @@ class _ProfilePage extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Ton type corporel naturel — aide à personnaliser le volume d\'entraînement.',
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
             ),
             const SizedBox(height: 14),
             ...[null, ...Somatotype.values].map(
@@ -396,7 +396,7 @@ class _ProfilePage extends StatelessWidget {
                       if (s != null) ...[
                         const SizedBox(height: 4),
                         Text(s.description,
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                       ],
                     ],
                   ),
@@ -477,12 +477,12 @@ class _EquipmentPage extends StatelessWidget {
                                     color: equipment == opt.$1 ? AppColors.accent : AppColors.textPrimary,
                                     fontWeight: FontWeight.w600, fontSize: 15)),
                             Text(opt.$4,
-                                style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                                style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                           ],
                         ),
                       ),
                       if (equipment == opt.$1)
-                        const Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20),
+                        Icon(Icons.check_circle_rounded, color: AppColors.accent, size: 20),
                     ],
                   ),
                 ),

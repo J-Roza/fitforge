@@ -47,7 +47,7 @@ class WorkoutScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.add_rounded, color: AppColors.accent, size: 16),
@@ -160,7 +160,7 @@ class _AIProgramBanner extends StatelessWidget {
                           color: AppColors.accent.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text('IA',
+                        child: Text('IA',
                             style: TextStyle(
                                 color: AppColors.accent,
                                 fontSize: 10,
@@ -168,20 +168,20 @@ class _AIProgramBanner extends StatelessWidget {
                                 letterSpacing: 1)),
                       ),
                       const SizedBox(width: 8),
-                      const Text('Programme personnalisé',
+                      Text('Programme personnalisé',
                           style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'Basé sur ton profil ${user.somatotype?.label ?? ""}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${user.workoutsPerWeek} séances/semaine · ${user.goal.label}',
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                   ),
                 ],
               ),
@@ -240,7 +240,7 @@ class _WorkoutTemplateCard extends StatelessWidget {
                       if (workout.description != null)
                         Text(
                           workout.description!,
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -271,7 +271,7 @@ class _WorkoutTemplateCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
+                  icon: Icon(Icons.edit_outlined, color: AppColors.textMuted, size: 20),
                   onPressed: onEdit,
                 ),
                 IconButton(
@@ -291,7 +291,7 @@ class _WorkoutTemplateCard extends StatelessWidget {
           // Stats row
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.bgCardElevated,
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
             ),
@@ -350,8 +350,8 @@ class _WorkoutStat extends StatelessWidget {
           Icon(icon, size: 14, color: AppColors.textMuted),
           const SizedBox(width: 4),
           Text('$value ',
-              style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
         ],
       );
 }

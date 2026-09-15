@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'navigation/app_router.dart';
 import 'providers/strava_provider.dart';
+import 'providers/theme_provider.dart';
 
 class FitForgeApp extends ConsumerStatefulWidget {
   const FitForgeApp({super.key});
@@ -42,12 +43,13 @@ class _FitForgeAppState extends ConsumerState<FitForgeApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(themeLightProvider); // reconstruit l'app au changement de thème
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'FitForge',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.theme,
       routerConfig: router,
     );
   }

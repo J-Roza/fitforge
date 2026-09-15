@@ -93,7 +93,7 @@ class _PlateCalculatorSheetState extends State<_PlateCalculatorSheet> {
                     Text('${_fmt(_target)} kg',
                         style: const TextStyle(
                             fontSize: 30, fontWeight: FontWeight.w900)),
-                    const Text('poids total',
+                    Text('poids total',
                         style: TextStyle(
                             color: AppColors.textMuted, fontSize: 11)),
                   ],
@@ -110,7 +110,7 @@ class _PlateCalculatorSheetState extends State<_PlateCalculatorSheet> {
             // Barre
             Row(
               children: [
-                const Text('Barre',
+                Text('Barre',
                     style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
@@ -152,7 +152,7 @@ class _PlateCalculatorSheetState extends State<_PlateCalculatorSheet> {
             ),
             const SizedBox(height: 20),
 
-            const Text('DE CHAQUE CÔTÉ',
+            Text('DE CHAQUE CÔTÉ',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -160,7 +160,7 @@ class _PlateCalculatorSheetState extends State<_PlateCalculatorSheet> {
                     letterSpacing: .5)),
             const SizedBox(height: 10),
             if (plates.isEmpty)
-              const Text('Barre à vide (aucun disque).',
+              Text('Barre à vide (aucun disque).',
                   style: TextStyle(color: AppColors.textSecondary))
             else
               Wrap(

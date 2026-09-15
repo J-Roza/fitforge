@@ -204,7 +204,7 @@ class _FinishDialogState extends State<_FinishDialog> {
                   children: [
                     const Text('🧡', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 10),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Uploader sur Strava',
                         style: TextStyle(
@@ -296,7 +296,7 @@ class _WorkoutHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(workoutName,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.w700),
@@ -305,14 +305,14 @@ class _WorkoutHeader extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        const Icon(Icons.timer_outlined, size: 14, color: AppColors.accent),
+                        Icon(Icons.timer_outlined, size: 14, color: AppColors.accent),
                         const SizedBox(width: 4),
                         Text(timerText,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.accent, fontSize: 14, fontWeight: FontWeight.w600)),
                         const SizedBox(width: 16),
                         Text('$completedSets/$totalSets séries',
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
                       ],
                     ),
                   ],
@@ -351,7 +351,7 @@ class _WorkoutHeader extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: AppColors.bgCardElevated,
-              valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+              valueColor: AlwaysStoppedAnimation(AppColors.accent),
               minHeight: 5,
             ),
           ),
@@ -368,11 +368,11 @@ class _WorkoutHeader extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.hourglass_bottom_rounded, size: 16, color: AppColors.secondary),
+                  Icon(Icons.hourglass_bottom_rounded, size: 16, color: AppColors.secondary),
                   const SizedBox(width: 6),
                   Text(
                     'Repos: ${restRemaining}s',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.secondary, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -438,7 +438,7 @@ class _ExerciseBlock extends StatelessWidget {
                     children: [
                       Text(exercise.name, style: theme.textTheme.titleMedium),
                       Text(exercise.primaryMuscle.label,
-                          style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                          style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
                     ],
                   ),
                 ),
@@ -449,7 +449,7 @@ class _ExerciseBlock extends StatelessWidget {
           ),
 
           // Sets header
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 12, 16, 6),
             child: Row(
               children: [
@@ -603,7 +603,7 @@ class _NumberFieldState extends State<_NumberField> {
           enabled: widget.enabled,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.bgSurface,
@@ -666,7 +666,7 @@ class _IntFieldState extends State<_IntField> {
           enabled: widget.enabled,
           keyboardType: TextInputType.number,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             filled: true,
             fillColor: AppColors.bgSurface,

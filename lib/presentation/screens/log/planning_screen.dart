@@ -26,7 +26,7 @@ class PlanningScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
                 'Appuie sur un jour pour lui attribuer une séance.',
                 style: TextStyle(
                     color: AppColors.textSecondary, fontSize: 13)),
@@ -105,7 +105,7 @@ class PlanningScreen extends ConsumerWidget {
                           Container(
                               width: 5,
                               height: 5,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                   color: AppColors.accent,
                                   shape: BoxShape.circle)),
                         ],
@@ -116,7 +116,7 @@ class PlanningScreen extends ConsumerWidget {
               }),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
                 "Appuie encore pour changer, une fois de plus pour effacer.",
                 style: TextStyle(
                     color: AppColors.textMuted, fontSize: 12)),

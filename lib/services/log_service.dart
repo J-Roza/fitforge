@@ -92,6 +92,20 @@ class LogService {
     await p.setString(_timerSoundKey, sound);
   }
 
+  // ── Thème (clair / sombre) ─────────────────────────────────
+  static const _themeLightKey = 'ff_theme_light';
+
+  /// true = thème clair (défaut : sombre).
+  Future<bool> loadThemeLight() async {
+    final p = await SharedPreferences.getInstance();
+    return p.getBool(_themeLightKey) ?? false;
+  }
+
+  Future<void> saveThemeLight(bool light) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool(_themeLightKey, light);
+  }
+
   // ── Brouillon de séance en cours (reprise après retour arrière) ──
   // Permet de retrouver une séance commencée si on quitte l'écran sans
   // l'avoir terminée. Un brouillon par type de séance. Local uniquement.

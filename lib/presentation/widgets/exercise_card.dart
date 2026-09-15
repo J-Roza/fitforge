@@ -146,7 +146,7 @@ class ExerciseCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
         ],
       ),
     );
@@ -261,7 +261,7 @@ class _EquipmentIcon extends StatelessWidget {
         ),
         child: Text(
           equipment.label,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 10,
             fontWeight: FontWeight.w500,

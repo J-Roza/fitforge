@@ -174,10 +174,10 @@ class _StatBox extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Text(value, style: const TextStyle(
+              Text(value, style: TextStyle(
                   fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.accent)),
               const SizedBox(height: 2),
-              Text(label, style: const TextStyle(
+              Text(label, style: TextStyle(
                   fontSize: 9, color: AppColors.textMuted,
                   fontWeight: FontWeight.w600, letterSpacing: .4)),
             ],
@@ -212,7 +212,7 @@ class _TodayBanner extends ConsumerWidget {
                   Text('S${config.type} · ${config.name}',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                   Text(config.subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 11, color: AppColors.textSecondary)),
                 ],
               ),
@@ -304,7 +304,7 @@ class _SessionCard extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: const Icon(Icons.edit_outlined, size: 13, color: AppColors.textMuted),
+                    child: Icon(Icons.edit_outlined, size: 13, color: AppColors.textMuted),
                   ),
                 ),
               ],
@@ -314,7 +314,7 @@ class _SessionCard extends ConsumerWidget {
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
             const SizedBox(height: 3),
             Text(config.subtitle,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 10, color: AppColors.textSecondary),
                 maxLines: 2),
             const SizedBox(height: 8),
@@ -342,7 +342,7 @@ class _SessionCard extends ConsumerWidget {
               )
             else
               Text('Derniere : $lastStr',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 10,
                       color: AppColors.textMuted,
                       fontWeight: FontWeight.w600)),
@@ -396,7 +396,7 @@ class _AddSessionCard extends StatelessWidget {
             border: Border.all(
                 color: AppColors.border, style: BorderStyle.solid),
           ),
-          child: const Center(
+          child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -487,12 +487,12 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
           const Text('Nouvelle séance',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Tu pourras ajouter les exercices juste après.',
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
           const SizedBox(height: 20),
-          const Text('NOM', style: TextStyle(
+          Text('NOM', style: TextStyle(
               fontSize: 11, fontWeight: FontWeight.w700,
               color: AppColors.textMuted, letterSpacing: .5)),
           const SizedBox(height: 8),
@@ -503,7 +503,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             style: const TextStyle(fontWeight: FontWeight.w700),
             decoration: InputDecoration(
               hintText: 'Ex : FULL BODY',
-              hintStyle: const TextStyle(color: AppColors.textMuted),
+              hintStyle: TextStyle(color: AppColors.textMuted),
               filled: true,
               fillColor: AppColors.bgCardElevated,
               border: OutlineInputBorder(
@@ -512,7 +512,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text('SOUS-TITRE (optionnel)', style: TextStyle(
+          Text('SOUS-TITRE (optionnel)', style: TextStyle(
               fontSize: 11, fontWeight: FontWeight.w700,
               color: AppColors.textMuted, letterSpacing: .5)),
           const SizedBox(height: 8),
@@ -520,7 +520,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             controller: _subtitle,
             decoration: InputDecoration(
               hintText: 'Ex : Corps entier',
-              hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
               filled: true,
               fillColor: AppColors.bgCardElevated,
               border: OutlineInputBorder(
@@ -529,7 +529,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
             ),
           ),
           const SizedBox(height: 14),
-          const Text('COULEUR', style: TextStyle(
+          Text('COULEUR', style: TextStyle(
               fontSize: 11, fontWeight: FontWeight.w700,
               color: AppColors.textMuted, letterSpacing: .5)),
           const SizedBox(height: 8),
@@ -749,7 +749,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
               children: [
                 // Nom + sous-titre + couleur
-                const Text('NOM DE LA SÉANCE', style: TextStyle(
+                Text('NOM DE LA SÉANCE', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 8),
@@ -767,7 +767,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text('SOUS-TITRE', style: TextStyle(
+                Text('SOUS-TITRE', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 8),
@@ -776,7 +776,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                   style: const TextStyle(fontSize: 13),
                   decoration: InputDecoration(
                     hintText: 'Ex : Pecs · Épaules · Triceps',
-                    hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                    hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
                     filled: true,
                     fillColor: AppColors.bgCardElevated,
                     border: OutlineInputBorder(
@@ -785,7 +785,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text('COULEUR', style: TextStyle(
+                Text('COULEUR', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 8),
@@ -814,7 +814,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                 const SizedBox(height: 22),
 
                 // Current exercises (réordonnables par glisser-déposer)
-                const Text('EXERCICES ACTUELS · glisse pour réordonner', style: TextStyle(
+                Text('EXERCICES ACTUELS · glisse pour réordonner', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 8),
@@ -845,7 +845,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                         children: [
                           ReorderableDragStartListener(
                             index: i,
-                            child: const Padding(
+                            child: Padding(
                               padding: EdgeInsets.only(right: 10),
                               child: Icon(Icons.drag_handle_rounded,
                                   size: 20, color: AppColors.textMuted),
@@ -869,7 +869,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                 ),
 
                 const SizedBox(height: 20),
-                const Text('AJOUTER UN EXERCICE', style: TextStyle(
+                Text('AJOUTER UN EXERCICE', style: TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w700,
                     color: AppColors.textMuted, letterSpacing: .5)),
                 const SizedBox(height: 10),
@@ -883,7 +883,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 12, bottom: 6),
-                        child: Text(entry.key.toUpperCase(), style: const TextStyle(
+                        child: Text(entry.key.toUpperCase(), style: TextStyle(
                             fontSize: 10, color: AppColors.textMuted,
                             fontWeight: FontWeight.w700, letterSpacing: .5)),
                       ),
@@ -901,7 +901,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.add_rounded, size: 14, color: AppColors.accent),
+                                Icon(Icons.add_rounded, size: 14, color: AppColors.accent),
                                 const SizedBox(width: 4),
                                 Text(_exName(id), style: const TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.w600)),
@@ -930,7 +930,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: const Center(child: Text('Remettre les exercices par defaut',
+                    child: Center(child: Text('Remettre les exercices par defaut',
                         style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600))),
                   ),
                 ),
@@ -980,7 +980,7 @@ class _NavBtn extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: AppColors.textSecondary),
               const SizedBox(width: 8),
-              Text(label, style: const TextStyle(
+              Text(label, style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13, fontWeight: FontWeight.w600)),
             ],

@@ -38,7 +38,7 @@ Future<int?> showRestDurationPicker(BuildContext context, WidgetRef ref) async {
             const Text('Temps de repos',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
-            const Text('Entre chaque série.',
+            Text('Entre chaque série.',
                 style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
             const SizedBox(height: 16),
             Wrap(

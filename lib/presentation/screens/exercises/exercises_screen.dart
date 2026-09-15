@@ -49,7 +49,7 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
               onChanged: (v) => ref.read(searchQueryProvider.notifier).state = v,
               decoration: InputDecoration(
                 hintText: 'Rechercher un exercice...',
-                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
+                prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted),
                 suffixIcon: _searchCtrl.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear_rounded, size: 18),
@@ -194,7 +194,7 @@ class _EmptyState extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Essaie un autre terme de recherche',
               style: TextStyle(color: AppColors.textMuted),
             ),

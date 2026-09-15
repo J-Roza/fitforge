@@ -87,7 +87,7 @@ class ProgressScreen extends ConsumerWidget {
                                   .push(MaterialPageRoute(
                                       builder: (_) =>
                                           const HistoryScreen())),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text('Voir tout',
@@ -139,7 +139,7 @@ class _SectionTitle extends StatelessWidget {
           if (subtitle != null) ...[
             const SizedBox(height: 3),
             Text(subtitle!,
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textMuted, fontSize: 12, height: 1.3)),
           ],
         ],
@@ -194,7 +194,7 @@ class _WeekComparison extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Volume soulevé',
+                Text('Volume soulevé',
                     style: TextStyle(
                         color: AppColors.textMuted, fontSize: 12)),
                 const SizedBox(height: 4),
@@ -236,7 +236,7 @@ class _WeekComparison extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Séances',
+                Text('Séances',
                     style: TextStyle(
                         color: AppColors.textMuted, fontSize: 12)),
                 const SizedBox(height: 4),
@@ -245,7 +245,7 @@ class _WeekComparison extends StatelessWidget {
                         fontSize: 24, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
                 Text('$lastCount la semaine d\'avant',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textMuted, fontSize: 11)),
               ],
             ),
@@ -292,7 +292,7 @@ class _MuscleBreakdown extends ConsumerWidget {
         );
 
     if (setsPerMuscle.isEmpty) {
-      return card(const Text(
+      return card(Text(
         'Aucune série enregistrée ces 30 derniers jours.',
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
       ));
@@ -336,7 +336,7 @@ class _MuscleBreakdown extends ConsumerWidget {
                   child: Text(
                     '${e.value} sér.',
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textSecondary),
@@ -348,7 +348,7 @@ class _MuscleBreakdown extends ConsumerWidget {
         const SizedBox(height: 6),
         Text('$totalSets séries au total sur 30 jours',
             style:
-                const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                TextStyle(color: AppColors.textMuted, fontSize: 11)),
       ],
     ));
   }
@@ -410,7 +410,7 @@ class _StatCard extends StatelessWidget {
               Text(value,
                   style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.w800)),
               Text(label,
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                   maxLines: 1),
             ],
           ),
@@ -482,7 +482,7 @@ class _VolumeChart extends StatelessWidget {
                 reservedSize: 38,
                 interval: interval,
                 getTitlesWidget: (v, _) => Text(fmtKg(v),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textMuted, fontSize: 10)),
               ),
             ),
@@ -500,7 +500,7 @@ class _VolumeChart extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(label,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textMuted, fontSize: 9)),
                   );
                 },
@@ -613,7 +613,7 @@ class _FrequencyHeatmap extends StatelessWidget {
                   width: cellSize + gap,
                   child: label != null
                       ? Text(label,
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 8,
                               fontWeight: FontWeight.w600))
@@ -636,7 +636,7 @@ class _FrequencyHeatmap extends StatelessWidget {
                     height: cellSize + gap,
                     width: 16,
                     child: Text(labels[d],
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: AppColors.textMuted, fontSize: 8)),
                   );
                 }),
@@ -685,7 +685,7 @@ class _FrequencyHeatmap extends StatelessWidget {
           // Légende
           Row(
             children: [
-              const Text('Repos',
+              Text('Repos',
                   style:
                       TextStyle(color: AppColors.textMuted, fontSize: 10)),
               const SizedBox(width: 6),
@@ -702,7 +702,7 @@ class _FrequencyHeatmap extends StatelessWidget {
                   ),
                 ),
               const SizedBox(width: 6),
-              const Text('Max',
+              Text('Max',
                   style:
                       TextStyle(color: AppColors.textMuted, fontSize: 10)),
             ],
@@ -752,14 +752,14 @@ class _SessionHistoryItem extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(config.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 14)),
                 const SizedBox(height: 3),
                 Text(
                   '$dateStr · ${session.totalSets} séries · ${session.totalVolume.toStringAsFixed(0)} kg',
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -790,7 +790,7 @@ class _EmptyHistory extends StatelessWidget {
             const SizedBox(height: 16),
             Text('Aucun historique', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Complete ta première séance\npour voir ta progression ici',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textMuted),

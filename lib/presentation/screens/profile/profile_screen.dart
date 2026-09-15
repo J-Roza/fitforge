@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/log_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../services/backup_service.dart';
 import '../../../services/cloud_sync_service.dart';
 import '../../widgets/rest_duration_picker.dart';
@@ -81,7 +82,7 @@ class ProfileScreen extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${user.level.label} · ${user.goal.label}',
-                          style: const TextStyle(color: AppColors.textMuted),
+                          style: TextStyle(color: AppColors.textMuted),
                         ).animate().fadeIn(delay: 200.ms),
                         const SizedBox(height: 24),
 
@@ -152,7 +153,7 @@ class _Avatar extends StatelessWidget {
         width: 90,
         height: 90,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             colors: [AppColors.accent, AppColors.accentDark],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -230,19 +231,19 @@ class _BodyStat extends StatelessWidget {
           RichText(
             text: TextSpan(
               text: value,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w800),
               children: [
                 TextSpan(
                   text: unit,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w400),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
         ],
       );
 }
@@ -304,7 +305,7 @@ class _TrainingStat extends StatelessWidget {
               Icon(icon, color: color, size: 18),
               const SizedBox(height: 8),
               Text(value, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w800)),
-              Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+              Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
             ],
           ),
         ),
@@ -333,17 +334,17 @@ class _SomatotypeCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.person_outline_rounded, color: AppColors.accent, size: 18),
+                Icon(Icons.person_outline_rounded, color: AppColors.accent, size: 18),
                 const SizedBox(width: 8),
                 Text('Morphotype: ${somatotype.label}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.accent, fontWeight: FontWeight.w700, fontSize: 14)),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               somatotype.description,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
             ),
           ],
         ),
@@ -390,6 +391,15 @@ class _SettingsSection extends StatelessWidget {
               label: 'Unité de mesure',
               value: user.useMetric ? 'Métrique (kg/cm)' : 'Impérial (lbs/in)',
               onTap: () {},
+            ),
+            _Separator(),
+            _SettingsTile(
+              icon: ref.watch(themeLightProvider)
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined,
+              label: 'Thème',
+              value: ref.watch(themeLightProvider) ? 'Clair' : 'Sombre',
+              onTap: () => ref.read(themeLightProvider.notifier).toggle(),
             ),
             _Separator(),
             _SettingsTile(
@@ -466,7 +476,7 @@ class _CloudSyncSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text('SYNCHRONISATION CLOUD',
               style: TextStyle(
@@ -497,13 +507,13 @@ class _CloudSyncSection extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Compte : ${user.email ?? "—"}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: AppColors.textMuted, fontSize: 12)),
-                          const Text('Stockage : Google Firebase (cloud)',
+                          Text('Stockage : Google Firebase (cloud)',
                               style: TextStyle(
                                   color: AppColors.textMuted, fontSize: 11)),
                           Text('Dernière synchro : ${_formatLastSync(lastSync)}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: AppColors.textMuted, fontSize: 11)),
                         ],
                       ),
@@ -546,7 +556,7 @@ class _CloudSyncSection extends ConsumerWidget {
             signedIn
                 ? 'Tes séances sont sauvegardées automatiquement sur Google Firebase (cloud) à chaque entraînement.'
                 : 'Crée un compte pour sauvegarder tes séances en ligne et les retrouver sur n\'importe quel téléphone.',
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.textMuted, fontSize: 11, height: 1.4),
           ),
         ),
@@ -778,7 +788,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
           const Text('Synchronisation cloud',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Connecte-toi pour sauvegarder tes séances en ligne. '
             'Première fois ? Choisis « Créer un compte ».',
             style: TextStyle(color: AppColors.textMuted, fontSize: 13),
@@ -789,7 +799,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
             keyboardType: TextInputType.emailAddress,
             autocorrect: false,
             enabled: !_loading,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: AppColors.textPrimary),
             decoration: _dec('E-mail', Icons.mail_outline_rounded),
           ),
           const SizedBox(height: 12),
@@ -797,7 +807,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
             controller: _pwd,
             obscureText: true,
             enabled: !_loading,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: AppColors.textPrimary),
             decoration: _dec('Mot de passe', Icons.lock_outline_rounded),
           ),
           if (_error != null) ...[
@@ -807,7 +817,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
           ],
           const SizedBox(height: 20),
           if (_loading)
-            const Center(
+            Center(
                 child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8),
               child: CircularProgressIndicator(color: AppColors.accent),
@@ -853,7 +863,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
 
   InputDecoration _dec(String hint, IconData icon) => InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 14),
         prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
         filled: true,
         fillColor: AppColors.bgCardElevated,
@@ -874,7 +884,7 @@ class _BackupSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 8),
           child: Text('SAUVEGARDE',
               style: TextStyle(
@@ -907,7 +917,7 @@ class _BackupSection extends ConsumerWidget {
             ],
           ),
         ),
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, top: 8),
           child: Text(
             'Exporte un fichier .json (à garder sur Drive ou ton téléphone). '
@@ -1019,8 +1029,8 @@ class _SettingsTile extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w500)),
         trailing: value.isNotEmpty
-            ? Text(value, style: const TextStyle(color: AppColors.textMuted, fontSize: 13))
-            : const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
+            ? Text(value, style: TextStyle(color: AppColors.textMuted, fontSize: 13))
+            : Icon(Icons.chevron_right_rounded, color: AppColors.textMuted, size: 18),
         onTap: onTap,
       );
 }
@@ -1043,7 +1053,7 @@ class _NoProfile extends StatelessWidget {
             const SizedBox(height: 16),
             Text('Crée ton profil', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Pour obtenir un programme\npersonnalisé à ta morphologie',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textMuted),
@@ -1110,7 +1120,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
       initialChildSize: 0.85,
       maxChildSize: 0.95,
       builder: (_, ctrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -1264,7 +1274,7 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textSecondary,
           fontSize: 13,
           fontWeight: FontWeight.w600,

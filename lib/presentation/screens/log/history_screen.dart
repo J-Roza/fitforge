@@ -71,7 +71,7 @@ class _SessionsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final configs = ref.watch(sessionsConfigProvider);
     if (history.isEmpty) {
-      return const Center(
+      return Center(
           child: Text('Aucune séance enregistrée.\nLance-toi ! 💪',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary)));
@@ -128,7 +128,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(dateStr,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary)),
                         Text('S${s.sessionType} · ${c.name}',
@@ -157,7 +157,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                       const SizedBox(height: 3),
                       Text(
                           '📦 ${s.totalVolume.toStringAsFixed(0)} kg',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11,
                               color: AppColors.textSecondary)),
                     ],
@@ -173,7 +173,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
             ),
           ),
           if (_expanded) ...[
-            const Divider(height: 1, color: AppColors.border),
+            Divider(height: 1, color: AppColors.border),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: Column(
@@ -188,7 +188,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(exercise.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.textSecondary)),
@@ -226,12 +226,12 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                         ),
                         Text(
                             'Volume : ${ex.totalVolume.toStringAsFixed(0)} kg',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textMuted)),
                         if (ex.notes != null && ex.notes!.isNotEmpty)
                           Text('💬 ${ex.notes}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 11,
                                   color: AppColors.textSecondary,
                                   fontStyle: FontStyle.italic)),
@@ -291,7 +291,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: AppColors.accent.withValues(alpha: .2)),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -369,7 +369,7 @@ class _RecordsTab extends ConsumerWidget {
     final exercises = ref.watch(exercisesProvider);
 
     if (prs.isEmpty) {
-      return const Center(
+      return Center(
           child: Text(
               'Aucun record encore.\nComplète ta première séance !',
               textAlign: TextAlign.center,
@@ -420,11 +420,11 @@ class _RecordsTab extends ConsumerWidget {
                                   color: Color(0xFFFF9F0A))),
                           if (estRM != null)
                             Text('≈ 1RM : ${estRM.round()} kg',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 11,
                                     color: AppColors.textSecondary)),
                           Text('${hist.length} séance(s)',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 11,
                                   color: AppColors.textMuted)),
                         ],
