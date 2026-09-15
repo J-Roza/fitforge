@@ -224,6 +224,9 @@ final timerDurationProvider = AsyncNotifierProvider<TimerDurationNotifier, int>(
 /// L'alarme forte est en premier : c'est le son par défaut.
 const kTimerSounds = {
   'alarme': ('Carillon', 'sounds/timer_end_loud.wav'),
+  'marimba': ('Marimba', 'sounds/timer_marimba.wav'),
+  'cloche': ('Cloche', 'sounds/timer_bell.wav'),
+  'digital': ('Digital', 'sounds/timer_digital.wav'),
   'beep': ('Bip', 'sounds/timer_end.wav'),
 };
 
