@@ -45,7 +45,8 @@ class LogService {
     final raw = p.getString(_lwKey);
     if (raw == null) return {};
     final map = jsonDecode(raw) as Map<String, dynamic>;
-    return map.map((k, v) => MapEntry(k, v as double?));
+    // Tolérant : une valeur ronde peut revenir en int (ex. via la synchro cloud).
+    return map.map((k, v) => MapEntry(k, v == null ? null : (v as num).toDouble()));
   }
 
   Future<void> saveLastWeights(Map<String, double?> lw) async {
@@ -59,7 +60,7 @@ class LogService {
     final raw = p.getString(_lrKey);
     if (raw == null) return {};
     final map = jsonDecode(raw) as Map<String, dynamic>;
-    return map.map((k, v) => MapEntry(k, v as int));
+    return map.map((k, v) => MapEntry(k, (v as num).toInt()));
   }
 
   Future<void> saveLastReps(Map<String, int> lr) async {

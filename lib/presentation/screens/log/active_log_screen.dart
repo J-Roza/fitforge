@@ -120,10 +120,17 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     }
 
     final exIds = _getExerciseIds();
-    // .future attend le chargement complet (évite de lire {} si l'appel
-    // arrive avant la fin du chargement depuis SharedPreferences).
-    final lw = await ref.read(lastWeightsProvider.future);
-    final lr = await ref.read(lastRepsProvider.future);
+    // Lecture défensive : si un provider est en erreur (ex. données de synchro
+    // au mauvais format), on continue avec des valeurs par défaut au lieu
+    // d'avorter (ce qui laissait la séance vide).
+    Map<String, double?> lw = {};
+    Map<String, int> lr = {};
+    try {
+      lw = await ref.read(lastWeightsProvider.future);
+    } catch (_) {}
+    try {
+      lr = await ref.read(lastRepsProvider.future);
+    } catch (_) {}
     _exIds
       ..clear()
       ..addAll(exIds);
@@ -305,8 +312,14 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
 
   Future<void> _addExerciseToSession(String id) async {
     if (_exIds.contains(id)) return;
-    final lw = await ref.read(lastWeightsProvider.future);
-    final lr = await ref.read(lastRepsProvider.future);
+    Map<String, double?> lw = {};
+    Map<String, int> lr = {};
+    try {
+      lw = await ref.read(lastWeightsProvider.future);
+    } catch (_) {}
+    try {
+      lr = await ref.read(lastRepsProvider.future);
+    } catch (_) {}
     if (!mounted) return;
     setState(() {
       _exIds.add(id);
