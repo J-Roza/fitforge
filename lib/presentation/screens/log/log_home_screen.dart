@@ -7,7 +7,6 @@ import '../../../data/models/exercise.dart';
 import '../../../providers/log_provider.dart';
 import '../../../data/datasources/exercises_data.dart';
 import 'active_log_screen.dart';
-import 'history_screen.dart';
 import 'planning_screen.dart';
 
 class LogHomeScreen extends ConsumerWidget {
@@ -68,6 +67,14 @@ class LogHomeScreen extends ConsumerWidget {
                 onPressed: () => Navigator.of(context).pop(),
               )
             : null,
+        actions: [
+          IconButton(
+            tooltip: 'Planning de la semaine',
+            icon: const Icon(Icons.calendar_today_rounded),
+            onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(builder: (_) => const PlanningScreen())),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -121,30 +128,6 @@ class LogHomeScreen extends ConsumerWidget {
                   .fadeIn(delay: Duration(milliseconds: 120 + sessions.length * 50)),
             ],
           ),
-          const SizedBox(height: 16),
-
-          // Navigation buttons
-          Row(
-            children: [
-              Expanded(
-                child: _NavBtn(
-                  icon: Icons.history_rounded,
-                  label: 'Historique',
-                  onTap: () => Navigator.of(context, rootNavigator: true)
-                      .push(MaterialPageRoute(builder: (_) => const HistoryScreen())),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _NavBtn(
-                  icon: Icons.calendar_today_rounded,
-                  label: 'Planning',
-                  onTap: () => Navigator.of(context, rootNavigator: true)
-                      .push(MaterialPageRoute(builder: (_) => const PlanningScreen())),
-                ),
-              ),
-            ],
-          ).animate().fadeIn(delay: 300.ms),
         ],
       ),
     );
@@ -958,38 +941,6 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
   }
 }
 
-// ── Nav button ────────────────────────────────────────────────
-class _NavBtn extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const _NavBtn({required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 16, color: AppColors.textSecondary),
-              const SizedBox(width: 8),
-              Text(label, style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13, fontWeight: FontWeight.w600)),
-            ],
-          ),
-        ),
-      );
-}
-
-// ── Add past session sheet ─────────────────────────────────
 // ── Weekly goal ───────────────────────────────────────────────
 class _WeeklyGoal extends StatelessWidget {
   final int weekCount;

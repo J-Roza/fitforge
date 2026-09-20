@@ -613,8 +613,9 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       }
     }
 
-    // Sync Health Connect (Zepp)
-    HealthService.writeWorkout(session).then((ok) {
+    // Envoi vers Health Connect (si l'utilisateur l'a activé dans le profil).
+    HealthService.writeWorkout(session, start: _startTime, end: session.date)
+        .then((ok) {
       if (ok && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

@@ -10,6 +10,7 @@ import '../../../providers/log_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/backup_service.dart';
 import '../../../services/cloud_sync_service.dart';
+import '../../../services/health_service.dart';
 import '../../widgets/rest_duration_picker.dart';
 
 /// État de connexion Firebase (null = déconnecté).
@@ -98,13 +99,6 @@ class ProfileScreen extends ConsumerWidget {
                             .fadeIn(delay: 300.ms),
                         const SizedBox(height: 28),
 
-                        // ── Somatotype card ───────────────────────────────
-                        if (user.somatotype != null)
-                          _SomatotypeCard(somatotype: user.somatotype!)
-                              .animate()
-                              .fadeIn(delay: 350.ms),
-                        const SizedBox(height: 28),
-
                         // ── Settings ──────────────────────────────────────
                         _SettingsSection(user: user, ref: ref)
                             .animate()
@@ -115,6 +109,12 @@ class ProfileScreen extends ConsumerWidget {
                         const _CloudSyncSection()
                             .animate()
                             .fadeIn(delay: 430.ms),
+                        const SizedBox(height: 16),
+
+                        // ── Health Connect ────────────────────────────────
+                        const _HealthConnectSection()
+                            .animate()
+                            .fadeIn(delay: 445.ms),
                         const SizedBox(height: 16),
 
                         // ── Sauvegarde fichier ────────────────────────────
@@ -308,45 +308,6 @@ class _TrainingStat extends StatelessWidget {
               Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
             ],
           ),
-        ),
-      );
-}
-
-class _SomatotypeCard extends StatelessWidget {
-  final Somatotype somatotype;
-  const _SomatotypeCard({required this.somatotype});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.accentDark.withValues(alpha: 0.5), AppColors.bg],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.person_outline_rounded, color: AppColors.accent, size: 18),
-                const SizedBox(width: 8),
-                Text('Morphotype: ${somatotype.label}',
-                    style: TextStyle(
-                        color: AppColors.accent, fontWeight: FontWeight.w700, fontSize: 14)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              somatotype.description,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
-            ),
-          ],
         ),
       );
 }
@@ -873,6 +834,153 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       );
+}
+
+// ── Health Connect (Android) ──────────────────────────────────
+class _HealthConnectSection extends StatefulWidget {
+  const _HealthConnectSection();
+
+  @override
+  State<_HealthConnectSection> createState() => _HealthConnectSectionState();
+}
+
+class _HealthConnectSectionState extends State<_HealthConnectSection> {
+  bool _loading = true;
+  bool _available = false;
+  bool _connected = false;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    final available = await HealthService.isAvailable();
+    final connected = available && await HealthService.isConnected();
+    if (!mounted) return;
+    setState(() {
+      _available = available;
+      _connected = connected;
+      _loading = false;
+    });
+  }
+
+  Future<void> _connect() async {
+    setState(() => _busy = true);
+    final ok = await HealthService.connect();
+    if (!mounted) return;
+    setState(() {
+      _connected = ok;
+      _busy = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: ok ? const Color(0xFF30D158) : AppColors.error,
+      content: Text(
+        ok
+            ? 'Health Connect activé ✓'
+            : 'Autorisation refusée ou Health Connect indisponible.',
+        style: ok
+            ? const TextStyle(color: Colors.black, fontWeight: FontWeight.w700)
+            : null,
+      ),
+    ));
+  }
+
+  Future<void> _disconnect() async {
+    await HealthService.disconnect();
+    if (!mounted) return;
+    setState(() => _connected = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Fonctionnalité Android uniquement : rien à afficher ailleurs (web, iOS…).
+    if (!HealthService.isSupportedPlatform || _loading) {
+      return const SizedBox.shrink();
+    }
+
+    final Widget tile;
+    if (!_available) {
+      tile = _SettingsTile(
+        icon: Icons.download_rounded,
+        label: 'Installer Health Connect',
+        value: '',
+        onTap: () => HealthService.promptInstall(),
+      );
+    } else if (_busy) {
+      tile = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator(color: AppColors.accent)),
+      );
+    } else if (_connected) {
+      tile = Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.favorite_rounded,
+                color: Color(0xFF30D158), size: 22),
+            title: const Text('Health Connect activé',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            subtitle: Text(
+                'Chaque séance est enregistrée comme entraînement « Musculation ».',
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          ),
+          _Separator(),
+          _SettingsTile(
+            icon: Icons.link_off_rounded,
+            label: 'Désactiver la synchro',
+            value: '',
+            iconColor: AppColors.error,
+            labelColor: AppColors.error,
+            onTap: _disconnect,
+          ),
+        ],
+      );
+    } else {
+      tile = _SettingsTile(
+        icon: Icons.favorite_border_rounded,
+        label: 'Connecter Health Connect',
+        value: '',
+        onTap: _connect,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 4, bottom: 8),
+          child: Text('SANTÉ',
+              style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMuted,
+                  letterSpacing: .5)),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+                color: _connected
+                    ? const Color(0xFF30D158).withValues(alpha: .4)
+                    : AppColors.border),
+          ),
+          child: tile,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, top: 8),
+          child: Text(
+            'Envoie tes séances vers Google Health Connect pour les partager '
+            'avec tes autres apps de santé (Google Fit, Zepp, Samsung Health…).',
+            style: TextStyle(
+                color: AppColors.textMuted, fontSize: 11, height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 // ── Sauvegarde / restauration ─────────────────────────────────
