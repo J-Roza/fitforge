@@ -66,7 +66,8 @@ Future<int?> showRestDurationPicker(BuildContext context, WidgetRef ref) async {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: selected ? Colors.white : AppColors.textPrimary,
+                        color:
+                            selected ? AppColors.onAccent : AppColors.textPrimary,
                       ),
                     ),
                   ),

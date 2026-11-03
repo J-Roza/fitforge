@@ -545,7 +545,7 @@ class _CreateSessionSheetState extends ConsumerState<_CreateSessionSheet> {
               onPressed: _create,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.onAccent,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
@@ -571,9 +571,10 @@ class _SessionEditorSheet extends ConsumerStatefulWidget {
 
 // Palette de couleurs proposées pour les séances (perso ou par défaut)
 const _sessionColorPalette = [
-  Color(0xFFE8484F), Color(0xFF4F9EE8), Color(0xFF30D158), Color(0xFFFF9F0A),
-  Color(0xFFAF52DE), Color(0xFF5AC8FA), Color(0xFFFFD60A), Color(0xFFFF375F),
-  Color(0xFFBF5AF2), Color(0xFFA2845E),
+  // Ni orange ni violet : l'ambre est réservé à l'accent de l'app.
+  Color(0xFFE8484F), Color(0xFF4F9EE8), Color(0xFF30D158), Color(0xFFE35FAE),
+  Color(0xFF30BFA0), Color(0xFF5AC8FA), Color(0xFFC5D44E), Color(0xFFFF375F),
+  Color(0xFF6A8CF4), Color(0xFFA2845E),
 ];
 
 class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
@@ -717,7 +718,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accent,
-                    foregroundColor: Colors.white,
+                    foregroundColor: AppColors.onAccent,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('Valider', style: TextStyle(fontWeight: FontWeight.w700)),

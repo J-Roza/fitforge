@@ -262,7 +262,7 @@ extension MuscleGroupExt on MuscleGroup {
       case MuscleGroup.glutes: return AppColors.legs;
       case MuscleGroup.core: return AppColors.core;
       case MuscleGroup.cardio: return AppColors.cardio;
-      case MuscleGroup.fullBody: return AppColors.accent;
+      case MuscleGroup.fullBody: return AppColors.fullBody;
     }
   }
 }

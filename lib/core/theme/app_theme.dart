@@ -19,7 +19,7 @@ class AppTheme {
         primary: AppColors.accent,
         secondary: AppColors.secondary,
         surface: AppColors.bgCard,
-        onPrimary: Colors.white,
+        onPrimary: AppColors.onAccent,
         onSecondary: Colors.white,
         onSurface: AppColors.textPrimary,
         error: AppColors.error,
@@ -121,7 +121,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.onAccent,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

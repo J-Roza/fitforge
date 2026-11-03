@@ -82,22 +82,27 @@ class AppColors {
   static const _lBorder = Color(0xFFDCDCE6);
   static const _lBorderLight = Color(0xFFC7C7D4);
 
+  /// Texte/icône posés sur l'accent ambre (le blanc n'y est pas lisible).
+  static const Color onAccent = Color(0xFF1A1206);
+
   // ── Couleurs vives (identiques clair / sombre) ────────────────
-  // Muscle groups
-  static const Color chest = Color(0xFFFF6B6B);
-  static const Color back = Color(0xFF4ECDC4);
-  static const Color shoulders = Color(0xFFFFE66D);
-  static const Color arms = Color(0xFF9B7FFD);
-  static const Color legs = Color(0xFF56CFE1);
-  static const Color core = Color(0xFFFF9A3C);
-  static const Color cardio = Color(0xFFFF6584);
+  // Muscle groups — aucune teinte entre 15° et 55°, plage réservée à
+  // l'accent ambre et à l'or des records, pour qu'on les distingue d'un coup.
+  static const Color chest = Color(0xFFF2556A);
+  static const Color back = Color(0xFF30BFA0);
+  static const Color shoulders = Color(0xFFC5D44E);
+  static const Color arms = Color(0xFF6A8CF4);
+  static const Color legs = Color(0xFF3BBFE0);
+  static const Color core = Color(0xFF5FC46E);
+  static const Color cardio = Color(0xFFE35FAE);
+  static const Color fullBody = Color(0xFFA1A1AA);
 
   // Records personnels (or, distinct de l'accent ambre)
-  static const Color gold = Color(0xFFFFD233);
+  static const Color gold = Color(0xFFFFD54A);
 
   // Status
   static const Color success = Color(0xFF4ADE80);
-  static const Color warning = Color(0xFFFBBF24);
+  static const Color warning = Color(0xFFF5A524);
   static const Color error = Color(0xFFFF5757);
 
   // Difficulty
