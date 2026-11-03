@@ -210,6 +210,17 @@ class Exercise {
       case 'mountain_climber': return '${base}mountain_climber.svg';
       case 'side_plank': return '${base}side_plank.svg';
       case 'jumping_jack': return '${base}jumping_jack.svg';
+      // ─── Maison (poids du corps) ───
+      case 'glute_bridge': return '${base}hip_thrust.svg';
+      case 'pike_push_up': return '${base}overhead_press.svg';
+      case 'diamond_push_up': return '${base}push_up.svg';
+      case 'inverted_row': return '${base}bent_row.svg';
+      case 'jump_squat': return '${base}squat.svg';
+      case 'wall_sit': return '${base}leg_extension.svg';
+      case 'superman': return '${base}back_extension.svg';
+      case 'dead_bug': return '${base}leg_raise.svg';
+      case 'hollow_hold': return '${base}plank.svg';
+      case 'reverse_lunge': return '${base}lunges.svg';
       default: return '${base}bench_press.svg';
     }
   }

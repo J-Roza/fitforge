@@ -563,8 +563,8 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       await Future.delayed(const Duration(milliseconds: 220));
     }
     try {
-      final soundId = ref.read(timerSoundProvider).value ?? 'alarme';
-      final asset = kTimerSounds[soundId]?.$2 ?? 'sounds/timer_end_loud.wav';
+      final soundId = ref.read(timerSoundProvider).value ?? 'carillon';
+      final asset = kTimerSounds[soundId]?.$2 ?? 'sounds/timer_carillon.wav';
       await _beepPlayer.setVolume(1.0);
       await _beepPlayer.play(AssetSource(asset));
     } catch (_) {

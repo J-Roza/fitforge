@@ -224,12 +224,14 @@ final timerDurationProvider = AsyncNotifierProvider<TimerDurationNotifier, int>(
 // ── Timer sound notifier ──────────────────────────────────────
 /// id → (libellé, fichier dans assets/sounds/)
 /// L'alarme forte est en premier : c'est le son par défaut.
+// Sonneries synthétisées (cloches, xylophone, harpe, gong, goutte) : douces
+// mais bien audibles en salle avec des écouteurs.
 const kTimerSounds = {
-  'alarme': ('Carillon', 'sounds/timer_end_loud.wav'),
-  'marimba': ('Marimba', 'sounds/timer_marimba.wav'),
-  'cloche': ('Cloche', 'sounds/timer_bell.wav'),
-  'digital': ('Digital', 'sounds/timer_digital.wav'),
-  'beep': ('Bip', 'sounds/timer_end.wav'),
+  'carillon': ('Carillon', 'sounds/timer_carillon.wav'),
+  'xylophone': ('Xylophone', 'sounds/timer_xylophone.wav'),
+  'harpe': ('Harpe', 'sounds/timer_harpe.wav'),
+  'gong': ('Gong zen', 'sounds/timer_gong.wav'),
+  'goutte': ('Goutte d\'eau', 'sounds/timer_goutte.wav'),
 };
 
 class TimerSoundNotifier extends AsyncNotifier<String> {

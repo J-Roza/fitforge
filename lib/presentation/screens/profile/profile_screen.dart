@@ -309,7 +309,7 @@ class _SettingsSection extends StatelessWidget {
     final soundId = ref.watch(timerSoundProvider).value ?? 'beep';
     // Libellé court pour la tile (avant le « — » éventuel)
     final soundLabel =
-        (kTimerSounds[soundId]?.$1 ?? 'Bip').split(' —').first;
+        (kTimerSounds[soundId]?.$1 ?? 'Carillon').split(' —').first;
     final restDuration = ref.watch(timerDurationProvider).value ?? 90;
 
     return Container(
