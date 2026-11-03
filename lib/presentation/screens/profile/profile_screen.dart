@@ -811,7 +811,7 @@ class _CloudLoginSheetState extends ConsumerState<_CloudLoginSheet> {
                     onPressed: () => _submit(signUp: false),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.onAccent,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
@@ -1074,7 +1074,7 @@ class _BackupSection extends ConsumerWidget {
             onPressed: () => Navigator.pop(dialogCtx, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accent,
-              foregroundColor: Colors.white,
+              foregroundColor: AppColors.onAccent,
             ),
             child: const Text('Restaurer'),
           ),

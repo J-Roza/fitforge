@@ -305,12 +305,33 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
   }
 
   void _removeSet(String exId, int idx) {
+    final removed = (_sets[exId] ?? [])[idx];
     setState(() {
       final list = List<LogSet>.from(_sets[exId] ?? []);
       list.removeAt(idx);
       _sets[exId] = list;
     });
     _saveDraft();
+    // Un tap raté sur une puce ne doit pas coûter une série : annulation 4 s.
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text('Série ${idx + 1} supprimée (${removed.display})'),
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'ANNULER',
+          textColor: AppColors.accent,
+          onPressed: () {
+            if (!mounted || !_sets.containsKey(exId)) return;
+            setState(() {
+              final list = List<LogSet>.from(_sets[exId] ?? []);
+              list.insert(idx.clamp(0, list.length), removed);
+              _sets[exId] = list;
+            });
+            _saveDraft();
+          },
+        ),
+      ));
   }
 
   Future<void> _addExerciseToSession(String id) async {
@@ -517,6 +538,8 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       }
       setState(() {
         _restRemaining--;
+        // Petit signal à 10 s de la fin : le temps de se remettre en place.
+        if (_restRemaining == 10) HapticFeedback.lightImpact();
         if (_restRemaining <= 0) {
           t.cancel();
           _restRemaining = 0;
@@ -534,7 +557,11 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
   }
 
   Future<void> _playTimerEndAlert() async {
-    HapticFeedback.heavyImpact();
+    // Motif de 3 impulsions : une seule ne se sent pas, téléphone posé sur un banc.
+    for (var i = 0; i < 3; i++) {
+      HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 220));
+    }
     try {
       final soundId = ref.read(timerSoundProvider).value ?? 'alarme';
       final asset = kTimerSounds[soundId]?.$2 ?? 'sounds/timer_end_loud.wav';
@@ -584,26 +611,57 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
           const SnackBar(content: Text('Ajoute au moins 1 série !')));
       return;
     }
-    _stopRestTimer();
-
-    // Ressenti de fin de séance
+    // Le bouton Terminer est juste sous la zone de saisie : on prévient si des
+    // exercices n'ont aucune série, et on laisse toujours une porte de sortie.
+    final skipped = _exIds.where((id) => (_sets[id] ?? []).isEmpty).length;
     final feeling = await showDialog<String>(
       context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         title: const Text('Comment s\'est passée la séance ?',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-        content: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _FeelingButton(label: 'Super', value: 'great'),
-            _FeelingButton(label: 'Moyen', value: 'ok'),
-            _FeelingButton(label: 'Difficile', value: 'hard'),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _FeelingButton(label: 'Super', value: 'great'),
+                _FeelingButton(label: 'Moyen', value: 'ok'),
+                _FeelingButton(label: 'Difficile', value: 'hard'),
+              ],
+            ),
+            if (skipped > 0) ...[
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Icon(Icons.info_outline_rounded,
+                      size: 16, color: AppColors.warning),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                        '$skipped exercice${skipped > 1 ? 's' : ''} sans série ne '
+                        '${skipped > 1 ? 'seront' : 'sera'} pas enregistré'
+                        '${skipped > 1 ? 's' : ''}.',
+                        style: TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary)),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Continuer la séance'),
+          ),
+        ],
       ),
     );
+    // Fermé sans choisir : on reste sur la séance, rien n'est enregistré.
+    if (feeling == null || !mounted) return;
+    _stopRestTimer();
 
     final exercises = _sets.entries
         .where((e) => e.value.isNotEmpty)
@@ -847,7 +905,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                       onPressed: _finish,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accent,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.onAccent,
                         padding:
                             const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
@@ -1217,7 +1275,7 @@ class _SessionSummarySheet extends StatelessWidget {
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.accent,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppColors.onAccent,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14)),
@@ -2106,7 +2164,7 @@ class _WheelPickerState<T> extends State<_WheelPicker<T>> {
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: widget.color,
-                      foregroundColor: Colors.white,
+                      foregroundColor: _onColor(widget.color),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
@@ -2206,7 +2264,6 @@ class _RestTimerBar extends StatelessWidget {
                       onTap: onCycle),
                   IconButton(
                     tooltip: 'Passer le repos',
-                    visualDensity: VisualDensity.compact,
                     onPressed: onStop,
                     icon: Icon(Icons.close_rounded, color: AppColors.textMuted),
                   ),
@@ -2236,15 +2293,18 @@ class _TimerAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
+        // 44 px de haut minimum : cible tactile fiable avec les mains moites.
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
               color: color.withValues(alpha: .12),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: color.withValues(alpha: .35))),
           child: Text(label,
               style: TextStyle(
-                  fontSize: 12, fontWeight: FontWeight.w800, color: color)),
+                  fontSize: 13, fontWeight: FontWeight.w800, color: color)),
         ),
       );
 }

@@ -19,7 +19,7 @@ const _defaultSessions = [
     defaultExerciseIds: ['deadlift', 'squat', 'lunges', 'leg_curl'],
   ),
   SessionConfig(
-    type: 4, name: 'ÉPAULES +', subtitle: 'Épaules · Biceps · Dos', color: Color(0xFFFF9F0A),
+    type: 4, name: 'ÉPAULES +', subtitle: 'Épaules · Biceps · Dos', color: Color(0xFFE35FAE),
     defaultExerciseIds: ['ohp', 'lateral_raise', 'barbell_row', 'dumbbell_flyes', 'hammer_curl'],
   ),
 ];
