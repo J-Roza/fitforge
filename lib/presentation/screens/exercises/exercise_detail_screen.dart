@@ -123,22 +123,24 @@ class ExerciseDetailScreen extends ConsumerWidget {
                         await launchUrl(uri, mode: LaunchMode.externalApplication);
                       }
                     },
+                    // Bouton neutre : le rouge YouTube cassait la palette.
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF0000).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFFF0000).withValues(alpha: 0.3)),
+                        color: AppColors.bgCard,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.borderLight),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.play_circle_filled_rounded, color: Color(0xFFFF0000), size: 22),
-                          SizedBox(width: 8),
-                          Text('Voir tutoriel YouTube',
+                          Icon(Icons.play_circle_outline_rounded,
+                              color: AppColors.textSecondary, size: 20),
+                          const SizedBox(width: 8),
+                          Text('Voir un tutoriel vidéo',
                               style: TextStyle(
-                                  color: Color(0xFFFF0000),
+                                  color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14)),
                         ],
@@ -402,7 +404,12 @@ class _MuscleRow extends StatelessWidget {
   const _MuscleRow({required this.muscle, required this.label, required this.percentage});
 
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) {
+    // Couleur du muscle lui-même ; le secondaire est simplement atténué.
+    final color = muscle.color;
+    final isPrimary = label == 'Primaire';
+    final tone = isPrimary ? color : AppColors.textMuted;
+    return Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
           children: [
@@ -410,23 +417,13 @@ class _MuscleRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: (label == 'Primaire'
-                        ? const Color(0xFFE53935)
-                        : const Color(0xFFFF6D00))
-                    .withValues(alpha: 0.15),
+                color: color.withValues(alpha: isPrimary ? 0.15 : 0.08),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: (label == 'Primaire'
-                            ? const Color(0xFFE53935)
-                            : const Color(0xFFFF6D00))
-                        .withValues(alpha: 0.4)),
+                    color: color.withValues(alpha: isPrimary ? 0.4 : 0.2)),
               ),
               child: Center(
-                child: Icon(Icons.circle,
-                    size: 10,
-                    color: label == 'Primaire'
-                        ? const Color(0xFFE53935)
-                        : const Color(0xFFFF6D00)),
+                child: Icon(Icons.circle, size: 10, color: color),
               ),
             ),
             const SizedBox(width: 12),
@@ -444,9 +441,7 @@ class _MuscleRow extends StatelessWidget {
                       const Spacer(),
                       Text(label,
                           style: TextStyle(
-                              color: label == 'Primaire'
-                                  ? const Color(0xFFE53935)
-                                  : const Color(0xFFFF6D00),
+                              color: tone,
                               fontSize: 11,
                               fontWeight: FontWeight.w600)),
                     ],
@@ -456,11 +451,9 @@ class _MuscleRow extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: percentage,
-                      backgroundColor: const Color(0xFF1E1B2E),
+                      backgroundColor: AppColors.bgCardElevated,
                       valueColor: AlwaysStoppedAnimation(
-                          label == 'Primaire'
-                              ? const Color(0xFFE53935)
-                              : const Color(0xFFFF6D00)),
+                          color.withValues(alpha: isPrimary ? 1 : .5)),
                       minHeight: 6,
                     ),
                   ),
@@ -470,6 +463,7 @@ class _MuscleRow extends StatelessWidget {
           ],
         ),
       );
+  }
 }
 
 class _InstructionStep extends StatelessWidget {

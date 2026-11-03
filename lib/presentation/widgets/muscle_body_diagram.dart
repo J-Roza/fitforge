@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../core/theme/app_colors.dart';
 import '../../data/models/exercise.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -68,21 +69,21 @@ class MuscleBodyDiagram extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 6),
           child: Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text('AVANT',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Color(0xFF6B6880),
+                        color: AppColors.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5)),
               ),
-              Container(width: 1, height: 12, color: const Color(0xFF2A2440)),
-              const Expanded(
+              Container(width: 1, height: 12, color: AppColors.border),
+              Expanded(
                 child: Text('ARRIÈRE',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Color(0xFF6B6880),
+                        color: AppColors.textMuted,
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5)),
@@ -94,9 +95,9 @@ class MuscleBodyDiagram extends StatelessWidget {
         // Planche SVG
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF0F0D1C),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF2A2440)),
+            color: AppColors.bg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),

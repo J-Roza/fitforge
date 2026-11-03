@@ -47,10 +47,11 @@ class AppColors {
   }
 
   // ── Valeurs SOMBRES ───────────────────────────────────────────
-  static const _dBg = Color(0xFF0A0A0F);
-  static const _dBgCard = Color(0xFF13131A);
-  static const _dBgCardElevated = Color(0xFF1C1C26);
-  static const _dBgSurface = Color(0xFF1E1E2A);
+  // Gris vraiment neutres (les anciens tiraient vers le bleu-violet).
+  static const _dBg = Color(0xFF0F1012);
+  static const _dBgCard = Color(0xFF17181B);
+  static const _dBgCardElevated = Color(0xFF1F2024);
+  static const _dBgSurface = Color(0xFF24262A);
   // Accent « forge » : orange braise, assorti à l'icône de l'app.
   static const _dAccent = Color(0xFFFF8A1F);
   static const _dAccentLight = Color(0xFFFFB347);
@@ -59,10 +60,10 @@ class AppColors {
   static const _dSecondary = Color(0xFF00D4FF);
   static const _dSecondaryGlow = Color(0x3300D4FF);
   static const _dTextPrimary = Color(0xFFFFFFFF);
-  static const _dTextSecondary = Color(0xFFB0B0C8);
-  static const _dTextMuted = Color(0xFF8A8AAE);
-  static const _dBorder = Color(0xFF2A2A3A);
-  static const _dBorderLight = Color(0xFF3A3A4E);
+  static const _dTextSecondary = Color(0xFFA1A1A8);
+  static const _dTextMuted = Color(0xFF75757D);
+  static const _dBorder = Color(0xFF2A2C30);
+  static const _dBorderLight = Color(0xFF36383D);
 
   // ── Valeurs CLAIRES ───────────────────────────────────────────
   static const _lBg = Color(0xFFF2F2F6);
@@ -70,10 +71,10 @@ class AppColors {
   static const _lBgCardElevated = Color(0xFFECECF2);
   static const _lBgSurface = Color(0xFFE6E6EE);
   // Même teinte, un peu plus foncée pour rester lisible sur fond clair.
-  static const _lAccent = Color(0xFFE86F00);
+  static const _lAccent = Color(0xFFD96500);
   static const _lAccentLight = Color(0xFFFF8A1F);
-  static const _lAccentDark = Color(0xFFBF5A00);
-  static const _lAccentGlow = Color(0x22E86F00);
+  static const _lAccentDark = Color(0xFFB35300);
+  static const _lAccentGlow = Color(0x22D96500);
   static const _lSecondary = Color(0xFF0090B8);
   static const _lSecondaryGlow = Color(0x220090B8);
   static const _lTextPrimary = Color(0xFF16161F);

@@ -161,7 +161,7 @@ class _StatBox extends StatelessWidget {
                   fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.accent)),
               const SizedBox(height: 2),
               Text(label, style: TextStyle(
-                  fontSize: 9, color: AppColors.textMuted,
+                  fontSize: 11, color: AppColors.textMuted,
                   fontWeight: FontWeight.w600, letterSpacing: .4)),
             ],
           ),
@@ -318,7 +318,7 @@ class _SessionCard extends ConsumerWidget {
                     Text('En cours',
                         style: TextStyle(
                             color: config.color,
-                            fontSize: 9,
+                            fontSize: 11,
                             fontWeight: FontWeight.w800)),
                   ],
                 ),

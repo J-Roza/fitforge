@@ -176,7 +176,7 @@ class _WeekComparison extends StatelessWidget {
         : (thisVol > 0 ? 100.0 : 0.0);
     final color = flat
         ? AppColors.textMuted
-        : (up ? const Color(0xFF30D158) : AppColors.error);
+        : (up ? AppColors.success : AppColors.error);
 
     String fmt(double kg) => kg >= 1000
         ? '${(kg / 1000).toStringAsFixed(1)} t'
@@ -576,7 +576,7 @@ class _FrequencyHeatmap extends StatelessWidget {
     final alignedStart = alignedEnd.subtract(Duration(days: weeks * 7 - 1));
 
     Color cellColor(double vol) {
-      if (vol == 0) return const Color(0xFF1E1B2E);
+      if (vol == 0) return AppColors.bgCardElevated;
       final t = (vol / maxVol).clamp(0.15, 1.0);
       return AppColors.accent.withValues(alpha: t);
     }
@@ -620,7 +620,7 @@ class _FrequencyHeatmap extends StatelessWidget {
                       ? Text(label,
                           style: TextStyle(
                               color: AppColors.textMuted,
-                              fontSize: 8,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600))
                       : null,
                 );
@@ -701,7 +701,7 @@ class _FrequencyHeatmap extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 3),
                   decoration: BoxDecoration(
                     color: op == 0
-                        ? const Color(0xFF1E1B2E)
+                        ? AppColors.bgCardElevated
                         : AppColors.accent.withValues(alpha: op),
                     borderRadius: BorderRadius.circular(2),
                   ),

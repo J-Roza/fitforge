@@ -457,7 +457,7 @@ class _CloudSyncSection extends ConsumerWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: signedIn
-                    ? const Color(0xFF30D158).withValues(alpha: .4)
+                    ? AppColors.success.withValues(alpha: .4)
                     : AppColors.border),
           ),
           child: signedIn
@@ -465,7 +465,7 @@ class _CloudSyncSection extends ConsumerWidget {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.cloud_done_rounded,
-                          color: Color(0xFF30D158), size: 22),
+                          color: AppColors.success, size: 22),
                       title: const Text('Synchro activée',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w600)),
@@ -537,8 +537,8 @@ class _CloudSyncSection extends ConsumerWidget {
       final target = CloudSyncService.email ?? 'le cloud';
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: const Color(0xFF30D158),
-          content: Text('Synchronisé avec $target ✓',
+          backgroundColor: AppColors.success,
+          content: Text('Synchronisé avec $target',
               style: const TextStyle(
                   color: Colors.black, fontWeight: FontWeight.w700)),
         ));
@@ -587,8 +587,8 @@ class _CloudSyncSection extends ConsumerWidget {
       _invalidateDataProviders(ref);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: const Color(0xFF30D158),
-          content: Text('${n ?? 0} séance(s) récupérée(s) ✓',
+          backgroundColor: AppColors.success,
+          content: Text('${n ?? 0} séance(s) récupérée(s)',
               style: const TextStyle(
                   color: Colors.black, fontWeight: FontWeight.w700)),
         ));
@@ -881,10 +881,10 @@ class _HealthConnectSectionState extends State<_HealthConnectSection> {
       _busy = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: ok ? const Color(0xFF30D158) : AppColors.error,
+      backgroundColor: ok ? AppColors.success : AppColors.error,
       content: Text(
         ok
-            ? 'Health Connect activé ✓'
+            ? 'Health Connect activé'
             : 'Autorisation refusée ou Health Connect indisponible.',
         style: ok
             ? const TextStyle(color: Colors.black, fontWeight: FontWeight.w700)
@@ -924,7 +924,7 @@ class _HealthConnectSectionState extends State<_HealthConnectSection> {
         children: [
           ListTile(
             leading: const Icon(Icons.favorite_rounded,
-                color: Color(0xFF30D158), size: 22),
+                color: AppColors.success, size: 22),
             title: const Text('Health Connect activé',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             subtitle: Text(
@@ -969,7 +969,7 @@ class _HealthConnectSectionState extends State<_HealthConnectSection> {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
                 color: _connected
-                    ? const Color(0xFF30D158).withValues(alpha: .4)
+                    ? AppColors.success.withValues(alpha: .4)
                     : AppColors.border),
           ),
           child: tile,
@@ -1092,9 +1092,9 @@ class _BackupSection extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFF30D158),
+            backgroundColor: AppColors.success,
             content: Text('$restored séance${restored > 1 ? "s" : ""} restaurée'
-                '${restored > 1 ? "s" : ""} ✓',
+                '${restored > 1 ? "s" : ""}',
                 style: const TextStyle(
                     color: Colors.black, fontWeight: FontWeight.w700)),
           ),

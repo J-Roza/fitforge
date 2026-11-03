@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'app_tokens.dart';
 
 class AppTheme {
   AppTheme._();
@@ -73,19 +74,59 @@ class AppTheme {
         color: AppColors.bgCard,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           side: BorderSide(color: AppColors.border, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.bgCard,
-        selectedItemColor: AppColors.accent,
-        unselectedItemColor: AppColors.textMuted,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        indicatorColor: AppColors.accentGlow,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
-        type: BottomNavigationBarType.fixed,
+        height: 68,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) =>
+            GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: states.contains(WidgetState.selected)
+                    ? FontWeight.w700
+                    : FontWeight.w500,
+                color: states.contains(WidgetState.selected)
+                    ? AppColors.accent
+                    : AppColors.textMuted)),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? AppColors.accent
+                : AppColors.textMuted)),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.bgSurface,
+        contentTextStyle: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary),
+        actionTextColor: AppColors.accent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.md)),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.textPrimary,
+          side: BorderSide(color: AppColors.borderLight),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md)),
+          textStyle:
+              GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.accent,
+          textStyle:
+              GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.bg,
@@ -124,9 +165,10 @@ class AppTheme {
           foregroundColor: AppColors.onAccent,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md)),
           textStyle:
-              GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
+              GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       chipTheme: ChipThemeData(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../core/theme/app_colors.dart';
 import '../presentation/screens/onboarding/onboarding_screen.dart';
 import '../presentation/screens/exercises/exercises_screen.dart';
 import '../presentation/screens/exercises/exercise_detail_screen.dart';
@@ -102,35 +103,36 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // NavigationBar Material 3 (pilule d'indicateur), stylée par le thème.
     return Container(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFF2A2A3A), width: 1)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.border, width: 1)),
       ),
-      child: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) {
+      child: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) {
           const routes = ['/home', '/exercises', '/progress', '/profile'];
           context.go(routes[i]);
         },
-        items: const [
-          BottomNavigationBarItem(
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home_rounded),
+            selectedIcon: Icon(Icons.home_rounded),
             label: 'Accueil',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search_rounded),
+          NavigationDestination(
+            icon: Icon(Icons.fitness_center_outlined),
+            selectedIcon: Icon(Icons.fitness_center_rounded),
             label: 'Exercices',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.show_chart_outlined),
-            activeIcon: Icon(Icons.show_chart_rounded),
+            selectedIcon: Icon(Icons.show_chart_rounded),
             label: 'Progrès',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
-            activeIcon: Icon(Icons.person_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
             label: 'Profil',
           ),
         ],

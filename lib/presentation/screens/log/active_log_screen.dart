@@ -115,7 +115,7 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     if (draft != null && _restoreFromDraft(draft)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Séance reprise là où tu t\'étais arrêté ✓'),
+          content: Text('Séance reprise là où tu t\'étais arrêté'),
           duration: Duration(seconds: 2),
         ));
       }
@@ -595,8 +595,8 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     await ref.read(logHistoryProvider.notifier).updateSession(updated);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      backgroundColor: Color(0xFF30D158),
-      content: Text('Modifications enregistrées ✓',
+      backgroundColor: AppColors.success,
+      content: Text('Modifications enregistrées',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700)),
     ));
     Navigator.pop(context);
@@ -698,8 +698,8 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
       if (ok && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Synchro Health Connect ✓'),
-              backgroundColor: Color(0xFF30D158)));
+              content: Text('Synchro Health Connect'),
+              backgroundColor: AppColors.success));
       }
     });
 

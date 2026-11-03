@@ -235,14 +235,23 @@ class _RoleBadge extends StatelessWidget {
           color: role.color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Text(
-          '${role.stars} ${role.label}',
-          style: TextStyle(
-            color: role.color,
-            fontSize: small ? 9 : 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
-          ),
+        // Étoiles en icônes (le glyphe « ★ » variait selon la police).
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < role.stars.length; i++)
+              Icon(Icons.star_rounded, size: small ? 10 : 12, color: role.color),
+            const SizedBox(width: 3),
+            Text(
+              role.label,
+              style: TextStyle(
+                color: role.color,
+                fontSize: small ? 10 : 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
         ),
       );
 }

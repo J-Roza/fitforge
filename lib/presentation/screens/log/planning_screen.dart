@@ -92,7 +92,7 @@ class PlanningScreen extends ConsumerWidget {
                                   color: config.color)),
                           Text(config.name,
                               style: TextStyle(
-                                  fontSize: 8, color: config.color),
+                                  fontSize: 10, color: config.color),
                               textAlign: TextAlign.center),
                         ] else
                           Text('—',
