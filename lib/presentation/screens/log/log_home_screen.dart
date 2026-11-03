@@ -928,8 +928,20 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.error.withValues(alpha: .2)),
                     ),
-                    child: const Center(child: Text('🗑 Supprimer cette séance',
-                        style: TextStyle(color: AppColors.error, fontSize: 13, fontWeight: FontWeight.w600))),
+                    child: const Center(
+                        child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.delete_outline_rounded,
+                            size: 16, color: AppColors.error),
+                        SizedBox(width: 6),
+                        Text('Supprimer cette séance',
+                            style: TextStyle(
+                                color: AppColors.error,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600)),
+                      ],
+                    )),
                   ),
                 ),
               ],
@@ -966,8 +978,9 @@ class _WeeklyGoal extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(done ? '✅' : '🎯',
-                  style: const TextStyle(fontSize: 14)),
+              Icon(done ? Icons.check_circle_rounded : Icons.flag_rounded,
+                  size: 16,
+                  color: done ? AppColors.accent : AppColors.textMuted),
               const SizedBox(width: 8),
               Text(
                 '$weekCount/$_goal séances cette semaine',

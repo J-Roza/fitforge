@@ -265,21 +265,6 @@ extension MuscleGroupExt on MuscleGroup {
       case MuscleGroup.fullBody: return AppColors.accent;
     }
   }
-
-  String get emoji {
-    switch (this) {
-      case MuscleGroup.chest: return '🫸';      // poussée pectoraux
-      case MuscleGroup.back: return '🫷';       // traction dos
-      case MuscleGroup.shoulders: return '🏋️'; // épaules / presses
-      case MuscleGroup.biceps: return '💪';     // biceps classique
-      case MuscleGroup.triceps: return '👊';    // extension triceps
-      case MuscleGroup.legs: return '🦵';       // jambes
-      case MuscleGroup.glutes: return '🍑';     // fessiers
-      case MuscleGroup.core: return '🔥';       // abdos / gainage
-      case MuscleGroup.cardio: return '❤️‍🔥';    // cardio
-      case MuscleGroup.fullBody: return '⚡';   // full body
-    }
-  }
 }
 
 extension EquipmentExt on Equipment {

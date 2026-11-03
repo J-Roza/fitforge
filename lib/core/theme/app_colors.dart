@@ -51,10 +51,11 @@ class AppColors {
   static const _dBgCard = Color(0xFF13131A);
   static const _dBgCardElevated = Color(0xFF1C1C26);
   static const _dBgSurface = Color(0xFF1E1E2A);
-  static const _dAccent = Color(0xFF9B7FFD);
-  static const _dAccentLight = Color(0xFFB79DFF);
-  static const _dAccentDark = Color(0xFF7C5CFC);
-  static const _dAccentGlow = Color(0x339B7FFD);
+  // Accent « forge » : orange braise, assorti à l'icône de l'app.
+  static const _dAccent = Color(0xFFFF8A1F);
+  static const _dAccentLight = Color(0xFFFFB347);
+  static const _dAccentDark = Color(0xFFE06F00);
+  static const _dAccentGlow = Color(0x33FF8A1F);
   static const _dSecondary = Color(0xFF00D4FF);
   static const _dSecondaryGlow = Color(0x3300D4FF);
   static const _dTextPrimary = Color(0xFFFFFFFF);
@@ -68,10 +69,11 @@ class AppColors {
   static const _lBgCard = Color(0xFFFFFFFF);
   static const _lBgCardElevated = Color(0xFFECECF2);
   static const _lBgSurface = Color(0xFFE6E6EE);
-  static const _lAccent = Color(0xFF6B4EEA);
-  static const _lAccentLight = Color(0xFF8A6EF5);
-  static const _lAccentDark = Color(0xFF553BC4);
-  static const _lAccentGlow = Color(0x226B4EEA);
+  // Même teinte, un peu plus foncée pour rester lisible sur fond clair.
+  static const _lAccent = Color(0xFFE86F00);
+  static const _lAccentLight = Color(0xFFFF8A1F);
+  static const _lAccentDark = Color(0xFFBF5A00);
+  static const _lAccentGlow = Color(0x22E86F00);
   static const _lSecondary = Color(0xFF0090B8);
   static const _lSecondaryGlow = Color(0x220090B8);
   static const _lTextPrimary = Color(0xFF16161F);
@@ -89,6 +91,9 @@ class AppColors {
   static const Color legs = Color(0xFF56CFE1);
   static const Color core = Color(0xFFFF9A3C);
   static const Color cardio = Color(0xFFFF6584);
+
+  // Records personnels (or, distinct de l'accent ambre)
+  static const Color gold = Color(0xFFFFD233);
 
   // Status
   static const Color success = Color(0xFF4ADE80);

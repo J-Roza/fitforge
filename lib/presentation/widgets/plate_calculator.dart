@@ -188,10 +188,20 @@ class _PlateCalculatorSheetState extends State<_PlateCalculatorSheet> {
               ),
             if (rest > 1e-6) ...[
               const SizedBox(height: 10),
-              Text(
-                  '⚠️ ${_fmt(double.parse(rest.toStringAsFixed(2)))} kg par côté non atteignable avec ces disques.',
-                  style: const TextStyle(
-                      color: Color(0xFFFF9F0A), fontSize: 12)),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning_amber_rounded,
+                      size: 16, color: AppColors.warning),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                        '${_fmt(double.parse(rest.toStringAsFixed(2)))} kg par côté non atteignable avec ces disques.',
+                        style: const TextStyle(
+                            color: AppColors.warning, fontSize: 12)),
+                  ),
+                ],
+              ),
             ],
           ],
         ),

@@ -187,7 +187,8 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('🔍', style: TextStyle(fontSize: 48)),
+            Icon(Icons.search_off_rounded,
+                size: 48, color: AppColors.textMuted),
             const SizedBox(height: 12),
             Text(
               'Aucun exercice trouvé',

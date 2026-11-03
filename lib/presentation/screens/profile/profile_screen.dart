@@ -1157,7 +1157,8 @@ class _NoProfile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('👤', style: TextStyle(fontSize: 56)),
+            Icon(Icons.person_outline_rounded,
+                size: 56, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text('Crée ton profil', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),

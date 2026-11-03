@@ -9,6 +9,7 @@ import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../log/history_screen.dart';
+import '../../widgets/feeling_icon.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -310,7 +311,11 @@ class _MuscleBreakdown extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Row(
               children: [
-                Text(e.key.emoji, style: const TextStyle(fontSize: 15)),
+                Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                        color: e.key.color, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
                 SizedBox(
                   width: 72,
@@ -765,15 +770,7 @@ class _SessionHistoryItem extends ConsumerWidget {
             ),
           ),
           if (session.feeling != null)
-            Text(
-              switch (session.feeling) {
-                'great' => '💪',
-                'ok' => '😐',
-                'hard' => '😴',
-                _ => '',
-              },
-              style: const TextStyle(fontSize: 22),
-            ),
+            FeelingIcon(session.feeling, size: 18),
         ],
       ),
     );
@@ -786,7 +783,7 @@ class _EmptyHistory extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('\u{1F4CA}', style: TextStyle(fontSize: 56)),
+            Icon(Icons.insights_rounded, size: 56, color: AppColors.textMuted),
             const SizedBox(height: 16),
             Text('Aucun historique', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),

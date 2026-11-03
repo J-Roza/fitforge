@@ -72,7 +72,7 @@ class _SessionsTab extends ConsumerWidget {
     final configs = ref.watch(sessionsConfigProvider);
     if (history.isEmpty) {
       return Center(
-          child: Text('Aucune séance enregistrée.\nLance-toi ! 💪',
+          child: Text('Aucune séance enregistrée.\nLance-toi !',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary)));
     }
@@ -156,7 +156,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                          '📦 ${s.totalVolume.toStringAsFixed(0)} kg',
+                          '${s.totalVolume.toStringAsFixed(0)} kg de volume',
                           style: TextStyle(
                               fontSize: 11,
                               color: AppColors.textSecondary)),
@@ -205,21 +205,21 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                                   horizontal: 9, vertical: 4),
                               decoration: BoxDecoration(
                                 color: isBest
-                                    ? const Color(0xFFFF9F0A)
+                                    ? AppColors.gold
                                         .withValues(alpha: .1)
                                     : AppColors.bgCardElevated,
                                 borderRadius:
                                     BorderRadius.circular(8),
                                 border: Border.all(
                                     color: isBest
-                                        ? const Color(0xFFFF9F0A)
+                                        ? AppColors.gold
                                         : AppColors.border),
                               ),
                               child: Text(set.display,
                                   style: TextStyle(
                                       fontSize: 12,
                                       color: isBest
-                                          ? const Color(0xFFFF9F0A)
+                                          ? AppColors.gold
                                           : AppColors.textPrimary)),
                             );
                           }).toList(),
@@ -230,7 +230,7 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                                 fontSize: 11,
                                 color: AppColors.textMuted)),
                         if (ex.notes != null && ex.notes!.isNotEmpty)
-                          Text('💬 ${ex.notes}',
+                          Text('Note : ${ex.notes}',
                               style: TextStyle(
                                   fontSize: 11,
                                   color: AppColors.textSecondary,
@@ -345,11 +345,19 @@ class _SessionEntryState extends ConsumerState<_SessionEntry> {
                         color: AppColors.error.withValues(alpha: .2)),
                   ),
                   child: const Center(
-                      child: Text('🗑 Supprimer cette séance',
+                      child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.delete_outline_rounded,
+                          size: 16, color: AppColors.error),
+                      SizedBox(width: 6),
+                      Text('Supprimer cette séance',
                           style: TextStyle(
                               color: AppColors.error,
                               fontSize: 13,
-                              fontWeight: FontWeight.w600))),
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  )),
                 ),
               ),
             ),
@@ -413,11 +421,19 @@ class _RecordsTab extends ConsumerWidget {
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700)),
                           const SizedBox(height: 4),
-                          Text('🏆 ${pr.display}',
-                              style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFFFF9F0A))),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.emoji_events_rounded,
+                                  size: 16, color: AppColors.gold),
+                              const SizedBox(width: 4),
+                              Text(pr.display,
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.gold)),
+                            ],
+                          ),
                           if (estRM != null)
                             Text('≈ 1RM : ${estRM.round()} kg',
                                 style: TextStyle(

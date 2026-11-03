@@ -275,11 +275,11 @@ class _GoalCard extends StatelessWidget {
   const _GoalCard({required this.goal, required this.selected, required this.onTap});
 
   static const _icons = {
-    FitnessGoal.bulking: '🏋️',
-    FitnessGoal.cutting: '🔥',
-    FitnessGoal.maintenance: '⚖️',
-    FitnessGoal.strength: '💪',
-    FitnessGoal.endurance: '🏃',
+    FitnessGoal.bulking: Icons.fitness_center_rounded,
+    FitnessGoal.cutting: Icons.local_fire_department_rounded,
+    FitnessGoal.maintenance: Icons.balance_rounded,
+    FitnessGoal.strength: Icons.bolt_rounded,
+    FitnessGoal.endurance: Icons.directions_run_rounded,
   };
 
   @override
@@ -298,7 +298,9 @@ class _GoalCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text(_icons[goal] ?? '🏋️', style: const TextStyle(fontSize: 22)),
+              Icon(_icons[goal] ?? Icons.fitness_center_rounded,
+                  size: 24,
+                  color: selected ? AppColors.accent : AppColors.textSecondary),
               const SizedBox(width: 14),
               Text(goal.label,
                   style: TextStyle(
@@ -434,9 +436,9 @@ class _EquipmentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final options = [
-      (AvailableEquipment.gym, '🏋️', 'Salle complète', 'Accès à tous les équipements, machines, câbles...'),
-      (AvailableEquipment.home, '🏠', 'À la maison', 'Haltères, barre, banc — équipement basique'),
-      (AvailableEquipment.bodyweightOnly, '💪', 'Poids du corps', 'Aucun équipement nécessaire'),
+      (AvailableEquipment.gym, Icons.fitness_center_rounded, 'Salle complète', 'Accès à tous les équipements, machines, câbles...'),
+      (AvailableEquipment.home, Icons.home_rounded, 'À la maison', 'Haltères, barre, banc — équipement basique'),
+      (AvailableEquipment.bodyweightOnly, Icons.accessibility_new_rounded, 'Poids du corps', 'Aucun équipement nécessaire'),
     ];
 
     return SafeArea(
@@ -466,7 +468,11 @@ class _EquipmentPage extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Text(opt.$2, style: const TextStyle(fontSize: 28)),
+                      Icon(opt.$2,
+                          size: 28,
+                          color: equipment == opt.$1
+                              ? AppColors.accent
+                              : AppColors.textSecondary),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
