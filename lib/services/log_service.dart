@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/models/log_models.dart';
+import 'storage_keys.dart';
 
 class LogService {
-  static const _histKey   = 'ff_log_hist';
+  static const _histKey   = StorageKeys.logHistory;
+  static const _histBakKey = StorageKeys.logHistoryBackup;
   static const _planKey   = 'ff_log_plan';
   static const _lwKey     = 'ff_log_lw';
   static const _lrKey     = 'ff_log_lr';
@@ -12,17 +14,42 @@ class LogService {
   static const _sessionsConfigKey = 'ff_log_sessions_config';
 
   // ── History ───────────────────────────────────────────────
+  /// Historique courant. Si la clé principale est absente ou illisible,
+  /// on retombe sur la copie de secours ; sinon liste vide.
   Future<List<LogSession>> loadHistory() async {
     final p = await SharedPreferences.getInstance();
-    final raw = p.getString(_histKey);
-    if (raw == null) return [];
-    final list = jsonDecode(raw) as List;
-    return list.map((e) => LogSession.fromJson(e as Map<String, dynamic>)).toList();
+    return decodeHistory(p.getString(_histKey)) ??
+        decodeHistory(p.getString(_histBakKey)) ??
+        [];
+  }
+
+  /// Décode un historique JSON. Retourne `null` si `raw` est absent ou si
+  /// une séance est illisible (JSON cassé, structure inattendue…).
+  static List<LogSession>? decodeHistory(String? raw) {
+    if (raw == null) return null;
+    try {
+      final list = jsonDecode(raw) as List;
+      return list
+          .map((e) => LogSession.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> saveHistory(List<LogSession> sessions) async {
     final p = await SharedPreferences.getInstance();
+    await backupHistory(p);
     await p.setString(_histKey, jsonEncode(sessions.map((s) => s.toJson()).toList()));
+  }
+
+  /// Copie l'historique principal dans `ff_log_hist_bak`, seulement s'il
+  /// est lisible (on ne remplace jamais une bonne copie par une cassée).
+  static Future<void> backupHistory(SharedPreferences p) async {
+    final current = p.getString(_histKey);
+    if (current == null || decodeHistory(current) == null) return;
+    if (current == p.getString(_histBakKey)) return;
+    await p.setString(_histBakKey, current);
   }
 
   // ── Planning ──────────────────────────────────────────────
@@ -94,7 +121,7 @@ class LogService {
   }
 
   // ── Thème (clair / sombre) ─────────────────────────────────
-  static const _themeLightKey = 'ff_theme_light';
+  static const _themeLightKey = StorageKeys.themeLight;
 
   /// true = thème clair (défaut : sombre).
   Future<bool> loadThemeLight() async {

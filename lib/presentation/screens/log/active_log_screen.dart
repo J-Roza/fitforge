@@ -616,13 +616,15 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
         sessionType: widget.sessionType,
         exercises: exercises,
         feeling: feeling);
+    // Records AVANT l'ajout : une fois la séance dans l'historique, le
+    // provider la compte déjà et aucun nouveau PR ne serait détecté.
+    final oldPrs = ref.read(personalRecordsProvider);
     await ref.read(logHistoryProvider.notifier).addSession(session);
     // Séance terminée : plus de brouillon à reprendre.
     await ref.read(logServiceProvider).clearDraft(widget.sessionType);
     ref.invalidate(draftSessionsProvider);
 
     // Check PRs
-    final oldPrs = ref.read(personalRecordsProvider);
     final newPrs = <String>[];
     for (final ex in exercises) {
       final best = ex.bestSet;

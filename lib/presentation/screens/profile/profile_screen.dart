@@ -11,6 +11,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../services/backup_service.dart';
 import '../../../services/cloud_sync_service.dart';
 import '../../../services/health_service.dart';
+import '../../../services/log_service.dart';
 import '../../widgets/rest_duration_picker.dart';
 
 /// État de connexion Firebase (null = déconnecté).
@@ -45,6 +46,10 @@ void _invalidateDataProviders(WidgetRef ref) {
   // Recharge le profil en place plutôt que d'invalider le provider : invalider
   // le ferait passer par null → recréation du routeur → écran noir.
   ref.read(userProfileProvider.notifier).reloadFromPrefs();
+  // Le thème fait partie des données restaurées : on l'applique sans redémarrer.
+  LogService()
+      .loadThemeLight()
+      .then((light) => ref.read(themeLightProvider.notifier).set(light));
 }
 
 class ProfileScreen extends ConsumerWidget {
@@ -1081,15 +1086,9 @@ class _BackupSection extends ConsumerWidget {
     try {
       final restored = await BackupService.importBackup();
       if (restored == null) return; // annulé par l'utilisateur
-      // Recharge tous les providers depuis les données restaurées
-      ref.invalidate(logHistoryProvider);
-      ref.invalidate(planningProvider);
-      ref.invalidate(customSessionsProvider);
-      ref.invalidate(sessionsConfigProvider);
-      ref.invalidate(lastWeightsProvider);
-      ref.invalidate(lastRepsProvider);
-      ref.invalidate(timerDurationProvider);
-      ref.invalidate(userProfileProvider);
+      // Recharge tous les providers depuis les données restaurées (même
+      // chemin que la récupération cloud : profil rechargé en place).
+      _invalidateDataProviders(ref);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

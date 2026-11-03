@@ -104,8 +104,10 @@ class LogHistoryNotifier extends AsyncNotifier<List<LogSession>> {
     return ref.read(logServiceProvider).loadHistory();
   }
 
+  // `await future` : si l'historique n'est pas encore chargé, `state.value`
+  // vaudrait null et un `?? []` écraserait tout l'historique sur disque.
   Future<void> addSession(LogSession session) async {
-    final current = state.value ?? [];
+    final current = await future;
     final updated = [...current, session];
     await ref.read(logServiceProvider).saveHistory(updated);
     state = AsyncData(updated);
@@ -113,7 +115,7 @@ class LogHistoryNotifier extends AsyncNotifier<List<LogSession>> {
   }
 
   Future<void> removeSession(String id) async {
-    final current = state.value ?? [];
+    final current = await future;
     final updated = current.where((s) => s.id != id).toList();
     await ref.read(logServiceProvider).saveHistory(updated);
     state = AsyncData(updated);
@@ -122,7 +124,7 @@ class LogHistoryNotifier extends AsyncNotifier<List<LogSession>> {
 
   /// Remplace une séance existante (même id) par sa version modifiée.
   Future<void> updateSession(LogSession updated) async {
-    final current = state.value ?? [];
+    final current = await future;
     final list = current.map((s) => s.id == updated.id ? updated : s).toList();
     await ref.read(logServiceProvider).saveHistory(list);
     state = AsyncData(list);

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'backup_service.dart';
+import 'storage_keys.dart';
 
 /// Synchronisation des données locales vers Firestore.
 ///
@@ -13,19 +15,10 @@ class CloudSyncService {
   static final _auth = FirebaseAuth.instance;
   static final _db = FirebaseFirestore.instance;
 
-  // Mêmes clés que BackupService
-  static const _stringKeys = [
-    'ff_log_hist',
-    'ff_log_plan',
-    'ff_log_lw',
-    'ff_log_lr',
-    'ff_log_custom',
-    'ff_log_sessions_config',
-    'ff_timer_sound',
-    'user_profile_v1',
-  ];
-  static const _intKeys = ['ff_log_timer'];
-  static const _boolKeys = ['ff_log_seeded_v1'];
+  // Mêmes clés que BackupService (liste unique dans StorageKeys).
+  static const _stringKeys = StorageKeys.stringKeys;
+  static const _intKeys = StorageKeys.intKeys;
+  static const _boolKeys = StorageKeys.boolKeys;
 
   static User? get currentUser => _auth.currentUser;
   static bool get isSignedIn => _auth.currentUser != null;
@@ -93,6 +86,8 @@ class CloudSyncService {
   // ── Pull : cloud → local ──────────────────────────────────
   /// Récupère l'état cloud et l'écrit en local. Retourne le nombre de
   /// séances restaurées, ou `null` si aucun document cloud n'existe.
+  /// Lève une [FormatException] si les données cloud sont illisibles :
+  /// dans ce cas rien n'est écrasé en local.
   static Future<int?> pullAll() async {
     if (!isSignedIn) return null;
     final snap = await _docRef.get();
@@ -100,25 +95,11 @@ class CloudSyncService {
     final data = snap.data();
     if (data == null) return null;
 
+    final validated = BackupService.validateData(data);
     final p = await SharedPreferences.getInstance();
-    for (final k in _stringKeys) {
-      if (data[k] is String) await p.setString(k, data[k] as String);
-    }
-    for (final k in _intKeys) {
-      final v = data[k];
-      if (v is int) await p.setInt(k, v);
-    }
-    for (final k in _boolKeys) {
-      if (data[k] is bool) await p.setBool(k, data[k] as bool);
-    }
-
-    final raw = data['ff_log_hist'];
-    if (raw is String) {
-      try {
-        return (jsonDecode(raw) as List).length;
-      } catch (_) {}
-    }
-    return 0;
+    await BackupService.snapshotBeforeRestore(p, origin: 'cloud');
+    await BackupService.writeData(p, validated);
+    return BackupService.sessionCountIn(validated);
   }
 
   /// Nombre de séances présentes dans le cloud (pour décider push vs pull).
