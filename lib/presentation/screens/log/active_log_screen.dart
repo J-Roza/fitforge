@@ -18,7 +18,6 @@ import '../../../providers/exercise_provider.dart';
 import '../../../services/health_service.dart';
 import '../../../services/tcx_service.dart';
 import '../../widgets/rest_duration_picker.dart';
-import '../../widgets/plate_calculator.dart';
 import '../../widgets/feeling_icon.dart';
 
 // Weight options: null = PDC, then 1..200 by 0.5
@@ -726,11 +725,6 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            tooltip: 'Calculateur de disques',
-            icon: Icon(Icons.calculate_outlined, color: config.color),
-            onPressed: () => showPlateCalculator(context),
-          ),
           if (!widget.isEditing)
             IconButton(
               tooltip: 'Repartir de zéro',
