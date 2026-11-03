@@ -4,12 +4,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_tokens.dart';
 import '../../../data/models/exercise.dart';
 import '../../../data/models/log_models.dart';
 import '../../../providers/log_provider.dart';
 import '../../../providers/exercise_provider.dart';
 import '../log/history_screen.dart';
 import '../../widgets/feeling_icon.dart';
+import '../../widgets/section_header.dart';
+import '../../widgets/stat_tile.dart';
 
 class ProgressScreen extends ConsumerWidget {
   const ProgressScreen({super.key});
@@ -26,7 +29,8 @@ class ProgressScreen extends ConsumerWidget {
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpace.screen, AppSpace.sm, AppSpace.screen, 0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -35,7 +39,7 @@ class ProgressScreen extends ConsumerWidget {
                             .fadeIn(delay: 100.ms),
                         const SizedBox(height: 26),
 
-                        const _SectionTitle(
+                        const SectionHeader(
                           title: 'Cette semaine',
                           subtitle: 'Comparé aux 7 jours précédents',
                         ),
@@ -45,7 +49,7 @@ class ProgressScreen extends ConsumerWidget {
                             .fadeIn(delay: 150.ms),
                         const SizedBox(height: 26),
 
-                        const _SectionTitle(
+                        const SectionHeader(
                           title: 'Volume par semaine',
                           subtitle: 'Poids total soulevé sur chaque semaine',
                         ),
@@ -55,7 +59,7 @@ class ProgressScreen extends ConsumerWidget {
                             .fadeIn(delay: 200.ms),
                         const SizedBox(height: 26),
 
-                        const _SectionTitle(
+                        const SectionHeader(
                           title: 'Muscles travaillés',
                           subtitle: 'Nombre de séries par muscle, sur 30 jours',
                         ),
@@ -65,7 +69,7 @@ class ProgressScreen extends ConsumerWidget {
                             .fadeIn(delay: 250.ms),
                         const SizedBox(height: 26),
 
-                        const _SectionTitle(
+                        const SectionHeader(
                           title: 'Régularité',
                           subtitle:
                               'Un carré = un jour. Plus c\'est vif, plus tu as soulevé.',
@@ -79,7 +83,7 @@ class ProgressScreen extends ConsumerWidget {
                         Row(
                           children: [
                             const Expanded(
-                              child: _SectionTitle(
+                              child: SectionHeader(
                                   title: 'Dernières séances'),
                             ),
                             GestureDetector(
@@ -124,27 +128,6 @@ class ProgressScreen extends ConsumerWidget {
             ),
     );
   }
-}
-
-// ── Titre de section avec sous-titre explicatif ──────────────
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  final String? subtitle;
-  const _SectionTitle({required this.title, this.subtitle});
-
-  @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.headlineMedium),
-          if (subtitle != null) ...[
-            const SizedBox(height: 3),
-            Text(subtitle!,
-                style: TextStyle(
-                    color: AppColors.textMuted, fontSize: 12, height: 1.3)),
-          ],
-        ],
-      );
 }
 
 // ── Comparaison cette semaine vs semaine précédente ──────────
@@ -373,54 +356,25 @@ class _SummaryCards extends ConsumerWidget {
 
     return Row(
       children: [
-        _StatCard(value: '$totalSessions', label: 'Total séances',
-            icon: Icons.fitness_center_rounded, color: AppColors.accent),
-        const SizedBox(width: 12),
-        _StatCard(value: '$weekSessions', label: 'Cette semaine',
-            icon: Icons.calendar_today_rounded, color: AppColors.secondary),
-        const SizedBox(width: 12),
-        _StatCard(
+        StatTile(
+            value: '$totalSessions',
+            label: 'Séances',
+            icon: Icons.fitness_center_rounded),
+        const SizedBox(width: AppSpace.sm),
+        StatTile(
+            value: '$weekSessions',
+            label: 'Cette semaine',
+            icon: Icons.calendar_today_rounded),
+        const SizedBox(width: AppSpace.sm),
+        StatTile(
             value: totalVolume >= 1000
                 ? '${(totalVolume / 1000).toStringAsFixed(1)}t'
                 : '${totalVolume.toStringAsFixed(0)}kg',
             label: 'Volume total',
-            icon: Icons.show_chart_rounded,
-            color: AppColors.chest),
+            icon: Icons.show_chart_rounded),
       ],
     );
   }
-}
-
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final IconData icon;
-  final Color color;
-  const _StatCard({required this.value, required this.label, required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(height: 8),
-              Text(value,
-                  style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.w800)),
-              Text(label,
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
-                  maxLines: 1),
-            ],
-          ),
-        ),
-      );
 }
 
 class _VolumeChart extends StatelessWidget {
@@ -788,7 +742,7 @@ class _EmptyHistory extends StatelessWidget {
             Text('Aucun historique', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              'Complete ta première séance\npour voir ta progression ici',
+              'Complète ta première séance\npour voir ta progression ici',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textMuted),
             ),

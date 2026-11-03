@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../widgets/section_header.dart';
+import '../../widgets/stat_tile.dart';
 import '../../../data/models/log_models.dart';
 import '../../../data/models/exercise.dart';
 import '../../../providers/log_provider.dart';
@@ -28,10 +31,6 @@ class LogHomeScreen extends ConsumerWidget {
 
     final weekCount = history.where((s) =>
         DateTime.now().difference(s.date).inDays < 7).length;
-    final totalVol = history.fold<double>(0, (v, s) => v + s.totalVolume);
-    final volStr = totalVol >= 1000
-        ? '${(totalVol / 1000).toStringAsFixed(1)}t'
-        : '${totalVol.toStringAsFixed(0)}kg';
 
     // Calcul du streak : nombre de semaines consécutives avec au moins 1 séance
     int weekStreak = 0;
@@ -77,39 +76,45 @@ class LogHomeScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpace.screen, AppSpace.sm, AppSpace.screen, AppSpace.xxl),
         children: [
-          // Stats
+          // Séance du jour en carte héros
+          if (todayConfig != null) ...[
+            _TodayHero(
+              config: todayConfig,
+              exerciseIds:
+                  getSessionExerciseIds(todayConfig.type, custom, sessions),
+            ).animate().fadeIn(delay: 50.ms),
+            const SizedBox(height: AppSpace.lg),
+          ],
+
+          // Stats : trois tuiles, objectif hebdo fusionné dans « cette semaine »
           Row(
             children: [
-              _StatBox(value: '${history.length}', label: 'SEANCES'),
-              const SizedBox(width: 10),
-              _StatBox(value: '$weekCount', label: 'CETTE SEMAINE'),
-              const SizedBox(width: 10),
-              _StatBox(value: volStr, label: 'VOLUME TOTAL'),
-              const SizedBox(width: 10),
-              _StatBox(value: '${weekStreak}sem', label: 'STREAK'),
+              StatTile(value: '${history.length}', label: 'Séances'),
+              const SizedBox(width: AppSpace.sm),
+              StatTile(
+                value: '$weekCount/$kWeeklyGoal',
+                label: 'Cette semaine',
+                progress: weekCount / kWeeklyGoal,
+              ),
+              const SizedBox(width: AppSpace.sm),
+              StatTile(value: '$weekStreak sem', label: 'Série en cours'),
             ],
-          ).animate().fadeIn(delay: 50.ms),
-          const SizedBox(height: 16),
-          _WeeklyGoal(weekCount: weekCount)
-              .animate()
-              .fadeIn(delay: 70.ms),
-          const SizedBox(height: 12),
+          ).animate().fadeIn(delay: 80.ms),
+          const SizedBox(height: AppSpace.xl),
 
-          // Today banner
-          if (todayConfig != null) ...[
-            _TodayBanner(config: todayConfig).animate().fadeIn(delay: 80.ms),
-            const SizedBox(height: 16),
-          ],
+          const SectionHeader(title: 'Mes séances'),
+          const SizedBox(height: AppSpace.md),
 
           // Session grid 2x2 + tuile "Ajouter"
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
+            crossAxisSpacing: AppSpace.md,
+            mainAxisSpacing: AppSpace.md,
             childAspectRatio: 1.0,
             children: [
               ...List.generate(sessions.length, (i) {
@@ -141,80 +146,124 @@ class LogHomeScreen extends ConsumerWidget {
   }
 }
 
-// ── Stat box ──────────────────────────────────────────────────
-class _StatBox extends StatelessWidget {
-  final String value, label;
-  const _StatBox({required this.value, required this.label});
+// ── Séance du jour (carte héros) ──────────────────────────────
+class _TodayHero extends ConsumerWidget {
+  final SessionConfig config;
+  final List<String> exerciseIds;
+  const _TodayHero({required this.config, required this.exerciseIds});
+
+  String _muscles() {
+    final seen = <String>[];
+    for (final id in exerciseIds) {
+      final ex = allExercises.where((e) => e.id == id);
+      if (ex.isEmpty) continue;
+      final label = ex.first.primaryMuscle.label;
+      if (!seen.contains(label)) seen.add(label);
+    }
+    return seen.isEmpty ? config.subtitle : seen.join(' · ');
+  }
 
   @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasDraft =
+        ref.watch(draftSessionsProvider).valueOrNull?.contains(config.type) ??
+            false;
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.lg),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Text(value, style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.accent)),
-              const SizedBox(height: 2),
-              Text(label, style: TextStyle(
-                  fontSize: 11, color: AppColors.textMuted,
-                  fontWeight: FontWeight.w600, letterSpacing: .4)),
+              _SessionDot(color: config.color),
+              const SizedBox(width: AppSpace.sm),
+              Expanded(
+                child: Text("AUJOURD'HUI",
+                    style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: .6,
+                        color: AppColors.textMuted)),
+              ),
+              if (hasDraft) const _InProgressBadge(),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpace.sm),
+          Text(config.name,
+              style: TextStyle(
+                  fontSize: 24,
+                  height: 1.15,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary)),
+          const SizedBox(height: AppSpace.xs),
+          Text(_muscles(),
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          const SizedBox(height: AppSpace.lg),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          ActiveLogScreen(sessionType: config.type))),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.onAccent,
+                padding: const EdgeInsets.symmetric(vertical: AppSpace.lg),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md)),
+              ),
+              icon: const Icon(Icons.play_arrow_rounded, size: 22),
+              label: const Text('Démarrer',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Point de couleur de la séance (seule trace de sa couleur sur les cartes).
+class _SessionDot extends StatelessWidget {
+  final Color color;
+  const _SessionDot({required this.color});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       );
 }
 
-// ── Today banner ──────────────────────────────────────────────
-class _TodayBanner extends ConsumerWidget {
-  final SessionConfig config;
-  const _TodayBanner({required this.config});
+class _InProgressBadge extends StatelessWidget {
+  const _InProgressBadge();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.sm, vertical: 3),
         decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border),
+          color: AppColors.accentGlow,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("AUJOURD'HUI", style: TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.w700,
-                      color: config.color, letterSpacing: 1)),
-                  const SizedBox(height: 3),
-                  Text('S${config.type} · ${config.name}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-                  Text(config.subtitle,
-                      style: TextStyle(
-                          fontSize: 11, color: AppColors.textSecondary)),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            TextButton(
-              onPressed: () => Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(builder: (_) =>
-                      ActiveLogScreen(sessionType: config.type))),
-              style: TextButton.styleFrom(
-                backgroundColor: config.color.withValues(alpha: .15),
-                foregroundColor: config.color,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Demarrer',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-            ),
+            Icon(Icons.play_circle_fill_rounded,
+                size: 11, color: AppColors.accent),
+            const SizedBox(width: AppSpace.xs),
+            Text('En cours',
+                style: TextStyle(
+                    color: AppColors.accent,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800)),
           ],
         ),
       );
@@ -241,10 +290,10 @@ class _SessionCard extends ConsumerWidget {
           MaterialPageRoute(builder: (_) =>
               ActiveLogScreen(sessionType: config.type))),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpace.lg),
         decoration: BoxDecoration(
           color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: AppColors.border),
         ),
         child: Column(
@@ -252,11 +301,13 @@ class _SessionCard extends ConsumerWidget {
           children: [
             Row(
               children: [
+                _SessionDot(color: config.color),
+                const SizedBox(width: AppSpace.sm),
                 Expanded(
                   child: Text('S${config.type} · $exCount exo',
                       style: TextStyle(
-                          fontSize: 10, fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2, color: config.color)),
+                          fontSize: 11, fontWeight: FontWeight.w700,
+                          letterSpacing: .6, color: AppColors.textMuted)),
                 ),
                 if (lastSession != null)
                   GestureDetector(
@@ -267,15 +318,14 @@ class _SessionCard extends ConsumerWidget {
                                 previousSession: lastSession))),
                     child: Container(
                       padding: const EdgeInsets.all(5),
-                      margin: const EdgeInsets.only(right: 6),
+                      margin: const EdgeInsets.only(right: AppSpace.xs),
                       decoration: BoxDecoration(
-                        color: config.color.withValues(alpha: .12),
-                        borderRadius: BorderRadius.circular(8),
-                        border:
-                            Border.all(color: config.color.withValues(alpha: .25)),
+                        color: AppColors.bgCardElevated,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        border: Border.all(color: AppColors.border),
                       ),
-                      child:
-                          Icon(Icons.replay_rounded, size: 13, color: config.color),
+                      child: Icon(Icons.replay_rounded,
+                          size: 13, color: AppColors.textSecondary),
                     ),
                   ),
                 GestureDetector(
@@ -284,7 +334,7 @@ class _SessionCard extends ConsumerWidget {
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: AppColors.bgCardElevated,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.all(color: AppColors.border),
                     ),
                     child: Icon(Icons.edit_outlined, size: 13, color: AppColors.textMuted),
@@ -294,39 +344,23 @@ class _SessionCard extends ConsumerWidget {
             ),
             const Spacer(),
             Text(config.name,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 3),
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary)),
+            const SizedBox(height: AppSpace.xs),
             Text(config.subtitle,
                 style: TextStyle(
-                    fontSize: 10, color: AppColors.textSecondary),
-                maxLines: 2),
-            const SizedBox(height: 8),
+                    fontSize: 11, color: AppColors.textSecondary),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis),
+            const SizedBox(height: AppSpace.sm),
             if (hasDraft)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: config.color.withValues(alpha: .18),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.play_circle_fill_rounded,
-                        size: 11, color: config.color),
-                    const SizedBox(width: 4),
-                    Text('En cours',
-                        style: TextStyle(
-                            color: config.color,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800)),
-                  ],
-                ),
-              )
+              const _InProgressBadge()
             else
-              Text('Derniere : $lastStr',
+              Text('Dernière : $lastStr',
                   style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 11,
                       color: AppColors.textMuted,
                       fontWeight: FontWeight.w600)),
           ],
@@ -372,12 +406,11 @@ class _AddSessionCard extends StatelessWidget {
           ),
         ),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpace.lg),
           decoration: BoxDecoration(
             color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: AppColors.border, style: BorderStyle.solid),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(color: AppColors.border),
           ),
           child: Center(
             child: Column(
@@ -385,7 +418,7 @@ class _AddSessionCard extends StatelessWidget {
               children: [
                 Icon(Icons.add_circle_outline_rounded,
                     size: 28, color: AppColors.textMuted),
-                SizedBox(height: 8),
+                const SizedBox(height: AppSpace.sm),
                 Text('Nouvelle séance',
                     style: TextStyle(
                         fontSize: 12,
@@ -914,7 +947,7 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: Center(child: Text('Remettre les exercices par defaut',
+                    child: Center(child: Text('Remettre les exercices par défaut',
                         style: TextStyle(color: AppColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w600))),
                   ),
                 ),
@@ -954,62 +987,5 @@ class _SessionEditorSheetState extends ConsumerState<_SessionEditorSheet> {
   }
 }
 
-// ── Weekly goal ───────────────────────────────────────────────
-class _WeeklyGoal extends StatelessWidget {
-  final int weekCount;
-  static const int _goal = 3;
-  const _WeeklyGoal({required this.weekCount});
-
-  @override
-  Widget build(BuildContext context) {
-    final done = weekCount >= _goal;
-    final progress = (weekCount / _goal).clamp(0.0, 1.0);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.bgCard,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-            color: done
-                ? AppColors.accent.withValues(alpha: .4)
-                : AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(done ? Icons.check_circle_rounded : Icons.flag_rounded,
-                  size: 16,
-                  color: done ? AppColors.accent : AppColors.textMuted),
-              const SizedBox(width: 8),
-              Text(
-                '$weekCount/$_goal séances cette semaine',
-                style: const TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.w700),
-              ),
-              const Spacer(),
-              if (done)
-                Text('OBJECTIF !',
-                    style: TextStyle(
-                        fontSize: 10,
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w800)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: AppColors.bgCardElevated,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(AppColors.accent),
-              minHeight: 5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+/// Objectif hebdomadaire affiché dans la tuile « cette semaine ».
+const int kWeeklyGoal = 3;

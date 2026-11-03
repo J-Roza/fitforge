@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_tokens.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../providers/user_provider.dart';
 import '../../../providers/log_provider.dart';
@@ -13,6 +14,7 @@ import '../../../services/cloud_sync_service.dart';
 import '../../../services/health_service.dart';
 import '../../../services/log_service.dart';
 import '../../widgets/rest_duration_picker.dart';
+import '../../widgets/stat_tile.dart';
 
 /// État de connexion Firebase (null = déconnecté).
 final authStateProvider =
@@ -278,43 +280,23 @@ class _TrainingStats extends ConsumerWidget {
 
     return Row(
       children: [
-        _TrainingStat(value: '$totalSessions', label: 'Séances', icon: Icons.fitness_center_rounded, color: AppColors.accent),
-        const SizedBox(width: 12),
-        _TrainingStat(value: '$weekSessions', label: 'Cette semaine', icon: Icons.calendar_today_rounded, color: AppColors.secondary),
-        const SizedBox(width: 12),
-        _TrainingStat(value: volStr, label: 'Volume total', icon: Icons.show_chart_rounded, color: AppColors.chest),
+        StatTile(
+            value: '$totalSessions',
+            label: 'Séances',
+            icon: Icons.fitness_center_rounded),
+        const SizedBox(width: AppSpace.sm),
+        StatTile(
+            value: '$weekSessions',
+            label: 'Cette semaine',
+            icon: Icons.calendar_today_rounded),
+        const SizedBox(width: AppSpace.sm),
+        StatTile(
+            value: volStr,
+            label: 'Volume total',
+            icon: Icons.show_chart_rounded),
       ],
     );
   }
-}
-
-class _TrainingStat extends StatelessWidget {
-  final String value;
-  final String label;
-  final IconData icon;
-  final Color color;
-  const _TrainingStat({required this.value, required this.label, required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.bgCard,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 18),
-              const SizedBox(height: 8),
-              Text(value, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.w800)),
-              Text(label, style: TextStyle(color: AppColors.textMuted, fontSize: 11)),
-            ],
-          ),
-        ),
-      );
 }
 
 class _SettingsSection extends StatelessWidget {
