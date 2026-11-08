@@ -1543,13 +1543,13 @@ class _ExercisePage extends ConsumerWidget {
     this.onRemoveExercise,
   });
 
-  /// Boutons rapides ±2,5 kg. Sous 1 kg on repasse en poids du corps (PDC) ;
-  /// depuis PDC, « + » démarre à 2,5 kg (lest).
+  /// Boutons rapides ±1 kg. Sous 1 kg on repasse en poids du corps (PDC) ;
+  /// depuis PDC, « + » démarre à 1 kg (lest).
   void _stepWeight(double delta) {
     final cur = selectedWeight;
     double? next;
     if (cur == null) {
-      next = delta > 0 ? 2.5 : null;
+      next = delta > 0 ? 1.0 : null;
     } else {
       final n = cur + delta;
       next = n < 1 ? null : n.clamp(1.0, 200.0);
@@ -1762,8 +1762,8 @@ class _ExercisePage extends ConsumerWidget {
                       child: _PickerColumn(
                         label: 'POIDS (KG)',
                         color: color,
-                        onMinus: () => _stepWeight(-2.5),
-                        onPlus: () => _stepWeight(2.5),
+                        onMinus: () => _stepWeight(-1),
+                        onPlus: () => _stepWeight(1),
                         child: _WheelPicker<double?>(
                           items: _weights,
                           selected: selectedWeight,
