@@ -183,6 +183,8 @@ class Exercise {
       case 'leg_curl': return '${base}leg_curl.svg';
       case 'hip_thrust': return '${base}hip_thrust.svg';
       case 'calf_raise': return '${base}calf_raise.svg';
+      case 'seated_calf_raise': return '${base}calf_raise.svg';
+      case 'single_leg_calf_raise': return '${base}calf_raise.svg';
       case 'plank': return '${base}plank.svg';
       case 'crunch': return '${base}crunch.svg';
       case 'russian_twist': return '${base}russian_twist.svg';

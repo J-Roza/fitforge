@@ -614,6 +614,39 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     // Le bouton Terminer est juste sous la zone de saisie : on prévient si des
     // exercices n'ont aucune série, et on laisse toujours une porte de sortie.
     final skipped = _exIds.where((id) => (_sets[id] ?? []).isEmpty).length;
+
+    // 1re confirmation : récapitulatif chiffré, « Terminer » bien séparé.
+    final doneCount = _exIds.length - skipped;
+    final totalSets = _sets.values.fold<int>(0, (v, s) => v + s.length);
+    final mins = DateTime.now().difference(_startTime).inMinutes;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Terminer la séance ?',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        content: Text(
+          '$doneCount exercice${doneCount > 1 ? 's' : ''} · '
+          '$totalSets série${totalSets > 1 ? 's' : ''} · $mins min'
+          '${skipped > 0 ? '\n\n$skipped exercice${skipped > 1 ? 's' : ''} sans série ne '
+              '${skipped > 1 ? 'seront' : 'sera'} pas enregistré${skipped > 1 ? 's' : ''}.' : ''}',
+          style: TextStyle(color: AppColors.textSecondary, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx, false),
+            child: const Text('Continuer la séance'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogCtx, true),
+            child: const Text('Terminer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    // 2e étape : ressenti (fermable, ne valide rien tant qu'on n'a pas choisi).
     final feeling = await showDialog<String>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
@@ -757,8 +790,9 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
     Exercise exOf(String id) => exercises.firstWhere((e) => e.id == id,
         orElse: () => exercises.first);
 
-    // Espace réservé en bas de chaque page : bouton Terminer (+ barre de repos).
-    final bottomPad = 100 + bottomInset + (_restRemaining > 0 ? 96 : 0);
+    // La barre timer + Terminer est SOUS la page (pas en surimpression) :
+    // elle ne peut plus masquer les boutons de saisie.
+    const bottomPad = 24.0;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -793,9 +827,10 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
             ),
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Column(
+          Expanded(
+              child: Column(
             children: [
               // Bandeau de navigation : un pavé par exercice, le courant en
               // surbrillance. Un tap fait défiler jusqu'à la page voulue.
@@ -853,14 +888,10 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                       ),
               ),
             ],
-          ),
+          )),
 
-          // Rest timer + finish bar
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Column(
+          // Rest timer + finish bar, sous la page.
+          Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (_restRemaining > 0)
@@ -888,16 +919,10 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                   ),
                 Container(
                   padding: EdgeInsets.fromLTRB(
-                      16, 10, 16, 16 + bottomInset),
+                      16, 10, 16, 12 + bottomInset),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.bg.withValues(alpha: 0),
-                        AppColors.bg
-                      ],
-                    ),
+                    color: AppColors.bg,
+                    border: Border(top: BorderSide(color: AppColors.border)),
                   ),
                   child: SizedBox(
                     width: double.infinity,
@@ -923,7 +948,6 @@ class _ActiveLogScreenState extends ConsumerState<ActiveLogScreen> {
                 ),
               ],
             ),
-          ),
         ],
       ),
     );
