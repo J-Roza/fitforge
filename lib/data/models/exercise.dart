@@ -127,6 +127,8 @@ class Exercise {
     'plank', 'crunch', 'russian_twist', 'leg_raise', 'ab_wheel', 'mountain_climber',
     'side_plank',
     'kettlebell_swing',
+    'face_pull', 'bicycle_crunch', 'glute_bridge', 'diamond_push_up', 'inverted_row',
+    'jump_squat', 'reverse_lunge', 'superman', 'dead_bug', 'seated_calf_raise',
   };
 
   String? get photoAsset =>
